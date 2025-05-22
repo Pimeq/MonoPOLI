@@ -1,1 +1,1 @@
-# MoniPOLI
+# MonoPOLI
