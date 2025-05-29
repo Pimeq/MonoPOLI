@@ -175,3 +175,58 @@ def narysuj_karte_gracza(ekran, gracz, x, y, szerokosc, wysokosc, aktywny=False)
     if aktywny:
         pygame.draw.circle(ekran, ZLOTY, (x + szerokosc - 20, y + 20), 10)
         pygame.draw.circle(ekran, (200, 150, 0), (x + szerokosc - 20, y + 20), 8)
+
+# Funkcja do wyświetlania okna z kartą
+def wyswietl_okno_karty(ekran, karta, tytul="KARTA"):
+    """Wyświetla okno z kartą i czeka na reakcję gracza"""
+    # Wymiary okna karty
+    szerokosc_okna = 400
+    wysokosc_okna = 350
+    x_okna = (1200 - szerokosc_okna) // 2
+    y_okna = (1000 - wysokosc_okna) // 2
+    
+    # Półprzezroczyste tło
+    overlay = pygame.Surface((1200, 1000))
+    overlay.set_alpha(128)
+    overlay.fill(CZARNY)
+    ekran.blit(overlay, (0, 0))
+    
+    # Okno karty
+    narysuj_zaokraglony_prostokat(ekran, BIALY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 15)
+    pygame.draw.rect(ekran, CZARNY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 3, border_radius=15)
+    
+    # Tytuł karty
+    czcionka_tytul = pygame.font.SysFont('Arial', 24, bold=True)
+    kolor_tytulu = CZERWONY if tytul == "SZANSA" else NIEBIESKI_POLE
+    
+    tekst_tytul = czcionka_tytul.render(tytul, True, kolor_tytulu)
+    tytul_rect = tekst_tytul.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_okna + 20)
+    ekran.blit(tekst_tytul, tytul_rect)
+    
+    # Linia pod tytułem
+    pygame.draw.line(ekran, kolor_tytulu, 
+                     (x_okna + 30, y_okna + 60), 
+                     (x_okna + szerokosc_okna - 30, y_okna + 60), 2)
+    
+    # Tekst karty
+    czcionka_tekst = pygame.font.SysFont('Arial', 16)
+    linie = karta["tekst"].split('\n')
+    
+    # Wyśrodkuj tekst
+    start_y = y_okna + 80
+    for i, linia in enumerate(linie):
+        if linia.strip():  # Pomiń puste linie
+            tekst_surface = czcionka_tekst.render(linia, True, CZARNY)
+            tekst_rect = tekst_surface.get_rect(centerx=x_okna + szerokosc_okna//2, 
+                                               y=start_y + i * 25)
+            ekran.blit(tekst_surface, tekst_rect)
+    
+    # Przycisk OK
+    przycisk_y = y_okna + wysokosc_okna - 70
+    przycisk_klikniety = utworz_przycisk(ekran, "OK", x_okna + szerokosc_okna//2 - 60, 
+                                        przycisk_y, 120, 40, 
+                                        ZIELONY, BIALY, 18)
+    
+    pygame.display.flip()
+    
+    return przycisk_klikniety

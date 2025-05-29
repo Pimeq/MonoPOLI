@@ -1,6 +1,6 @@
-# logika.py - logika gry MonoPOLI
 import random
-from pola import pobierz_pole
+from pola import pobierz_pole, pola
+from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_karte
 
 # Dane graczy (przykładowe)
 gracze = [
@@ -51,8 +51,7 @@ def przesun_gracza(gracz_index, liczba_pol):
     # Zwróć nową pozycję i nazwę pola
     pole = pobierz_pole(nowa_pozycja)
     print(f"Gracz {gracze[gracz_index]['nazwa']} przesunął się na pole {pole['nazwa']}")
-    
-    # Logika pól specjalnych
+      # Logika pól specjalnych
     if pole["typ"] == "podatek":
         # Pobierz opłatę
         gracze[gracz_index]["pieniadze"] -= pole["cena"]
@@ -63,11 +62,24 @@ def przesun_gracza(gracz_index, liczba_pol):
         gracze[gracz_index]["pozycja"] = 10
         print(f"Gracz {gracze[gracz_index]['nazwa']} idzie na poprawkę (dziekanat)")
     
-    # Za każdy ruch dodaj ECTS
+    elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
+        # Wyciągnij kartę Szansa
+        karta = pobierz_karte_szansa()
+        print(f"Gracz {gracze[gracz_index]['nazwa']} wyciągnął kartę Szansa: {karta['tekst']}")
+        wykonaj_karte(karta, gracz_index, gracze)
+        return karta  # Zwróć kartę do wyświetlenia
+    
+    elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
+        # Wyciągnij kartę Kasa Studencka
+        karta = pobierz_karte_kasa_studencka()
+        print(f"Gracz {gracze[gracz_index]['nazwa']} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
+        wykonaj_karte(karta, gracz_index, gracze)
+        return karta  # Zwróć kartę do wyświetlenia
+      # Za każdy ruch dodaj ECTS
     gracze[gracz_index]["ects"] += 1
     
-    # Zwróć nową pozycję
-    return gracze[gracz_index]["pozycja"]
+    # Zwróć nową pozycję (i kartę jeśli została wyciągnięta)
+    return None  # Domyślnie brak karty
 
 # Funkcja do zmiany tury
 def nastepny_gracz():
