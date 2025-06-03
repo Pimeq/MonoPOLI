@@ -16,12 +16,12 @@ karty_szansa = [
         "pozycja": 10
     },
     {
-        "tekst": "Idź na POPRAWKĘ\nIdź prosto na POPRAWKĘ\nNie przechodź przez START\nNie zbieraj 200 PLN",
+        "tekst": "Plagiat!!!\nZostałeś złapany na plagiacie\nIdziesz do dziekanatu\nNie przechodź przez START",
         "typ": "ruch",
         "pozycja": 30
     },
     {
-        "tekst": "Płacisz za kserokopie\n50 PLN",
+        "tekst": "Nie wiesz jak działają ECTS\n Placisz:200 PLN",
         "typ": "platnosc",
         "kwota": -50
     },
@@ -31,7 +31,7 @@ karty_szansa = [
         "kwota": 150
     },
     {
-        "tekst": "Płacisz za wszystkie swoje\nbudynki:\n- 25 PLN za każdy dom\n- 100 PLN za każdy hotel",
+        "tekst": "Oto Bilecik\nPłacisz od każdego budynku:\n- 25 PLN za każdy dom\n- 100 PLN za każdy hotel",
         "typ": "platnosc_budynki",
         "dom": -25,
         "hotel": -100
@@ -42,7 +42,7 @@ karty_szansa = [
         "kwota": 200
     },
     {
-        "tekst": "Cofnij się o 3 pola",
+        "tekst": "ROśnijcie kwaitki zdrowe\nNatura przykuła twoją uwagę\nCofaj się o 3 pola",
         "typ": "ruch_relatywny",
         "pozycja": -3
     },
@@ -52,7 +52,7 @@ karty_szansa = [
         "cel": "akademik"
     },
     {
-        "tekst": "Zostałeś wybrany\nstarszym roku\nOtrzymaj od każdego\ngracza 50 PLN",
+        "tekst": "Zostałeś wybrany na\nstarostę roku\nOtrzymaj od każdego\ngracza 50 PLN",
         "typ": "platnosc_od_graczy",
         "kwota": 50
     },
