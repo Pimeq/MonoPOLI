@@ -1,6 +1,6 @@
-# logika.py - logika gry MonoPOLI
 import random
-from pola import pobierz_pole
+from pola import pobierz_pole, pola
+from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_karte
 
 # Dane graczy (przykładowe)
 gracze = [
@@ -51,8 +51,7 @@ def przesun_gracza(gracz_index, liczba_pol):
     # Zwróć nową pozycję i nazwę pola
     pole = pobierz_pole(nowa_pozycja)
     print(f"Gracz {gracze[gracz_index]['nazwa']} przesunął się na pole {pole['nazwa']}")
-    
-    # Logika pól specjalnych
+      # Logika pól specjalnych
     if pole["typ"] == "podatek":
         # Pobierz opłatę
         gracze[gracz_index]["pieniadze"] -= pole["cena"]
@@ -63,11 +62,24 @@ def przesun_gracza(gracz_index, liczba_pol):
         gracze[gracz_index]["pozycja"] = 9  # Dostosuj do nowego indeksu DZIEKANAT jeśli trzeba
         print(f"Gracz {gracze[gracz_index]['nazwa']} idzie na poprawkę (dziekanat)")
     
-    # Za każdy ruch dodaj ECTS
+    elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
+        # Wyciągnij kartę Szansa
+        karta = pobierz_karte_szansa()
+        print(f"Gracz {gracze[gracz_index]['nazwa']} wyciągnął kartę Szansa: {karta['tekst']}")
+        wykonaj_karte(karta, gracz_index, gracze)
+        return karta  # Zwróć kartę do wyświetlenia
+    
+    elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
+        # Wyciągnij kartę Kasa Studencka
+        karta = pobierz_karte_kasa_studencka()
+        print(f"Gracz {gracze[gracz_index]['nazwa']} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
+        wykonaj_karte(karta, gracz_index, gracze)
+        return karta  # Zwróć kartę do wyświetlenia
+      # Za każdy ruch dodaj ECTS
     gracze[gracz_index]["ects"] += 1
     
-    # Zwróć nową pozycję
-    return gracze[gracz_index]["pozycja"]
+    # Zwróć nową pozycję (i kartę jeśli została wyciągnięta)
+    return None  # Domyślnie brak karty
 
 # Funkcja do zmiany tury
 def nastepny_gracz():
@@ -146,3 +158,60 @@ def resetuj_gre():
     historia_ruchow = []
     
     print("Gra została zresetowana")
+
+
+# Funkcja do liczenia czynszu za pole
+
+def oblicz_czynsz(pole):
+    """Oblicza wysokość czynszu za pole"""
+    if pole["typ"] == "wydzial":
+        # Czynsz to 10% wartości pola
+        return int(pole["cena"] * 0.1)
+    elif pole["typ"] == "akademik":
+        # Akademiki mają stały czynsz
+        return 50
+    elif pole["typ"] == "uslugi":
+        # Usługi mają wyższy czynsz
+        return 75
+    return 0
+
+# Funkcja do sprawdzania płatności czynszu
+
+def sprawdz_platnosc(gracz_index, pozycja, gracze):
+    """Sprawdza czy gracz musi zapłacić czynsz i wykonuje płatność"""
+    pole = pobierz_pole(pozycja)
+    
+    # Sprawdź czy pole ma właściciela i czy to nie jest aktualny gracz
+    if pole.get("wlasciciel") is not None and pole["wlasciciel"] != gracz_index:
+        czynsz = oblicz_czynsz(pole)
+        
+        # Pobierz pieniądze od gracza
+        if gracze[gracz_index]["pieniadze"] >= czynsz:
+            gracze[gracz_index]["pieniadze"] -= czynsz
+            gracze[pole["wlasciciel"]]["pieniadze"] += czynsz
+            print(f"Gracz {gracze[gracz_index]['nazwa']} płaci {czynsz} PLN czynszu graczowi {gracze[pole['wlasciciel']]['nazwa']}")
+            
+            # Zwróć informacje potrzebne do wyświetlenia okna
+            return {
+                "kwota": czynsz,
+                "platnik": gracz_index,
+                "wlasciciel": pole["wlasciciel"],
+                "pole": pole
+            }
+        else:
+            # Gracz nie ma wystarczająco pieniędzy - zapłaci ile może
+            kwota = gracze[gracz_index]["pieniadze"]
+            gracze[gracz_index]["pieniadze"] = 0
+            gracze[pole["wlasciciel"]]["pieniadze"] += kwota
+            print(f"Gracz {gracze[gracz_index]['nazwa']} nie ma wystarczająco pieniędzy! Płaci tylko {kwota} PLN")
+            
+            # Zwróć informacje potrzebne do wyświetlenia okna
+            return {
+                "kwota": kwota,
+                "platnik": gracz_index,
+                "wlasciciel": pole["wlasciciel"],
+                "pole": pole,
+                "brak_pieniedzy": True
+            }
+    
+    return None  # Brak płatności
