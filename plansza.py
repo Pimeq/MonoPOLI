@@ -33,6 +33,8 @@ def ekran_gry(ekran_zewnetrzny=None):
     karta_do_wyswietlenia = None
     
     # Animacja ruchu gracza
+    platnosc_do_wyswietlenia = None
+
     animacja_aktywna = False
     animacja_krok = 0
     animacja_docelowa_pozycja = 0
