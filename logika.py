@@ -178,6 +178,7 @@ def oblicz_czynsz(pole):
 # Funkcja do sprawdzania płatności czynszu
 
 def sprawdz_platnosc(gracz_index, pozycja, gracze):
+    """Sprawdza czy gracz musi zapłacić czynsz i wykonuje płatność"""
     pole = pobierz_pole(pozycja)
     
     # Sprawdź czy pole ma właściciela i czy to nie jest aktualny gracz
@@ -189,13 +190,28 @@ def sprawdz_platnosc(gracz_index, pozycja, gracze):
             gracze[gracz_index]["pieniadze"] -= czynsz
             gracze[pole["wlasciciel"]]["pieniadze"] += czynsz
             print(f"Gracz {gracze[gracz_index]['nazwa']} płaci {czynsz} PLN czynszu graczowi {gracze[pole['wlasciciel']]['nazwa']}")
-            return czynsz
+            
+            # Zwróć informacje potrzebne do wyświetlenia okna
+            return {
+                "kwota": czynsz,
+                "platnik": gracz_index,
+                "wlasciciel": pole["wlasciciel"],
+                "pole": pole
+            }
         else:
             # Gracz nie ma wystarczająco pieniędzy - zapłaci ile może
             kwota = gracze[gracz_index]["pieniadze"]
             gracze[gracz_index]["pieniadze"] = 0
             gracze[pole["wlasciciel"]]["pieniadze"] += kwota
             print(f"Gracz {gracze[gracz_index]['nazwa']} nie ma wystarczająco pieniędzy! Płaci tylko {kwota} PLN")
-            return kwota
+            
+            # Zwróć informacje potrzebne do wyświetlenia okna
+            return {
+                "kwota": kwota,
+                "platnik": gracz_index,
+                "wlasciciel": pole["wlasciciel"],
+                "pole": pole,
+                "brak_pieniedzy": True
+            }
     
-    return 0
+    return None  # Brak płatności
