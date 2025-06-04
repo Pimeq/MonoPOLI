@@ -311,7 +311,7 @@ def wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole, kwota)
     ekran.blit(tekst_stan, stan_rect)
     
     # Przycisk OK
-    przycisk_y = y_okna + wysokosc_okna - 70
+    przycisk_y = y_okna + wysokosc_okna - 60
     przycisk_klikniety = utworz_przycisk(ekran, "OK", x_okna + szerokosc_okna//2 - 60, 
                                         przycisk_y, 120, 40, 
                                         ZIELONY, BIALY, 18)
