@@ -199,34 +199,34 @@ def oblicz_pozycje_gracza(plansza_x, plansza_y, plansza_rozmiar, pozycja, i, gra
         przesun_x = ((i % 3) - 1) * 15
         przesun_y = ((i // 3) - 1) * 15
 
-    # Narożniki - tylko 0, 10, 20, 30
+    # Narożniki: 0, 9, 18, 27
     if pozycja == 0:  # START (lewy dolny róg)
         x = plansza_x + rozmiar_pola_naroza // 2 + przesun_x
         y = plansza_y + plansza_rozmiar - rozmiar_pola_naroza // 2 + przesun_y
-    elif pozycja == 10:  # DZIEKANAT (lewy górny róg)
+    elif pozycja == 9:  # DZIEKANAT (lewy górny róg)
         x = plansza_x + rozmiar_pola_naroza // 2 + przesun_x
         y = plansza_y + rozmiar_pola_naroza // 2 + przesun_y
-    elif pozycja == 20:  # PARKING (prawy górny róg)
+    elif pozycja == 18:  # PARKING (prawy górny róg)
         x = plansza_x + plansza_rozmiar - rozmiar_pola_naroza // 2 + przesun_x
         y = plansza_y + rozmiar_pola_naroza // 2 + przesun_y
-    elif pozycja == 30:  # IDŹ NA POPRAWKĘ (prawy dolny róg)
+    elif pozycja == 27:  # IDŹ NA POPRAWKĘ (prawy dolny róg)
         x = plansza_x + plansza_rozmiar - rozmiar_pola_naroza // 2 + przesun_x
         y = plansza_y + plansza_rozmiar - rozmiar_pola_naroza // 2 + przesun_y
-    # Lewa krawędź (pola 1-9) - od dołu do góry
-    elif 1 <= pozycja <= 9:
+    # Lewa krawędź (1-8)
+    elif 1 <= pozycja <= 8:
         x = plansza_x + rozmiar_pola_naroza // 2 + przesun_x
         y = plansza_y + plansza_rozmiar - rozmiar_pola_naroza - (pozycja - 1) * rozmiar_pola_bok_szer - rozmiar_pola_bok_szer // 2 + przesun_y
-    # Górna krawędź (pola 11-19) - od lewej do prawej
-    elif 11 <= pozycja <= 19:
-        x = plansza_x + rozmiar_pola_naroza + (pozycja - 11) * rozmiar_pola_bok_szer + rozmiar_pola_bok_szer // 2 + przesun_x
+    # Górna krawędź (10-17)
+    elif 10 <= pozycja <= 17:
+        x = plansza_x + rozmiar_pola_naroza + (pozycja - 10) * rozmiar_pola_bok_szer + rozmiar_pola_bok_szer // 2 + przesun_x
         y = plansza_y + rozmiar_pola_naroza // 2 + przesun_y
-    # Prawa krawędź (pola 21-29) - od góry do dołu
-    elif 21 <= pozycja <= 29:
+    # Prawa krawędź (19-26)
+    elif 19 <= pozycja <= 26:
         x = plansza_x + plansza_rozmiar - rozmiar_pola_naroza // 2 + przesun_x
-        y = plansza_y + rozmiar_pola_naroza + (pozycja - 21) * rozmiar_pola_bok_szer + rozmiar_pola_bok_szer // 2 + przesun_y
-    # Dolna krawędź (pola 31-39) - od prawej do lewej
-    elif 31 <= pozycja <= 39:
-        x = plansza_x + plansza_rozmiar - rozmiar_pola_naroza - (pozycja - 31) * rozmiar_pola_bok_szer - rozmiar_pola_bok_szer // 2 + przesun_x
+        y = plansza_y + rozmiar_pola_naroza + (pozycja - 19) * rozmiar_pola_bok_szer + rozmiar_pola_bok_szer // 2 + przesun_y
+    # Dolna krawędź (28-35)
+    elif 28 <= pozycja <= 35:
+        x = plansza_x + plansza_rozmiar - rozmiar_pola_naroza - (pozycja - 28) * rozmiar_pola_bok_szer - rozmiar_pola_bok_szer // 2 + przesun_x
         y = plansza_y + plansza_rozmiar - rozmiar_pola_naroza // 2 + przesun_y
     else:
         x, y = plansza_x + plansza_rozmiar // 2, plansza_y + plansza_rozmiar // 2
@@ -374,9 +374,9 @@ def narysuj_plansze(ekran, gracze):
     # Rysowanie pól na planszy
     # Narożniki
     narysuj_pole(ekran, plansza_x, plansza_y + plansza_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 0)  # START (lewy dolny róg)
-    narysuj_pole(ekran, plansza_x, plansza_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 10)  # DZIEKANAT (lewy górny róg)
-    narysuj_pole(ekran, plansza_x + plansza_rozmiar - rozmiar_pola_naroza, plansza_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 20)  # PARKING (prawy górny róg)
-    narysuj_pole(ekran, plansza_x + plansza_rozmiar - rozmiar_pola_naroza, plansza_y + plansza_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 30)  # IDŹ NA POPRAWKĘ (prawy dolny róg)
+    narysuj_pole(ekran, plansza_x, plansza_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 9)  # DZIEKANAT (lewy górny róg)
+    narysuj_pole(ekran, plansza_x + plansza_rozmiar - rozmiar_pola_naroza, plansza_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 18)  # PARKING (prawy górny róg)
+    narysuj_pole(ekran, plansza_x + plansza_rozmiar - rozmiar_pola_naroza, plansza_y + plansza_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 27)  # IDŹ NA POPRAWKĘ (prawy dolny róg)
 
     # Lewa krawędź (pola 1-8) - od dołu do góry
     for i in range(1, 9):
@@ -389,33 +389,33 @@ def narysuj_plansze(ekran, gracze):
             i
         )
 
-    # Górna krawędź (pola 11-18) - od lewej do prawej
-    for i in range(11, 19):
+    # Górna krawędź (pola 10-17) - od lewej do prawej
+    for i in range(10, 18):
         narysuj_pole(
             ekran,
-            plansza_x + rozmiar_pola_naroza + (i - 11) * rozmiar_pola_bok_szer,
+            plansza_x + rozmiar_pola_naroza + (i - 10) * rozmiar_pola_bok_szer,
             plansza_y,
             rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,
             i
         )
 
-    # Prawa krawędź (pola 21-28) - od góry do dołu
-    for i in range(21, 29):
+    # Prawa krawędź (pola 19-26) - od góry do dołu
+    for i in range(19, 27):
         narysuj_pole(
             ekran,
             plansza_x + plansza_rozmiar - rozmiar_pola_naroza,
-            plansza_y + rozmiar_pola_naroza + (i - 21) * rozmiar_pola_bok_szer,
+            plansza_y + rozmiar_pola_naroza + (i - 19) * rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,
             rozmiar_pola_bok_szer,
             i
         )
 
-    # Dolna krawędź (pola 31-38) - od prawej do lewej
-    for i in range(31, 39):
+    # Dolna krawędź (pola 28-35) - od prawej do lewej
+    for i in range(28, 36):
         narysuj_pole(
             ekran,
-            plansza_x + plansza_rozmiar - rozmiar_pola_naroza - (i - 30) * rozmiar_pola_bok_szer,
+            plansza_x + plansza_rozmiar - rozmiar_pola_naroza - (i - 27) * rozmiar_pola_bok_szer,
             plansza_y + plansza_rozmiar - rozmiar_pola_naroza,
             rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,

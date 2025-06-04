@@ -27,23 +27,17 @@ def rzut_kostka():
 
 # Funkcja do przesunięcia gracza
 def przesun_gracza(gracz_index, liczba_pol):
-    """Przesuwa gracza o określoną liczbę pól"""
+    """Przesuwa gracza o określoną liczbę pól (dla planszy 36-polowej)"""
     global gracze, historia_ruchow
     
     stara_pozycja = gracze[gracz_index]["pozycja"]
-
-    nowa_pozycja = (stara_pozycja + liczba_pol) % 40
-    
-    pole = pobierz_pole(nowa_pozycja)
-
-    if pole["typ"] == "narozne":
-        nowa_pozycja = (stara_pozycja + liczba_pol + 1) % 40
+    nowa_pozycja = (stara_pozycja + liczba_pol) % 36
 
     # Jeśli przekroczył START, dodaj 200 PLN
     if nowa_pozycja < stara_pozycja:
         gracze[gracz_index]["pieniadze"] += 200
         print(f"Gracz {gracze[gracz_index]['nazwa']} przeszedł przez START i otrzymuje 200 PLN")
-    
+
     gracze[gracz_index]["pozycja"] = nowa_pozycja
     
     # Zapisz ruch w historii
@@ -66,7 +60,7 @@ def przesun_gracza(gracz_index, liczba_pol):
     
     elif pole["typ"] == "specjalne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
         # Idź do więzienia
-        gracze[gracz_index]["pozycja"] = 10
+        gracze[gracz_index]["pozycja"] = 9  # Dostosuj do nowego indeksu DZIEKANAT jeśli trzeba
         print(f"Gracz {gracze[gracz_index]['nazwa']} idzie na poprawkę (dziekanat)")
     
     # Za każdy ruch dodaj ECTS

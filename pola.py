@@ -11,7 +11,6 @@ pola = [
     {"nazwa": "FTIMS B10", "typ": "wydzial", "cena": 100, "kolor": (42, 150, 148), "wlasciciel": None},
     {"nazwa": "SZANSA", "typ": "specjalne", "cena": 0},
     {"nazwa": "FTIMS B14", "typ": "wydzial", "cena": 100, "kolor": (42, 150, 148), "wlasciciel": None},
-    {"nazwa": "FTIMS LODEX", "typ": "wydzial", "cena": 120, "kolor": (42, 150, 148), "wlasciciel": None},
     {"nazwa": "DZIEKANAT", "typ": "narozne", "cena": 0},
     {"nazwa": "TEMP", "typ": "wydzial", "cena": 140, "kolor": (180, 50, 120), "wlasciciel": None},
     {"nazwa": "INTERNET", "typ": "uslugi", "cena": 150, "wlasciciel": None},
@@ -21,8 +20,7 @@ pola = [
     {"nazwa": "CHEMICZNY ALCHEMIUM", "typ": "wydzial", "cena": 180, "kolor": (255, 140, 0), "wlasciciel": None},
     {"nazwa": "KASA STUDENCKA", "typ": "specjalne", "cena": 0},
     {"nazwa": "CHEMICZNY IŁ7", "typ": "wydzial", "cena": 180, "kolor": (255, 140, 0), "wlasciciel": None},
-    {"nazwa": "TEMP", "typ": "wydzial", "cena": 200, "kolor": (255, 140, 0), "wlasciciel": None},
-    {"nazwa": "PARK I STREFA", "typ": "narozne", "cena": 0},
+    {"nazwa": "PARKING", "typ": "narozne", "cena": 0},
     {"nazwa": "BINOZ A3", "typ": "wydzial", "cena": 220, "kolor": (255, 0, 0), "wlasciciel": None},
     {"nazwa": "SZANSA", "typ": "specjalne", "cena": 0},
     {"nazwa": "BINOZ IŁ4", "typ": "wydzial", "cena": 220, "kolor": (255, 0, 0), "wlasciciel": None},
@@ -31,7 +29,6 @@ pola = [
     {"nazwa": "TEMP", "typ": "wydzial", "cena": 260, "kolor": (255, 255, 0), "wlasciciel": None},
     {"nazwa": "KOLOKWIUM", "typ": "wydzial", "cena": 260, "kolor": (255, 255, 0), "wlasciciel": None},
     {"nazwa": "KSERO", "typ": "uslugi", "cena": 150, "wlasciciel": None},
-    {"nazwa": "FTIMS B15", "typ": "wydzial", "cena": 280, "kolor": (255, 255, 0), "wlasciciel": None},
     {"nazwa": "IDŹ NA POPRAWKĘ", "typ": "narozne", "cena": 0},
     {"nazwa": "MECHANICZNY A22", "typ": "wydzial", "cena": 300, "kolor": (0, 255, 0), "wlasciciel": None},
     {"nazwa": "MECHANICZNY A20", "typ": "wydzial", "cena": 300, "kolor": (0, 255, 0), "wlasciciel": None},
@@ -41,7 +38,6 @@ pola = [
     {"nazwa": "SZANSA", "typ": "specjalne", "cena": 0},
     {"nazwa": "DZIAŁ REKRUTACJI", "typ": "wydzial", "cena": 350, "kolor": (0, 0, 255), "wlasciciel": None},
     {"nazwa": "OPŁATA ZA OBRONĘ", "typ": "podatek", "cena": 100},
-    {"nazwa": "ZATOKA SPORTU", "typ": "wydzial", "cena": 400, "kolor": (0, 0, 255), "wlasciciel": None}
 ]
 
 # Funkcja do pobierania pola na podstawie pozycji
