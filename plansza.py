@@ -55,7 +55,7 @@ def ekran_gry(ekran_zewnetrzny=None):
                     
                     # Zapisz pozycję początkową i docelową dla animacji
                     animacja_start_pozycja = gracze[aktualny_gracz]["pozycja"]
-                    animacja_docelowa_pozycja = (animacja_start_pozycja + suma_oczek) % 40
+                    animacja_docelowa_pozycja = (animacja_start_pozycja + suma_oczek) % 36
                     
                     # Rozpocznij animację
                     animacja_aktywna = True
@@ -68,7 +68,7 @@ def ekran_gry(ekran_zewnetrzny=None):
         if animacja_aktywna:
             if animacja_krok < ostatni_rzut[0] + ostatni_rzut[1]:
                 # Przesuń gracza o jeden krok
-                gracze[aktualny_gracz]["pozycja"] = (animacja_start_pozycja + animacja_krok + 1) % 40
+                gracze[aktualny_gracz]["pozycja"] = (animacja_start_pozycja + animacja_krok + 1) % 36
                 
                 # Sprawdź czy gracz przekroczył START (tylko podczas animacji)
                 if gracze[aktualny_gracz]["pozycja"] == 0 and animacja_krok > 0:
@@ -107,9 +107,9 @@ def ekran_gry(ekran_zewnetrzny=None):
                     gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} płaci {pole['cena']} PLN podatku")
                 
-                elif pole["typ"] == "specjalne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
+                elif pole["typ"] == "narozne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
                     # Idź do dziekanatu
-                    gracze[aktualny_gracz]["pozycja"] = 10
+                    gracze[aktualny_gracz]["pozycja"] = 9
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} idzie na poprawkę (dziekanat)")
                 
                 elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
