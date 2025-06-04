@@ -16,20 +16,21 @@ SZEROKOSC, WYSOKOSC = 1200, 1000
 def ekran_gry(ekran_zewnetrzny=None):
     """Główna funkcja obsługująca rozgrywkę"""
     global gracze, aktualny_gracz, ostatni_rzut, tura_wykonana
-    
-    # Używaj przekazanego ekranu lub utwórz własny jeśli nie został przekazany
+      # Używaj przekazanego ekranu lub utwórz własny jeśli nie został przekazany
     if ekran_zewnetrzny:
         ekran = ekran_zewnetrzny
-    elif 'ekran' not in globals():
+    else:
         ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
         pygame.display.set_caption("MonoPOLI - Politechnika Łódzka")
     
     # Główna pętla gry
     zegar = pygame.time.Clock()
     running = True
-    
-    # Zmienna do przechowywania informacji o kupowaniu pola
+      # Zmienna do przechowywania informacji o kupowaniu pola
     kupowanie_pola = False
+    
+    # Zmienna do przechowywania informacji o karcie do wyświetlenia
+    karta_do_wyswietlenia = None
     
     # Animacja ruchu gracza
     animacja_aktywna = False
@@ -92,8 +93,7 @@ def ekran_gry(ekran_zewnetrzny=None):
                     "na_pozycje": pozycja,
                     "rzut": ostatni_rzut[0] + ostatni_rzut[1]
                 })
-                
-                # Logika pól specjalnych
+                  # Logika pól specjalnych
                 if pole["typ"] == "podatek":
                     # Pobierz opłatę
                     gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
@@ -103,6 +103,22 @@ def ekran_gry(ekran_zewnetrzny=None):
                     # Idź do dziekanatu
                     gracze[aktualny_gracz]["pozycja"] = 10
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} idzie na poprawkę (dziekanat)")
+                
+                elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
+                    # Wyciągnij kartę Szansa
+                    from karty import pobierz_karte_szansa, wykonaj_karte
+                    karta = pobierz_karte_szansa()
+                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} wyciągnął kartę Szansa")
+                    karta_do_wyswietlenia = ("SZANSA", karta)
+                    wykonaj_karte(karta, aktualny_gracz, gracze)
+                
+                elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
+                    # Wyciągnij kartę Kasa Studencka
+                    from karty import pobierz_karte_kasa_studencka, wykonaj_karte
+                    karta = pobierz_karte_kasa_studencka()
+                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} wyciągnął kartę Kasa Studencka")
+                    karta_do_wyswietlenia = ("KASA STUDENCKA", karta)
+                    wykonaj_karte(karta, aktualny_gracz, gracze)
                 
                 # Za każdy ruch dodaj ECTS
                 gracze[aktualny_gracz]["ects"] += 1
@@ -175,8 +191,12 @@ def ekran_gry(ekran_zewnetrzny=None):
                 tura_wykonana = False
                 kupowanie_pola = False
                 print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
-        
-        # Przycisk powrotu
+          # Wyświetl kartę jeśli została wyciągnięta
+        if karta_do_wyswietlenia:
+            tytul, karta = karta_do_wyswietlenia
+            if wyswietl_okno_karty(ekran, karta, tytul):
+                karta_do_wyswietlenia = None
+          # Przycisk powrotu
         if not animacja_aktywna and utworz_przycisk(ekran, "Powrót do menu", 800, panel_dol_y + 80, 200, 40, CZERWONY_TLO, BIALY, 20):
             running = False
             return True
@@ -184,6 +204,8 @@ def ekran_gry(ekran_zewnetrzny=None):
         # Aktualizuj ekran
         pygame.display.flip()
         zegar.tick(60)
+    
+    return False
     
     return False
 
