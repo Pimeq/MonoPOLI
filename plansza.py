@@ -85,6 +85,12 @@ def ekran_gry(ekran_zewnetrzny=None):
                 # Sprawdzenie końcowej pozycji (pola specjalne, podatki itp.)
                 pozycja = gracze[aktualny_gracz]["pozycja"]
                 pole = pobierz_pole(pozycja)
+
+                    # Sprawdź czy gracz musi zapłacić czynsz
+                czynsz = sprawdz_platnosc(aktualny_gracz, pozycja, gracze)
+                if czynsz > 0:
+                    # Możesz dodać wizualne powiadomienie o płatności
+                    print(f"Zapłacono czynsz: {czynsz} PLN")
                 
                 # Dodaj wpis do historii
                 historia_ruchow.append({
