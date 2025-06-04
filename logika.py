@@ -31,8 +31,14 @@ def przesun_gracza(gracz_index, liczba_pol):
     global gracze, historia_ruchow
     
     stara_pozycja = gracze[gracz_index]["pozycja"]
+
     nowa_pozycja = (stara_pozycja + liczba_pol) % 40
     
+    pole = pobierz_pole(nowa_pozycja)
+
+    if pole["typ"] == "narozne":
+        nowa_pozycja = (stara_pozycja + liczba_pol + 1) % 40
+
     # Jeśli przekroczył START, dodaj 200 PLN
     if nowa_pozycja < stara_pozycja:
         gracze[gracz_index]["pieniadze"] += 200
