@@ -99,9 +99,9 @@ def ekran_gry(ekran_zewnetrzny=None):
                     gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} płaci {pole['cena']} PLN podatku")
                 
-                elif pole["typ"] == "specjalne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
+                elif pole["typ"] == "narozne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
                     # Idź do dziekanatu
-                    gracze[aktualny_gracz]["pozycja"] = 10
+                    gracze[aktualny_gracz]["pozycja"] = 9
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} idzie na poprawkę (dziekanat)")
                 
                 # Za każdy ruch dodaj ECTS
