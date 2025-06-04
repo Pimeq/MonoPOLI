@@ -33,6 +33,8 @@ def ekran_gry(ekran_zewnetrzny=None):
     karta_do_wyswietlenia = None
     
     # Animacja ruchu gracza
+    platnosc_do_wyswietlenia = None
+
     animacja_aktywna = False
     animacja_krok = 0
     animacja_docelowa_pozycja = 0
@@ -85,6 +87,12 @@ def ekran_gry(ekran_zewnetrzny=None):
                 # Sprawdzenie końcowej pozycji (pola specjalne, podatki itp.)
                 pozycja = gracze[aktualny_gracz]["pozycja"]
                 pole = pobierz_pole(pozycja)
+
+                # Sprawdź czy gracz musi zapłacić czynsz
+                info_platnosci = sprawdz_platnosc(aktualny_gracz, pozycja, gracze)
+                if info_platnosci:
+                    # Ustaw flagę do wyświetlenia okna płatności
+                    platnosc_do_wyswietlenia = info_platnosci
                 
                 # Dodaj wpis do historii
                 historia_ruchow.append({
@@ -191,6 +199,18 @@ def ekran_gry(ekran_zewnetrzny=None):
                 tura_wykonana = False
                 kupowanie_pola = False
                 print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
+          
+        # Wyświetl okno płatności jeśli była transakcja
+        if platnosc_do_wyswietlenia:
+            from interfejs import wyswietl_okno_platnosci
+            gracz_platnik = gracze[platnosc_do_wyswietlenia["platnik"]]
+            gracz_wlasciciel = gracze[platnosc_do_wyswietlenia["wlasciciel"]]
+            pole_info = platnosc_do_wyswietlenia["pole"]
+            kwota = platnosc_do_wyswietlenia["kwota"]
+            
+            if wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole_info, kwota):
+                platnosc_do_wyswietlenia = None
+          
           # Wyświetl kartę jeśli została wyciągnięta
         if karta_do_wyswietlenia:
             tytul, karta = karta_do_wyswietlenia

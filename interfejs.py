@@ -230,3 +230,92 @@ def wyswietl_okno_karty(ekran, karta, tytul="KARTA"):
     pygame.display.flip()
     
     return przycisk_klikniety
+
+
+def wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole, kwota):
+    """Wyświetla okno informujące o płatności czynszu"""
+    # Wymiary okna
+    szerokosc_okna = 450
+    wysokosc_okna = 400
+    x_okna = (1200 - szerokosc_okna) // 2
+    y_okna = (1000 - wysokosc_okna) // 2
+    
+    # Półprzezroczyste tło
+    overlay = pygame.Surface((1200, 1000))
+    overlay.set_alpha(128)
+    overlay.fill(CZARNY)
+    ekran.blit(overlay, (0, 0))
+    
+    # Okno płatności
+    narysuj_zaokraglony_prostokat(ekran, BIALY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 15)
+    pygame.draw.rect(ekran, CZARNY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 3, border_radius=15)
+    
+    # Nagłówek - PŁATNOŚĆ CZYNSZU
+    czcionka_tytul = pygame.font.SysFont('Arial', 28, bold=True)
+    tekst_tytul = czcionka_tytul.render("PŁATNOŚĆ CZYNSZU", True, CZERWONY)
+    tytul_rect = tekst_tytul.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_okna + 25)
+    ekran.blit(tekst_tytul, tytul_rect)
+    
+    # Linia pod tytułem
+    pygame.draw.line(ekran, CZERWONY, 
+                     (x_okna + 30, y_okna + 65), 
+                     (x_okna + szerokosc_okna - 30, y_okna + 65), 2)
+    
+    # Ikona domu/pola
+    ikona_y = y_okna + 85
+    pygame.draw.rect(ekran, pole.get("kolor", SZARY), 
+                     (x_okna + szerokosc_okna//2 - 40, ikona_y, 80, 60), 
+                     border_radius=5)
+    pygame.draw.rect(ekran, CZARNY, 
+                     (x_okna + szerokosc_okna//2 - 40, ikona_y, 80, 60), 
+                     2, border_radius=5)
+    
+    # Nazwa pola
+    czcionka_pole = pygame.font.SysFont('Arial', 20, bold=True)
+    tekst_pole = czcionka_pole.render(pole["nazwa"], True, CZARNY)
+    pole_rect = tekst_pole.get_rect(centerx=x_okna + szerokosc_okna//2, y=ikona_y + 70)
+    ekran.blit(tekst_pole, pole_rect)
+    
+    # Informacje o transakcji
+    czcionka_info = pygame.font.SysFont('Arial', 18)
+    y_info = ikona_y + 110
+    
+    # Kto płaci
+    tekst_platnik = czcionka_info.render(f"{gracz_platnik['nazwa']} płaci czynsz", True, CZARNY)
+    platnik_rect = tekst_platnik.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info)
+    ekran.blit(tekst_platnik, platnik_rect)
+    
+    # Właściciel
+    tekst_wlasciciel = czcionka_info.render(f"właścicielowi: {gracz_wlasciciel['nazwa']}", True, CZARNY)
+    wlasciciel_rect = tekst_wlasciciel.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info + 30)
+    ekran.blit(tekst_wlasciciel, wlasciciel_rect)
+    
+    # Kwota z dużą czcionką
+    czcionka_kwota = pygame.font.SysFont('Arial', 36, bold=True)
+    tekst_kwota = czcionka_kwota.render(f"{kwota} PLN", True, CZERWONY)
+    kwota_rect = tekst_kwota.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info + 70)
+    
+    # Tło dla kwoty
+    tlo_kwota = pygame.Rect(kwota_rect.x - 20, kwota_rect.y - 5, kwota_rect.width + 40, kwota_rect.height + 10)
+    narysuj_zaokraglony_prostokat(ekran, (255, 230, 230), tlo_kwota, 5)
+    
+    ekran.blit(tekst_kwota, kwota_rect)
+    
+    # Stan konta po transakcji
+    czcionka_stan = pygame.font.SysFont('Arial', 14)
+    tekst_stan = czcionka_stan.render(
+        f"Stan konta {gracz_platnik['nazwa']}: {gracz_platnik['pieniadze']} PLN", 
+        True, (100, 100, 100)
+    )
+    stan_rect = tekst_stan.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info + 120)
+    ekran.blit(tekst_stan, stan_rect)
+    
+    # Przycisk OK
+    przycisk_y = y_okna + wysokosc_okna - 60
+    przycisk_klikniety = utworz_przycisk(ekran, "OK", x_okna + szerokosc_okna//2 - 60, 
+                                        przycisk_y, 120, 40, 
+                                        ZIELONY, BIALY, 18)
+    
+    pygame.display.flip()
+    
+    return przycisk_klikniety

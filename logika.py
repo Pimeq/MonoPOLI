@@ -158,3 +158,60 @@ def resetuj_gre():
     historia_ruchow = []
     
     print("Gra została zresetowana")
+
+
+# Funkcja do liczenia czynszu za pole
+
+def oblicz_czynsz(pole):
+    """Oblicza wysokość czynszu za pole"""
+    if pole["typ"] == "wydzial":
+        # Czynsz to 10% wartości pola
+        return int(pole["cena"] * 0.1)
+    elif pole["typ"] == "akademik":
+        # Akademiki mają stały czynsz
+        return 50
+    elif pole["typ"] == "uslugi":
+        # Usługi mają wyższy czynsz
+        return 75
+    return 0
+
+# Funkcja do sprawdzania płatności czynszu
+
+def sprawdz_platnosc(gracz_index, pozycja, gracze):
+    """Sprawdza czy gracz musi zapłacić czynsz i wykonuje płatność"""
+    pole = pobierz_pole(pozycja)
+    
+    # Sprawdź czy pole ma właściciela i czy to nie jest aktualny gracz
+    if pole.get("wlasciciel") is not None and pole["wlasciciel"] != gracz_index:
+        czynsz = oblicz_czynsz(pole)
+        
+        # Pobierz pieniądze od gracza
+        if gracze[gracz_index]["pieniadze"] >= czynsz:
+            gracze[gracz_index]["pieniadze"] -= czynsz
+            gracze[pole["wlasciciel"]]["pieniadze"] += czynsz
+            print(f"Gracz {gracze[gracz_index]['nazwa']} płaci {czynsz} PLN czynszu graczowi {gracze[pole['wlasciciel']]['nazwa']}")
+            
+            # Zwróć informacje potrzebne do wyświetlenia okna
+            return {
+                "kwota": czynsz,
+                "platnik": gracz_index,
+                "wlasciciel": pole["wlasciciel"],
+                "pole": pole
+            }
+        else:
+            # Gracz nie ma wystarczająco pieniędzy - zapłaci ile może
+            kwota = gracze[gracz_index]["pieniadze"]
+            gracze[gracz_index]["pieniadze"] = 0
+            gracze[pole["wlasciciel"]]["pieniadze"] += kwota
+            print(f"Gracz {gracze[gracz_index]['nazwa']} nie ma wystarczająco pieniędzy! Płaci tylko {kwota} PLN")
+            
+            # Zwróć informacje potrzebne do wyświetlenia okna
+            return {
+                "kwota": kwota,
+                "platnik": gracz_index,
+                "wlasciciel": pole["wlasciciel"],
+                "pole": pole,
+                "brak_pieniedzy": True
+            }
+    
+    return None  # Brak płatności
