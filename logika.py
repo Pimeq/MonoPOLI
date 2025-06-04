@@ -158,3 +158,19 @@ def resetuj_gre():
     historia_ruchow = []
     
     print("Gra została zresetowana")
+
+
+# Funkcja do liczenia czynszu za pole
+
+def oblicz_czynsz(pole):
+    """Oblicza wysokość czynszu za pole"""
+    if pole["typ"] == "wydzial":
+        # Czynsz to 10% wartości pola
+        return int(pole["cena"] * 0.1)
+    elif pole["typ"] == "akademik":
+        # Akademiki mają stały czynsz
+        return 50
+    elif pole["typ"] == "uslugi":
+        # Usługi mają wyższy czynsz
+        return 75
+    return 0
