@@ -52,7 +52,7 @@ def ekran_gry(ekran_zewnetrzny=None):
                     
                     # Zapisz pozycję początkową i docelową dla animacji
                     animacja_start_pozycja = gracze[aktualny_gracz]["pozycja"]
-                    animacja_docelowa_pozycja = (animacja_start_pozycja + suma_oczek) % 40
+                    animacja_docelowa_pozycja = (animacja_start_pozycja + suma_oczek) % 36
                     
                     # Rozpocznij animację
                     animacja_aktywna = True
@@ -65,7 +65,7 @@ def ekran_gry(ekran_zewnetrzny=None):
         if animacja_aktywna:
             if animacja_krok < ostatni_rzut[0] + ostatni_rzut[1]:
                 # Przesuń gracza o jeden krok
-                gracze[aktualny_gracz]["pozycja"] = (animacja_start_pozycja + animacja_krok + 1) % 40
+                gracze[aktualny_gracz]["pozycja"] = (animacja_start_pozycja + animacja_krok + 1) % 36
                 
                 # Sprawdź czy gracz przekroczył START (tylko podczas animacji)
                 if gracze[aktualny_gracz]["pozycja"] == 0 and animacja_krok > 0:

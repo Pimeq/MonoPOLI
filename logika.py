@@ -58,7 +58,7 @@ def przesun_gracza(gracz_index, liczba_pol):
         gracze[gracz_index]["pieniadze"] -= pole["cena"]
         print(f"Gracz {gracze[gracz_index]['nazwa']} płaci {pole['cena']} PLN podatku")
     
-    elif pole["typ"] == "specjalne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
+    elif pole["typ"] == "narozne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
         # Idź do więzienia
         gracze[gracz_index]["pozycja"] = 9  # Dostosuj do nowego indeksu DZIEKANAT jeśli trzeba
         print(f"Gracz {gracze[gracz_index]['nazwa']} idzie na poprawkę (dziekanat)")

@@ -188,6 +188,8 @@ def oblicz_pozycje_gracza(plansza_x, plansza_y, plansza_rozmiar, pozycja, i, gra
     rozmiar_pola_naroza = 120
     rozmiar_pola_bok_szer = 70
     rozmiar_pola_bok_wys = 120
+    
+    pozycja = pozycja % 36
 
     # Rozmieszczenie pionków graczy na polu (żeby się nie nakładały)
     if gracze_count <= 4:
