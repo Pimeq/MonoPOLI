@@ -179,14 +179,20 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
 
     # Rysuj domki na nieruchomości, jeśli są
     if pole["typ"] in ["wydzial", "akademik", "uslugi"] and pole.get("domki", 0) > 0:
-        for i in range(pole["domki"]):
+        max_houses_inline = 4
+        domki = pole["domki"]
+        for i in range(min(domki, max_houses_inline)):
             house_width = szerokosc // 8
             house_height = wysokosc // 10
             house_x = x + 5 + i * (house_width + 2)
             house_y = y + wysokosc - house_height - 5
             pygame.draw.rect(ekran, (40, 140, 40), (house_x, house_y, house_width, house_height), border_radius=2)
             pygame.draw.rect(ekran, (0, 0, 0), (house_x, house_y, house_width, house_height), 1, border_radius=2)
-
+        # Jeśli domków jest więcej niż 4, pokaż liczbę
+        if domki > max_houses_inline:
+            czcionka_domki = pygame.font.SysFont('Arial', 14, bold=True)
+            tekst_domki = czcionka_domki.render(f"x{domki}", True, (40, 140, 40))
+            ekran.blit(tekst_domki, (x + szerokosc//2 - tekst_domki.get_width()//2, y + wysokosc - house_height - 22))
 # Poprawiona funkcja oblicz_pozycje_gracza
 # Funkcja do obliczania współrzędnych pozycji gracza na planszy - ulepszona
 def oblicz_pozycje_gracza(plansza_x, plansza_y, plansza_rozmiar, pozycja, i, gracze_count=4):
