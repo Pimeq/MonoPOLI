@@ -93,7 +93,7 @@ karty_kasa_studencka = [
     {
         "tekst": "Idź na POPRAWKĘ\nIdź prosto na POPRAWKĘ\nNie przechodź przez START",
         "typ": "ruch",
-        "pozycja": 30
+        "pozycja": 37
     },
     {
         "tekst": "Otrzymujesz spadek\n100 PLN",
@@ -228,7 +228,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
             # Znajdź najbliższy akademik
             pozycja_gracza = gracz["pozycja"]
             najblizsza_pozycja = znajdz_najblizszy_akademik(pozycja_gracza)
-            
+            print(f"Gracz {gracz_index} przesuwa się do najbliższego akademika na pozycji {najblizsza_pozycja}")
             stara_pozycja = gracz["pozycja"]
             gracz["pozycja"] = najblizsza_pozycja
             
