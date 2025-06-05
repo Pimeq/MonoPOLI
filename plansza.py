@@ -65,8 +65,11 @@ def ekran_gry(ekran_zewnetrzny=None):
                     pozycja = gracze[aktualny_gracz]["pozycja"]
                     pole = pobierz_pole(pozycja)
                     if pole["typ"] in ["wydzial", "akademik", "uslugi"]:
-                        pole["domki"] = pole.get("domki", 0) + 1
-                        print(f"[DEBUG] Dodano domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                        if pole.get("domki", 0) < 4:
+                            pole["domki"] = pole.get("domki", 0) + 1
+                            print(f"[DEBUG] Dodano domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                        else:
+                            print(f"[DEBUG] Na polu {pole['nazwa']} nie można mieć więcej niż 4 domki!")
                 
         # Wypełnij tło
         ekran.fill(CIEMNY_NIEBIESKI)
@@ -211,9 +214,12 @@ def ekran_gry(ekran_zewnetrzny=None):
                 cena_domku = int(pole["cena"] * 0.5)
                 if utworz_przycisk(ekran, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 130, 350, 40, ZIELONY, BIALY, 18):
                     if gracze[aktualny_gracz]["pieniadze"] >= cena_domku:
-                        gracze[aktualny_gracz]["pieniadze"] -= cena_domku
-                        pole["domki"] = pole.get("domki", 0) + 1
-                        print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                        if pole.get("domki", 0) < 4:
+                            gracze[aktualny_gracz]["pieniadze"] -= cena_domku
+                            pole["domki"] = pole.get("domki", 0) + 1
+                            print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                        else:
+                            print(f"Na polu {pole['nazwa']} nie można mieć więcej niż 4 domki!")
                     else:
                         print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy na domek na {pole['nazwa']}")
         
