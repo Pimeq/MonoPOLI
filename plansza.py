@@ -210,26 +210,30 @@ def ekran_gry(ekran_zewnetrzny=None):
                 else:
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy, aby kupić {pole['nazwa']}")
         
-        # Przycisk kupowania domku na swoim polu
-        # Upewnij się, że pole jest zdefiniowane zanim użyjesz go poniżej
-        if tura_wykonana and not animacja_aktywna:
+        # Przycisk kupowania domku na swoim polu (otwiera okno po kliknięciu)
+        if (
+            tura_wykonana and not animacja_aktywna and not kupowanie_pola
+        ):
             pozycja = gracze[aktualny_gracz]["pozycja"]
             pole = pobierz_pole(pozycja)
             if (
                 pole["typ"] in ["wydzial", "akademik", "uslugi"]
                 and pole.get("wlasciciel") == aktualny_gracz
+                and pole.get("domki", 0) < 4
             ):
                 cena_domku = int(pole["cena"] * 0.5)
-                if utworz_przycisk(ekran, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 130, 350, 40, ZIELONY, BIALY, 18):
-                    if gracze[aktualny_gracz]["pieniadze"] >= cena_domku:
-                        if pole.get("domki", 0) < 4:
-                            gracze[aktualny_gracz]["pieniadze"] -= cena_domku
-                            pole["domki"] = pole.get("domki", 0) + 1
-                            print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                # Przycisk w tym samym miejscu co kupno działki
+                if utworz_przycisk(ekran, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+                    from interfejs import wyswietl_okno_kupna_domkow
+                    ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz])
+                    if ilosc > 0:
+                        suma = ilosc * cena_domku
+                        if gracze[aktualny_gracz]["pieniadze"] >= suma:
+                            gracze[aktualny_gracz]["pieniadze"] -= suma
+                            pole["domki"] = pole.get("domki", 0) + ilosc
+                            print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił {ilosc} domków na {pole['nazwa']} (razem: {pole['domki']})")
                         else:
-                            print(f"Na polu {pole['nazwa']} nie można mieć więcej niż 4 domki!")
-                    else:
-                        print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy na domek na {pole['nazwa']}")
+                            print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy na {ilosc} domków na {pole['nazwa']}")
         
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
