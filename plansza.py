@@ -207,6 +207,10 @@ def ekran_gry(ekran_zewnetrzny=None):
                     gracze[aktualny_gracz]["budynki"] += 1
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił {pole['nazwa']} za {pole['cena']} PLN")
                     kupowanie_pola = False
+                    tura_wykonana = False
+                    aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
+                    continue
+
                 else:
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy, aby kupić {pole['nazwa']}")
         
