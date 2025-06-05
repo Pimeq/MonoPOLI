@@ -62,7 +62,7 @@ karty_szansa = [
         "kwota": 3
     },
     {
-        "tekst": "Karta 'Wyjście z Poprawki'\nMożesz zatrzymać tę kartę\nlub sprzedać",
+        "tekst": "Karta 'Wyjście z Poprawki'\nNastępny raz, gdy\nbędziesz w Poprawce,\nmożesz użyć tej karty,\naby wyjść",
         "typ": "wyjscie_z_wiezienia"
     }
 ]
@@ -141,7 +141,6 @@ random.shuffle(talia_szansa)
 random.shuffle(talia_kasa_studencka)
 
 # Karty specjalne w posiadaniu graczy
-karty_graczy = {i: [] for i in range(4)}
 
 def przetasuj_karty():
     """Przetasowuje obie talie kart"""
@@ -220,7 +219,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
         
     elif karta["typ"] == "wyjscie_z_wiezienia":
         # Dodaj kartę do posiadanych przez gracza
-        karty_graczy[gracz_index].append(karta)
+        gracz['jail_free'] = 1;
         
     elif karta["typ"] == "ruch_specjalny":
         # Logika dla specjalnych ruchów (np. do najbliższego akademika)
