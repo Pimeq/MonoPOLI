@@ -45,7 +45,6 @@ def ekran_gry(ekran_zewnetrzny=None):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
             # Obsługa klawiszy
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not tura_wykonana and not animacja_aktywna:
@@ -60,6 +59,14 @@ def ekran_gry(ekran_zewnetrzny=None):
                     # Rozpocznij animację
                     animacja_aktywna = True
                     animacja_krok = 0
+                
+                # DEBUG: Dodaj domek na aktualnym polu po wciśnięciu D
+                if event.key == pygame.K_d:
+                    pozycja = gracze[aktualny_gracz]["pozycja"]
+                    pole = pobierz_pole(pozycja)
+                    if pole["typ"] in ["wydzial", "akademik", "uslugi"]:
+                        pole["domki"] = pole.get("domki", 0) + 1
+                        print(f"[DEBUG] Dodano domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
                 
         # Wypełnij tło
         ekran.fill(CIEMNY_NIEBIESKI)
