@@ -13,12 +13,12 @@ karty_szansa = [
     {
         "tekst": "Idź do DZIEKANATU\nJeśli przejdziesz przez START,\nzbierz 200 PLN",
         "typ": "ruch",
-        "pozycja": 10
+        "pozycja": 9
     },
     {
         "tekst": "Plagiat!!!\nZostałeś złapany na plagiacie\nIdziesz do dziekanatu\nNie przechodź przez START",
         "typ": "ruch",
-        "pozycja": 30
+        "pozycja": 9
     },
     {
         "tekst": "Nie wiesz jak działają ECTS\n Placisz:200 PLN",
@@ -93,7 +93,7 @@ karty_kasa_studencka = [
     {
         "tekst": "Idź na POPRAWKĘ\nIdź prosto na POPRAWKĘ\nNie przechodź przez START",
         "typ": "ruch",
-        "pozycja": 37
+        "pozycja": 27
     },
     {
         "tekst": "Otrzymujesz spadek\n100 PLN",
