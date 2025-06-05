@@ -1,6 +1,6 @@
 import pygame
 import sys
-import math  # Dodany import math dla funkcji trygonometrycznych
+import math 
 from kolory import *
 from pola import pobierz_pole
 from interfejs import narysuj_zaokraglony_prostokat, narysuj_logo_pl
@@ -33,6 +33,8 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
         )
     
     # Dodaj ikony dla akademików - ładniejszy domek
+        #moim zdaniem niepotrzebne, wyglada cringe
+    '''
     if pole["typ"] == "akademik":
         # Tło ikony
         ikona_padding = 4  # Zmniejszony padding ikony
@@ -67,6 +69,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
             (x + szerokosc//2 - 4, y + wysokosc//5 + 2, 6, 8),
             border_radius=1
         )
+        '''
     
     # Dodaj ikony dla usług - ładniejsza ikona usług
     if pole["typ"] == "uslugi":
