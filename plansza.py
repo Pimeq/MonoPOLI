@@ -192,6 +192,21 @@ def ekran_gry(ekran_zewnetrzny=None):
                 else:
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy, aby kupić {pole['nazwa']}")
         
+        # Przycisk kupowania domku na swoim polu
+        if (
+            pole["typ"] in ["wydzial", "akademik", "uslugi"]
+            and pole.get("wlasciciel") == aktualny_gracz
+            and tura_wykonana and not animacja_aktywna
+        ):
+            cena_domku = int(pole["cena"] * 0.5)
+            if utworz_przycisk(ekran, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 130, 350, 40, ZIELONY, BIALY, 18):
+                if gracze[aktualny_gracz]["pieniadze"] >= cena_domku:
+                    gracze[aktualny_gracz]["pieniadze"] -= cena_domku
+                    pole["domki"] = pole.get("domki", 0) + 1
+                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                else:
+                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy na domek na {pole['nazwa']}")
+        
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
             if utworz_przycisk(ekran, "Następny gracz", 800, panel_dol_y + 35, 200, 40, ZIELONY, BIALY, 20):
