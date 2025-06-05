@@ -336,9 +336,9 @@ def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
     wybrana_ilosc = 1
     running = True
     while running:
-        # Półprzezroczyste tło
+        # Półprzezroczyste tło - mocniej przezroczyste
         overlay = pygame.Surface((1200, 1000))
-        overlay.set_alpha(128)
+        overlay.set_alpha(70)  # Było 128, teraz mocniej przezroczyste
         overlay.fill(CZARNY)
         ekran.blit(overlay, (0, 0))
         # Okno
@@ -377,9 +377,9 @@ def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
         # Strzałki i liczba
         btn_w = 48
         btn_h = 48
-        btn_y = y_info + 155
-        btn_x_minus = x_okna + szerokosc_okna//2 - 90
-        btn_x_plus = x_okna + szerokosc_okna//2 + 42
+        btn_y = y_info + 155 + y_okna  # RELATYWNA POZYCJA Y względem okna
+        btn_x_minus = x_okna + szerokosc_okna//2 - 90  # RELATYWNA POZYCJA X względem okna
+        btn_x_plus = x_okna + szerokosc_okna//2 + 42   # RELATYWNA POZYCJA X względem okna
         # -
         if utworz_przycisk(ekran, "-", btn_x_minus, btn_y, btn_w, btn_h, NIEBIESKI_POLE, BIALY, 32):
             if wybrana_ilosc > 1:
@@ -397,14 +397,14 @@ def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
         suma = wybrana_ilosc * cena_domku
         czcionka_kwota = pygame.font.SysFont('Arial', 36, bold=True)
         tekst_kwota = czcionka_kwota.render(f"{suma} PLN", True, CZERWONY)
-        kwota_rect = tekst_kwota.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info + 230)
+        kwota_rect = tekst_kwota.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info + 230 + y_okna)
         tlo_kwota = pygame.Rect(kwota_rect.x - 20, kwota_rect.y - 5, kwota_rect.width + 40, kwota_rect.height + 10)
         narysuj_zaokraglony_prostokat(ekran, (255, 230, 230), tlo_kwota, 5)
         ekran.blit(tekst_kwota, kwota_rect)
-        # Przycisk kup i anuluj - wyśrodkowane
+        # Przycisk kup i anuluj - wyśrodkowane względem okna, przesunięte niżej
         btn_kup_x = x_okna + szerokosc_okna//2 - 110
         btn_anuluj_x = x_okna + szerokosc_okna//2 + 20
-        btn_y2 = y_okna + wysokosc_okna - 62
+        btn_y2 = y_okna + wysokosc_okna - 48  # było -62, przesunięcie o 14px w dół
         kup = utworz_przycisk(ekran, "Kup", btn_kup_x, btn_y2, 90, 44, ZIELONY, BIALY, 22)
         anuluj = utworz_przycisk(ekran, "Anuluj", btn_anuluj_x, btn_y2, 90, 44, CZERWONY, BIALY, 22)
         pygame.display.flip()
