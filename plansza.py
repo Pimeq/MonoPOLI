@@ -71,6 +71,14 @@ def ekran_gry(ekran_zewnetrzny=None):
                         else:
                             print(f"[DEBUG] Na polu {pole['nazwa']} nie można mieć więcej niż 4 domki!")
                 
+                # DEBUG: Przekaż wszystkie posiadłości graczowi z tury po wciśnięciu F
+                if event.key == pygame.K_f:
+                    for idx, pole in enumerate(pola):
+                        if pole["typ"] in ["wydzial", "akademik", "uslugi"]:
+                            pole["wlasciciel"] = aktualny_gracz
+                            pole["domki"] = 0  # opcjonalnie zeruj domki
+                    print(f"[DEBUG] Wszystkie posiadłości zostały przekazane graczowi {gracze[aktualny_gracz]['nazwa']}")
+                
         # Wypełnij tło
         ekran.fill(CIEMNY_NIEBIESKI)
         
