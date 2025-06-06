@@ -166,15 +166,15 @@ def oblicz_czynsz(pole):
     """Oblicza wysokość czynszu za pole, uwzględniając domki"""
     base_rent = 0
     if pole["typ"] == "wydzial":
-        base_rent = int(pole["cena"] * 0.1)
+        base_rent = int(pole["cena"] * 0.4)
     elif pole["typ"] == "akademik":
         base_rent = 50
     elif pole["typ"] == "uslugi":
         base_rent = 75
-    # Dodaj czynsz za domki (każdy domek +50% bazowego czynszu)
+    # Dodaj czynsz za domki (każdy domek +150% bazowego czynszu)
     domki = pole.get("domki", 0)
     if domki > 0:
-        base_rent += int(base_rent * 0.5 * domki)
+        base_rent += int(base_rent * 1,5 * domki)
     return base_rent
 
 # Funkcja do sprawdzania płatności czynszu
