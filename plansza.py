@@ -142,7 +142,7 @@ def ekran_gry(ekran_zewnetrzny=None):
         panel_x = plansza_x + plansza_rozmiar + 20
         
         # Obszar panelu bocznego
-        pygame.draw.rect(ekran, NIEBIESKI_POLE, (panel_x, plansza_y, SZEROKOSC - panel_x - 20, plansza_rozmiar), border_radius=10)
+        pygame.draw.rect(ekran, NIEBIESKI_POLE, (panel_x, plansza_y, SZEROKOSC - panel_x - 20, plansza_rozmiar + 120), border_radius=10)
         
         # Nagłówek panelu
         czcionka_naglowek = pygame.font.SysFont('Arial', 30, bold=True)
@@ -157,7 +157,7 @@ def ekran_gry(ekran_zewnetrzny=None):
         
         # Panel kontrolny na dole ekranu
         panel_dol_y = plansza_y + plansza_rozmiar + 20
-        pygame.draw.rect(ekran, NIEBIESKI_POLE, (50, panel_dol_y, SZEROKOSC - 100, WYSOKOSC - panel_dol_y - 20), border_radius=10)
+        pygame.draw.rect(ekran, NIEBIESKI_POLE, (50, panel_dol_y, SZEROKOSC - 70, WYSOKOSC - panel_dol_y - 20), border_radius=10)
         
         # Kostki
         narysuj_kostke(ekran, 80, panel_dol_y + 20, 50, ostatni_rzut[0])
