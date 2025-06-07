@@ -80,7 +80,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             
             # Obsługa klawiszy
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not tura_wykonana and not animacja_aktywna and not karta_do_wyswietlenia:
+                if event.key == pygame.K_SPACE and not tura_wykonana and not platnosc_do_wyswietlenia and not animacja_aktywna and not karta_do_wyswietlenia:
                     # Rzut kostką po naciśnięciu spacji
                     ostatni_rzut = rzut_kostka()
                     suma_oczek = ostatni_rzut[0] + ostatni_rzut[1]
@@ -92,15 +92,21 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     # Rozpocznij animację
                     animacja_aktywna = True
                     animacja_krok = 0
-        
-                if event.key == pygame.K_SPACE and tura_wykonana and not animacja_aktywna and not karta_do_wyswietlenia:
+
+                if event.key == pygame.K_SPACE and karta_do_wyswietlenia and not platnosc_do_wyswietlenia and not animacja_aktywna:
+                    karta_do_wyswietlenia = False
+                    tura_wykonana = True
+                    
+                if event.key == pygame.K_SPACE and platnosc_do_wyswietlenia and not animacja_aktywna and not karta_do_wyswietlenia:
+                    platnosc_do_wyswietlenia = False
+                    tura_wykonana = True
+
+                if event.key == pygame.K_SPACE and tura_wykonana and not animacja_aktywna:
                     aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                     tura_wykonana = False
                     kupowanie_pola = False
                     print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
 
-                if event.key == pygame.K_SPACE and karta_do_wyswietlenia and not animacja_aktywna:
-                    karta_do_wyswietlenia = False
                 
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
