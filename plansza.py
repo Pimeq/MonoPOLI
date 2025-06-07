@@ -197,7 +197,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         # Panel kontrolny na dole ekranu
         panel_dol_y = plansza_y + plansza_rozmiar + 20
 
-        pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (50, panel_dol_y, bazowa_szerokosc - 100, bazowa_wysokosc - panel_dol_y - 20), border_radius=10)
+        pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (50, panel_dol_y, bazowa_szerokosc - 70, bazowa_wysokosc - panel_dol_y - 20), border_radius=10)
 
         
         # Kostki
@@ -223,7 +223,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         if kupowanie_pola and tura_wykonana and not animacja_aktywna:
             pozycja = gracze[aktualny_gracz]["pozycja"]
             pole = pobierz_pole(pozycja)
-            if utworz_przycisk(interface_surface, f"Kup {pole['nazwa']} za {pole['cena']} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+            if utworz_przycisk(interface_surface, f"Kup {pole['nazwa']} za {pole['cena']} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18):
 
                 if gracze[aktualny_gracz]["pieniadze"] >= pole["cena"]:
                     gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
@@ -237,7 +237,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
 
-            if utworz_przycisk(interface_surface, "Następny gracz", 800, panel_dol_y + 35, 200, 40, ZIELONY, BIALY, 20):
+            if utworz_przycisk(interface_surface, "Następny gracz", 740, panel_dol_y + 30, 200, 40, ZIELONY, BIALY, 20):
 
                 aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                 tura_wykonana = False
@@ -261,7 +261,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                 karta_do_wyswietlenia = None
           # Przycisk powrotu
 
-        if not animacja_aktywna and utworz_przycisk(interface_surface, "Powrót do menu", 800, panel_dol_y + 80, 200, 40, CZERWONY_TLO, BIALY, 20):
+        if not animacja_aktywna and utworz_przycisk(interface_surface, "Powrót do menu", 950, panel_dol_y + 30, 200, 40, CZERWONY_TLO, BIALY, 20):
 
             running = False
             # Przywróć oryginalną funkcję mouse.get_pos

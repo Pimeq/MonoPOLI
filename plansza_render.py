@@ -293,34 +293,28 @@ def narysuj_plansze(ekran, gracze, skala=1):
         border_radius=8
     )
 
-    # Delikatny gradient na środku
-    srodek_szer = surface_rozmiar - 2*rozmiar_pola_bok_wys
-    for i in range(20):  # Zmniejszona liczba iteracji
-        alpha = 200 - i * 8  # Zmniejszająca się przezroczystość
-        if alpha < 0:
-            alpha = 0
-        s = pygame.Surface((srodek_szer - i*2, srodek_szer - i*2), pygame.SRCALPHA)
-        s.fill((255, 255, 255, alpha))
-        plansza_surface.blit(s, (surface_x + rozmiar_pola_bok_wys + i, surface_y + rozmiar_pola_bok_wys + i))
-    
-    # Logo i tytuł w środku
-    logo_rozmiar = 120  # Zmniejszony rozmiar logo
-    narysuj_logo_pl(
-        plansza_surface, 
-        surface_x + surface_rozmiar//2 - logo_rozmiar//2, 
-        surface_y + surface_rozmiar//2 - logo_rozmiar//2, 
-        logo_rozmiar
-    )
+    # Jednolity kolor na środku planszy z czarnym obramowaniem
+    szerokosc_obramowania = 10
+    obramowanie = surface_rozmiar + szerokosc_obramowania
+    srodek_szer = obramowanie - szerokosc_obramowania - 2 * rozmiar_pola_bok_wys
+
+    s = pygame.Surface((obramowanie, obramowanie))
+    s.fill((0, 0, 0))  # Stały czarny kolor
+    ekran.blit(s, (surface_x - szerokosc_obramowania//2 , surface_y - szerokosc_obramowania//2 ))
+
+    ss = pygame.Surface((srodek_szer - szerokosc_obramowania, srodek_szer - szerokosc_obramowania))
+    ss.fill((139, 35, 29))  # Stały czerwony kolor
+    ekran.blit(ss, (surface_x + rozmiar_pola_bok_wys + szerokosc_obramowania//2, surface_y + rozmiar_pola_bok_wys + szerokosc_obramowania//2))
 
     
     # Tytuł gry z cieniem
-    czcionka_tytul = pygame.font.SysFont('Arial', 70, bold=True)  # Zmniejszony rozmiar czcionki
+    czcionka_tytul = pygame.font.SysFont('Arial', 70, bold=True)
     # Cień
 
-    tekst_mono_cien = czcionka_tytul.render("Mono", True, (100, 100, 100))
-    tekst_poli_cien = czcionka_tytul.render("POLI", True, (100, 100, 100))
-    plansza_surface.blit(tekst_mono_cien, (surface_x + surface_rozmiar//2 - 120 + 3, surface_y + surface_rozmiar//2 - 140 + 3))
-    plansza_surface.blit(tekst_poli_cien, (surface_x + surface_rozmiar//2 - 5 + 3, surface_y + surface_rozmiar//2 - 140 + 3))
+    tekst_mono_cien = czcionka_tytul.render("Mono", True, (119, 25, 19))
+    tekst_poli_cien = czcionka_tytul.render("POLI", True, (119, 25, 19))
+    plansza_surface.blit(tekst_mono_cien, (surface_x + surface_rozmiar//2 - 150 + 3, surface_y + surface_rozmiar//2 - 240 + 3))
+    plansza_surface.blit(tekst_poli_cien, (surface_x + surface_rozmiar//2 + 25 + 3, surface_y + surface_rozmiar//2 - 200 + 3))
 
     
     # Tekst główny
@@ -341,8 +335,8 @@ def narysuj_plansze(ekran, gracze, skala=1):
     # Tekst główny
     tekst_politechnika = czcionka_podtytul.render("Politechnika", True, BIALY)
     tekst_lodzka = czcionka_podtytul.render("Łódzka", True, BIALY)
-    plansza_surface.blit(tekst_politechnika, (surface_x + surface_rozmiar//2 - 80, surface_y + surface_rozmiar//2 + 70))
-    plansza_surface.blit(tekst_lodzka, (surface_x + surface_rozmiar//2 - 35, surface_y + surface_rozmiar//2 + 105))
+    plansza_surface.blit(tekst_politechnika, (surface_x + surface_rozmiar//2 - 150, surface_y + surface_rozmiar//2 - 240))
+    plansza_surface.blit(tekst_lodzka, (surface_x + surface_rozmiar//2 + 25, surface_y + surface_rozmiar//2 - 200))
 
     
     # Ładniejsze pionki kart pytań - dostosowane do nowych wymiarów planszy
