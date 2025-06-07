@@ -289,25 +289,32 @@ def narysuj_plansze(ekran, gracze):
         border_radius=8
     )
     
-   # Jednolity kolor na środku planszy
-    srodek_szer = plansza_rozmiar - 2 * rozmiar_pola_bok_wys
-    s = pygame.Surface((srodek_szer, srodek_szer))
-    s.fill((139, 35, 29))  # Stały czerwony kolor
-    ekran.blit(s, (plansza_x + rozmiar_pola_bok_wys, plansza_y + rozmiar_pola_bok_wys))
+   # Jednolity kolor na środku planszy z czarnym obramowaniem
+    szerokosc_obramowania = 10
+    obramowanie = plansza_rozmiar + szerokosc_obramowania
+    srodek_szer = obramowanie - szerokosc_obramowania - 2 * rozmiar_pola_bok_wys
+
+    s = pygame.Surface((obramowanie, obramowanie))
+    s.fill((0, 0, 0))  # Stały czarny kolor
+    ekran.blit(s, (plansza_x - szerokosc_obramowania//2 , plansza_y - szerokosc_obramowania//2 ))
+
+    ss = pygame.Surface((srodek_szer - szerokosc_obramowania, srodek_szer - szerokosc_obramowania))
+    ss.fill((139, 35, 29))  # Stały czerwony kolor
+    ekran.blit(ss, (plansza_x + rozmiar_pola_bok_wys + szerokosc_obramowania//2, plansza_y + rozmiar_pola_bok_wys + szerokosc_obramowania//2))
     
     
     # Tytuł gry z cieniem
     czcionka_tytul = pygame.font.SysFont('Arial', 70, bold=True)  # Zmniejszony rozmiar czcionki
     # Cień
-    tekst_mono_cien = czcionka_tytul.render("Mono", True, (100, 100, 100))
-    tekst_poli_cien = czcionka_tytul.render("POLI", True, (100, 100, 100))
-    ekran.blit(tekst_mono_cien, (plansza_x + plansza_rozmiar//2 - 170 + 3, plansza_y + plansza_rozmiar//2 - 200 + 3))
+    tekst_mono_cien = czcionka_tytul.render("Mono", True, (119, 25, 19))
+    tekst_poli_cien = czcionka_tytul.render("POLI", True, (119, 25, 19))
+    ekran.blit(tekst_mono_cien, (plansza_x + plansza_rozmiar//2 - 150 + 3, plansza_y + plansza_rozmiar//2 - 240 + 3))
     ekran.blit(tekst_poli_cien, (plansza_x + plansza_rozmiar//2 + 25 + 3, plansza_y + plansza_rozmiar//2 - 200 + 3))
     
     # Tekst główny
     tekst_mono = czcionka_tytul.render("Mono", True, BIALY)
     tekst_poli = czcionka_tytul.render("POLI", True, CZERWONY)
-    ekran.blit(tekst_mono, (plansza_x + plansza_rozmiar//2 - 170, plansza_y + plansza_rozmiar//2 - 200))
+    ekran.blit(tekst_mono, (plansza_x + plansza_rozmiar//2 - 150, plansza_y + plansza_rozmiar//2 - 240))
     ekran.blit(tekst_poli, (plansza_x + plansza_rozmiar//2 + 25, plansza_y + plansza_rozmiar//2 - 200))
     
     # Ładniejsze pionki kart pytań - dostosowane do nowych wymiarów planszy
@@ -315,41 +322,33 @@ def narysuj_plansze(ekran, gracze):
     karta_szer = 100  # Zmniejszona szerokość karty
     karta_wys = 160   # Zmniejszona wysokość karty
     
-    # Pozycje kart dopasowane do rozmiarów planszy - symetrycznie rozmieszczone
+    # KARTA SZANSY (lewa)
     karta1_x = plansza_x + rozmiar_pola_bok_wys + 50
     karta1_y = plansza_y + plansza_rozmiar//2 - 60
-    
-    narysuj_zaokraglony_prostokat(ekran, SZARY, (karta1_x, karta1_y, karta_szer, karta_wys), 6)
-    # Górny jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta1_x, karta1_y, karta_szer, 4), border_radius=6)
-    # Lewy jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta1_x, karta1_y, 4, karta_wys), border_radius=6)
-    
-    pygame.draw.rect(ekran, (240, 240, 240), (karta1_x + 8, karta1_y + 8, karta_szer - 16, 15), border_radius=2)
-    pygame.draw.rect(ekran, (240, 240, 240), (karta1_x + 8, karta1_y + 30, karta_szer - 16, 15), border_radius=2)
-    
-    # Ikona znaku zapytania
-    czcionka_znakzap = pygame.font.SysFont('Arial', 110, bold=True)
-    tekst_znakzap = czcionka_znakzap.render("?", True, SZARY_CIEMNY)
-    ekran.blit(tekst_znakzap, (karta1_x + karta_szer//2 - 36, karta1_y + karta_wys - 120))
-    
-    # Druga karta
+
+    # Jasno pomarańczowy środek i biała obramówka
+    narysuj_zaokraglony_prostokat(ekran, (255, 200, 100), (karta1_x, karta1_y, karta_szer, karta_wys), 6)
+    pygame.draw.rect(ekran, BIALY, (karta1_x, karta1_y, karta_szer, karta_wys), 4, border_radius=6)
+
+    # Znak zapytania poziomo na środku karty
+    czcionka_szansa = pygame.font.SysFont('Arial', 80, bold=True)
+    tekst_szansa = czcionka_szansa.render("?", True, (255, 120, 0))
+    tekst_szansa = pygame.transform.rotate(tekst_szansa, 0)  # poziomo
+    tekst_rect = tekst_szansa.get_rect(center=(karta1_x + karta_szer // 2, karta1_y + karta_wys // 2))
+    ekran.blit(tekst_szansa, tekst_rect)
+
+    # KARTA SZANSY (prawa)
     karta2_x = plansza_x + plansza_rozmiar - rozmiar_pola_bok_wys - karta_szer - 50
     karta2_y = plansza_y + plansza_rozmiar//2 - 60
+
+    narysuj_zaokraglony_prostokat(ekran, (255, 200, 100), (karta2_x, karta2_y, karta_szer, karta_wys), 6)
+    pygame.draw.rect(ekran, BIALY, (karta2_x, karta2_y, karta_szer, karta_wys), 4, border_radius=6)
+
+    tekst_szansa2 = czcionka_szansa.render("?", True, (255, 120, 0))
+    tekst_szansa2 = pygame.transform.rotate(tekst_szansa2, 0)
+    tekst_rect2 = tekst_szansa2.get_rect(center=(karta2_x + karta_szer // 2, karta2_y + karta_wys // 2))
+    ekran.blit(tekst_szansa2, tekst_rect2)
     
-    narysuj_zaokraglony_prostokat(ekran, SZARY, (karta2_x, karta2_y, karta_szer, karta_wys), 6)
-    # Górny jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta2_x, karta2_y, karta_szer, 4), border_radius=6)
-    # Lewy jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta2_x, karta2_y, 4, karta_wys), border_radius=6)
-    
-    pygame.draw.rect(ekran, (240, 240, 240), (karta2_x + 8, karta2_y + 8, karta_szer - 16, 15), border_radius=2)
-    pygame.draw.rect(ekran, (240, 240, 240), (karta2_x + 8, karta2_y + 30, karta_szer - 16, 15), border_radius=2)
-    
-    # Ikona znaku zapytania
-    czcionka_znakzap = pygame.font.SysFont('Arial', 110, bold=True)
-    tekst_znakzap = czcionka_znakzap.render("?", True, SZARY_CIEMNY)
-    ekran.blit(tekst_znakzap, (karta2_x + karta_szer//2 - 36, karta2_y + karta_wys - 120))
     
     # Rysowanie pól na planszy
     # Narożniki
