@@ -275,36 +275,14 @@ def narysuj_plansze(ekran, gracze, skala=1):
         8
     )
     
-    # Efekt 3D dla środka planszy - cienki biały pasek na górze
-    pygame.draw.rect(
-        plansza_surface, 
-        (250, 180, 180), 
-        (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys, 
-         surface_rozmiar - 2*rozmiar_pola_bok_wys, 4), 
-        border_radius=8
-    )
     
-    # Efekt 3D dla środka planszy - cienki biały pasek po lewej
-    pygame.draw.rect(
-        plansza_surface, 
-        (250, 180, 180), 
-        (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys, 
-         4, surface_rozmiar - 2*rozmiar_pola_bok_wys), 
-        border_radius=8
-    )
 
     # Jednolity kolor na środku planszy z czarnym obramowaniem
-    szerokosc_obramowania = 10
-    obramowanie = surface_rozmiar + szerokosc_obramowania
-    srodek_szer = obramowanie - szerokosc_obramowania - 2 * rozmiar_pola_bok_wys
+    srodek_szer = surface_rozmiar - 2 * rozmiar_pola_bok_wys
 
-    s = pygame.Surface((obramowanie, obramowanie))
-    s.fill((0, 0, 0))  # Stały czarny kolor
-    ekran.blit(s, (surface_x - szerokosc_obramowania//2 , surface_y - szerokosc_obramowania//2 ))
-
-    ss = pygame.Surface((srodek_szer - szerokosc_obramowania, srodek_szer - szerokosc_obramowania))
+    ss = pygame.Surface((srodek_szer, srodek_szer))
     ss.fill((139, 35, 29))  # Stały czerwony kolor
-    ekran.blit(ss, (surface_x + rozmiar_pola_bok_wys + szerokosc_obramowania//2, surface_y + rozmiar_pola_bok_wys + szerokosc_obramowania//2))
+    ekran.blit(ss, (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys))
 
     
     # Tytuł gry z cieniem
@@ -321,22 +299,10 @@ def narysuj_plansze(ekran, gracze, skala=1):
     tekst_mono = czcionka_tytul.render("Mono", True, BIALY)
     tekst_poli = czcionka_tytul.render("POLI", True, CZERWONY)
 
-    plansza_surface.blit(tekst_mono, (surface_x + surface_rozmiar//2 - 120, surface_y + surface_rozmiar//2 - 140))
-    plansza_surface.blit(tekst_poli, (surface_x + surface_rozmiar//2 - 5, surface_y + surface_rozmiar//2 - 140))
+    plansza_surface.blit(tekst_mono, (surface_x + surface_rozmiar//2 - 150, surface_y + surface_rozmiar//2 - 240))
+    plansza_surface.blit(tekst_poli, (surface_x + surface_rozmiar//2 + 25, surface_y + surface_rozmiar//2 - 200))
     
-    # Podtytuł z lepszym formatowaniem
-    czcionka_podtytul = pygame.font.SysFont('Arial', 32, bold=True)  # Zmniejszony rozmiar czcionki
-    # Cień
-    tekst_politechnika_cien = czcionka_podtytul.render("Politechnika", True, (100, 100, 100))
-    tekst_lodzka_cien = czcionka_podtytul.render("Łódzka", True, (100, 100, 100))
-    plansza_surface.blit(tekst_politechnika_cien, (surface_x + surface_rozmiar//2 - 80 + 2, surface_y + surface_rozmiar//2 + 70 + 2))
-    plansza_surface.blit(tekst_lodzka_cien, (surface_x + surface_rozmiar//2 - 35 + 2, surface_y + surface_rozmiar//2 + 105 + 2))
-    
-    # Tekst główny
-    tekst_politechnika = czcionka_podtytul.render("Politechnika", True, BIALY)
-    tekst_lodzka = czcionka_podtytul.render("Łódzka", True, BIALY)
-    plansza_surface.blit(tekst_politechnika, (surface_x + surface_rozmiar//2 - 150, surface_y + surface_rozmiar//2 - 240))
-    plansza_surface.blit(tekst_lodzka, (surface_x + surface_rozmiar//2 + 25, surface_y + surface_rozmiar//2 - 200))
+
 
     
     # Ładniejsze pionki kart pytań - dostosowane do nowych wymiarów planszy

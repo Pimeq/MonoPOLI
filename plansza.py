@@ -80,7 +80,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             
             # Obsługa klawiszy
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not tura_wykonana and not animacja_aktywna:
+                if event.key == pygame.K_SPACE and not tura_wykonana and not animacja_aktywna and not karta_do_wyswietlenia:
                     # Rzut kostką po naciśnięciu spacji
                     ostatni_rzut = rzut_kostka()
                     suma_oczek = ostatni_rzut[0] + ostatni_rzut[1]
@@ -93,12 +93,14 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     animacja_aktywna = True
                     animacja_krok = 0
         
-
-                if event.key == pygame.K_SPACE and tura_wykonana and not animacja_aktywna:
+                if event.key == pygame.K_SPACE and tura_wykonana and not animacja_aktywna and not karta_do_wyswietlenia:
                     aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                     tura_wykonana = False
                     kupowanie_pola = False
                     print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
+
+                if event.key == pygame.K_SPACE and karta_do_wyswietlenia and not animacja_aktywna:
+                    karta_do_wyswietlenia = False
                 
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
@@ -180,7 +182,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         panel_x = plansza_x + plansza_rozmiar + 20
         
         # Obszar panelu bocznego
-        pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (panel_x, plansza_y, bazowa_szerokosc - panel_x - 20, plansza_rozmiar), border_radius=10)
+        pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (panel_x, plansza_y, bazowa_szerokosc - panel_x - 20, plansza_rozmiar + 120), border_radius=10)
 
         
         # Nagłówek panelu
