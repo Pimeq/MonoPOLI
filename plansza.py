@@ -174,15 +174,15 @@ def ekran_gry(ekran_zewnetrzny=None):
         ekran.blit(instr_tekst1, (80, panel_dol_y + 80))
         
         # Status tury
-        status_tekst = f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}"
-        status_render = czcionka_suma.render(status_tekst, True, ZLOTY)
-        ekran.blit(status_render, (400, panel_dol_y + 35))
+        #status_tekst = f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}"
+        #status_render = czcionka_suma.render(status_tekst, True, ZLOTY)
+        #ekran.blit(status_render, (400, panel_dol_y + 35))
         
         # Przycisk kupowania pola
         if kupowanie_pola and tura_wykonana and not animacja_aktywna:
             pozycja = gracze[aktualny_gracz]["pozycja"]
             pole = pobierz_pole(pozycja)
-            if utworz_przycisk(ekran, f"Kup {pole['nazwa']} za {pole['cena']} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+            if utworz_przycisk(ekran, f"Kup {pole['nazwa']} za {pole['cena']} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18):
                 if gracze[aktualny_gracz]["pieniadze"] >= pole["cena"]:
                     gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
                     pole["wlasciciel"] = aktualny_gracz
@@ -194,7 +194,7 @@ def ekran_gry(ekran_zewnetrzny=None):
         
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
-            if utworz_przycisk(ekran, "Następny gracz", 800, panel_dol_y + 35, 200, 40, ZIELONY, BIALY, 20):
+            if utworz_przycisk(ekran, "Następny gracz", 740, panel_dol_y + 30, 200, 40, ZIELONY, BIALY, 20):
                 aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                 tura_wykonana = False
                 kupowanie_pola = False
@@ -217,7 +217,7 @@ def ekran_gry(ekran_zewnetrzny=None):
             if wyswietl_okno_karty(ekran, karta, tytul):
                 karta_do_wyswietlenia = None
           # Przycisk powrotu
-        if not animacja_aktywna and utworz_przycisk(ekran, "Powrót do menu", 800, panel_dol_y + 80, 200, 40, CZERWONY_TLO, BIALY, 20):
+        if not animacja_aktywna and utworz_przycisk(ekran, "Powrót do menu", 950, panel_dol_y + 30, 200, 40, CZERWONY_TLO, BIALY, 20):
             running = False
             return True
         
