@@ -275,74 +275,34 @@ def narysuj_plansze(ekran, gracze, skala=1):
         8
     )
     
-    # Efekt 3D dla środka planszy - cienki biały pasek na górze
-    pygame.draw.rect(
-        plansza_surface, 
-        (250, 180, 180), 
-        (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys, 
-         surface_rozmiar - 2*rozmiar_pola_bok_wys, 4), 
-        border_radius=8
-    )
     
-    # Efekt 3D dla środka planszy - cienki biały pasek po lewej
-    pygame.draw.rect(
-        plansza_surface, 
-        (250, 180, 180), 
-        (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys, 
-         4, surface_rozmiar - 2*rozmiar_pola_bok_wys), 
-        border_radius=8
-    )
 
-    # Delikatny gradient na środku
-    srodek_szer = surface_rozmiar - 2*rozmiar_pola_bok_wys
-    for i in range(20):  # Zmniejszona liczba iteracji
-        alpha = 200 - i * 8  # Zmniejszająca się przezroczystość
-        if alpha < 0:
-            alpha = 0
-        s = pygame.Surface((srodek_szer - i*2, srodek_szer - i*2), pygame.SRCALPHA)
-        s.fill((255, 255, 255, alpha))
-        plansza_surface.blit(s, (surface_x + rozmiar_pola_bok_wys + i, surface_y + rozmiar_pola_bok_wys + i))
-    
-    # Logo i tytuł w środku
-    logo_rozmiar = 120  # Zmniejszony rozmiar logo
-    narysuj_logo_pl(
-        plansza_surface, 
-        surface_x + surface_rozmiar//2 - logo_rozmiar//2, 
-        surface_y + surface_rozmiar//2 - logo_rozmiar//2, 
-        logo_rozmiar
-    )
+    # Jednolity kolor na środku planszy z czarnym obramowaniem
+    srodek_szer = surface_rozmiar - 2 * rozmiar_pola_bok_wys
+
+    ss = pygame.Surface((srodek_szer, srodek_szer))
+    ss.fill((139, 35, 29))  # Stały czerwony kolor
+    ekran.blit(ss, (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys))
 
     
     # Tytuł gry z cieniem
-    czcionka_tytul = pygame.font.SysFont('Arial', 70, bold=True)  # Zmniejszony rozmiar czcionki
+    czcionka_tytul = pygame.font.SysFont('Arial', 70, bold=True)
     # Cień
 
-    tekst_mono_cien = czcionka_tytul.render("Mono", True, (100, 100, 100))
-    tekst_poli_cien = czcionka_tytul.render("POLI", True, (100, 100, 100))
-    plansza_surface.blit(tekst_mono_cien, (surface_x + surface_rozmiar//2 - 120 + 3, surface_y + surface_rozmiar//2 - 140 + 3))
-    plansza_surface.blit(tekst_poli_cien, (surface_x + surface_rozmiar//2 - 5 + 3, surface_y + surface_rozmiar//2 - 140 + 3))
+    tekst_mono_cien = czcionka_tytul.render("Mono", True, (119, 25, 19))
+    tekst_poli_cien = czcionka_tytul.render("POLI", True, (119, 25, 19))
+    plansza_surface.blit(tekst_mono_cien, (surface_x + surface_rozmiar//2 - 150 + 3, surface_y + surface_rozmiar//2 - 240 + 3))
+    plansza_surface.blit(tekst_poli_cien, (surface_x + surface_rozmiar//2 + 25 + 3, surface_y + surface_rozmiar//2 - 200 + 3))
 
     
     # Tekst główny
     tekst_mono = czcionka_tytul.render("Mono", True, BIALY)
     tekst_poli = czcionka_tytul.render("POLI", True, CZERWONY)
 
-    plansza_surface.blit(tekst_mono, (surface_x + surface_rozmiar//2 - 120, surface_y + surface_rozmiar//2 - 140))
-    plansza_surface.blit(tekst_poli, (surface_x + surface_rozmiar//2 - 5, surface_y + surface_rozmiar//2 - 140))
+    plansza_surface.blit(tekst_mono, (surface_x + surface_rozmiar//2 - 150, surface_y + surface_rozmiar//2 - 240))
+    plansza_surface.blit(tekst_poli, (surface_x + surface_rozmiar//2 + 25, surface_y + surface_rozmiar//2 - 200))
     
-    # Podtytuł z lepszym formatowaniem
-    czcionka_podtytul = pygame.font.SysFont('Arial', 32, bold=True)  # Zmniejszony rozmiar czcionki
-    # Cień
-    tekst_politechnika_cien = czcionka_podtytul.render("Politechnika", True, (100, 100, 100))
-    tekst_lodzka_cien = czcionka_podtytul.render("Łódzka", True, (100, 100, 100))
-    plansza_surface.blit(tekst_politechnika_cien, (surface_x + surface_rozmiar//2 - 80 + 2, surface_y + surface_rozmiar//2 + 70 + 2))
-    plansza_surface.blit(tekst_lodzka_cien, (surface_x + surface_rozmiar//2 - 35 + 2, surface_y + surface_rozmiar//2 + 105 + 2))
-    
-    # Tekst główny
-    tekst_politechnika = czcionka_podtytul.render("Politechnika", True, BIALY)
-    tekst_lodzka = czcionka_podtytul.render("Łódzka", True, BIALY)
-    plansza_surface.blit(tekst_politechnika, (surface_x + surface_rozmiar//2 - 80, surface_y + surface_rozmiar//2 + 70))
-    plansza_surface.blit(tekst_lodzka, (surface_x + surface_rozmiar//2 - 35, surface_y + surface_rozmiar//2 + 105))
+
 
     
     # Ładniejsze pionki kart pytań - dostosowane do nowych wymiarów planszy
