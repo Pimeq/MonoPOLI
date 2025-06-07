@@ -5,6 +5,7 @@ import random
 from pygame import gfxdraw
 import time
 from kolory import *
+from pygame.locals import *
 from interfejs import utworz_przycisk, narysuj_zaokraglony_prostokat, narysuj_kostke, narysuj_pionek
 from plansza import *
 
@@ -30,9 +31,8 @@ pygame.init()
 SZEROKOSC, WYSOKOSC = 1200, 1000
 
 # Utworzenie okna z obsługą przezroczystości
-ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
+ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC), HWSURFACE)
 pygame.display.set_caption("MonoPOLI")
-
 
 class KostkaTrojwymiarowa:
     def __init__(self, x, y, rozmiar):

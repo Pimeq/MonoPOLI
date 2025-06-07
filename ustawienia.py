@@ -38,20 +38,20 @@ class KoloKolorow:
         self.promien = promien
         self.kolor = kolor_gracza
         
-    def rysuj(self, ekran):
+    def rysuj(self, surface):
         """Rysuje koło z wybranym kolorem gracza z antyaliasingiem"""
         # Zewnętrzny pierścień (cień) - używamy gfxdraw dla antyaliasingu
-        pygame.gfxdraw.filled_circle(ekran, self.x + 2, self.y + 2, self.promien + 2, (0, 0, 0, 80))
-        pygame.gfxdraw.aacircle(ekran, self.x + 2, self.y + 2, self.promien + 2, (0, 0, 0, 80))
+        pygame.gfxdraw.filled_circle(surface, self.x + 2, self.y + 2, self.promien + 2, (0, 0, 0, 80))
+        pygame.gfxdraw.aacircle(surface, self.x + 2, self.y + 2, self.promien + 2, (0, 0, 0, 80))
         
         # Główne koło z antyaliasingiem
-        pygame.gfxdraw.filled_circle(ekran, self.x, self.y, self.promien, self.kolor)
-        pygame.gfxdraw.aacircle(ekran, self.x, self.y, self.promien, self.kolor)
+        pygame.gfxdraw.filled_circle(surface, self.x, self.y, self.promien, self.kolor)
+        pygame.gfxdraw.aacircle(surface, self.x, self.y, self.promien, self.kolor)
         
         # Wewnętrzny błysk
         kolor_jasny = tuple(min(255, c + 40) for c in self.kolor)
-        pygame.gfxdraw.filled_circle(ekran, self.x - 3, self.y - 3, self.promien - 5, kolor_jasny)
-        pygame.gfxdraw.aacircle(ekran, self.x - 3, self.y - 3, self.promien - 5, kolor_jasny)
+        pygame.gfxdraw.filled_circle(surface, self.x - 3, self.y - 3, self.promien - 5, kolor_jasny)
+        pygame.gfxdraw.aacircle(surface, self.x - 3, self.y - 3, self.promien - 5, kolor_jasny)
 
 # Funkcja do rysowania zaokrąglonego prostokąta z antyaliasingiem
 def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
@@ -63,7 +63,7 @@ def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
     pygame.draw.rect(powierzchnia, kolor, prostokat, border_radius=promien)
 
 # Funkcja do tworzenia przycisku z lepszym wyglądem
-def utworz_przycisk(tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=32):
+def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=32):
     """Tworzy przycisk z lepszym designem i antyaliasingiem"""
     czcionka = pygame.font.SysFont('Arial', rozmiar_czcionki, bold=True)
     prostokat = pygame.Rect(x, y, szerokosc, wysokosc)
@@ -76,15 +76,15 @@ def utworz_przycisk(tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmi
         kolor = kolor_hover
     
     # Cień
-    pygame.draw.rect(ekran, (0, 0, 0, 60), (x+3, y+3, szerokosc, wysokosc), border_radius=15)
+    pygame.draw.rect(surface, (0, 0, 0, 60), (x+3, y+3, szerokosc, wysokosc), border_radius=15)
     
     # Rysuj przycisk
-    narysuj_zaokraglony_prostokat(ekran, kolor, prostokat, 15)
+    narysuj_zaokraglony_prostokat(surface, kolor, prostokat, 15)
     
     # Renderuj tekst z antyaliasingiem
     tekst_surface = czcionka.render(tekst, True, kolor_tekstu)
     tekst_rect = tekst_surface.get_rect(center=prostokat.center)
-    ekran.blit(tekst_surface, tekst_rect)
+    surface.blit(tekst_surface, tekst_rect)
     
     # Sprawdź czy przycisk został kliknięty
     if prostokat.collidepoint(myszka) and klikniecie:
@@ -92,7 +92,7 @@ def utworz_przycisk(tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmi
     return False
 
 # Funkcja do rysowania pionka szachowego z antyaliasingiem
-def narysuj_pionek(x, y, szerokosc, wysokosc, kolor_pionka=(40, 60, 100)):
+def narysuj_pionek(surface, x, y, szerokosc, wysokosc, kolor_pionka=(40, 60, 100)):
     """Rysuje pionek szachowy z antyaliasingiem"""
     center_x = x + szerokosc // 2
     
@@ -108,19 +108,19 @@ def narysuj_pionek(x, y, szerokosc, wysokosc, kolor_pionka=(40, 60, 100)):
     base_w = szerokosc//2
     base_h = wysokosc//8
     
-    pygame.draw.ellipse(ekran, kolor_pionka, (base_x, base_y, base_w, base_h))
+    pygame.draw.ellipse(surface, kolor_pionka, (base_x, base_y, base_w, base_h))
     
     # Rysuj trzon pionka
     trzon_rect = (center_x - szerokosc//10, y + wysokosc*0.5, szerokosc//5, wysokosc*0.3)
-    pygame.draw.rect(ekran, kolor_pionka, trzon_rect)
+    pygame.draw.rect(surface, kolor_pionka, trzon_rect)
     
     # Rysuj główkę pionka z antyaliasingiem
     glowka_x = center_x
     glowka_y = int(y + wysokosc*0.4)
     glowka_r = int(szerokosc*0.15)
     
-    pygame.gfxdraw.filled_circle(ekran, glowka_x, glowka_y, glowka_r, kolor_pionka)
-    pygame.gfxdraw.aacircle(ekran, glowka_x, glowka_y, glowka_r, kolor_pionka)
+    pygame.gfxdraw.filled_circle(surface, glowka_x, glowka_y, glowka_r, kolor_pionka)
+    pygame.gfxdraw.aacircle(surface, glowka_x, glowka_y, glowka_r, kolor_pionka)
     
     # Dodaj efekt 3D - highlight z antyaliasingiem
     kolor_jasny = tuple(min(255, c + 40) for c in kolor_pionka)
@@ -128,17 +128,17 @@ def narysuj_pionek(x, y, szerokosc, wysokosc, kolor_pionka=(40, 60, 100)):
     highlight_y = glowka_y - 2
     highlight_r = int(szerokosc*0.12)
     
-    pygame.gfxdraw.filled_circle(ekran, highlight_x, highlight_y, highlight_r, kolor_jasny)
-    pygame.gfxdraw.aacircle(ekran, highlight_x, highlight_y, highlight_r, kolor_jasny)
+    pygame.gfxdraw.filled_circle(surface, highlight_x, highlight_y, highlight_r, kolor_jasny)
+    pygame.gfxdraw.aacircle(surface, highlight_x, highlight_y, highlight_r, kolor_jasny)
 
 # Funkcja do rysowania nowoczesnego suwaka głośności
-def narysuj_suwak_glosnosci(x, y, szerokosc, wysokosc, wartosc=0.5):
+def narysuj_suwak_glosnosci(surface, x, y, szerokosc, wysokosc, wartosc=0.5):
     """Rysuje nowoczesny suwak głośności"""
     # Tło suwaka
     tlo_rect = pygame.Rect(x, y, szerokosc, wysokosc)
-    pygame.draw.rect(ekran, (0, 0, 0, 30), (x+2, y+2, szerokosc, wysokosc), border_radius=25)
-    pygame.draw.rect(ekran, SZARY_JASNY, tlo_rect, border_radius=25)
-    pygame.draw.rect(ekran, SZARY_CIEMNY, tlo_rect, width=2, border_radius=25)
+    pygame.draw.rect(surface, (0, 0, 0, 30), (x+2, y+2, szerokosc, wysokosc), border_radius=25)
+    pygame.draw.rect(surface, SZARY_JASNY, tlo_rect, border_radius=25)
+    pygame.draw.rect(surface, SZARY_CIEMNY, tlo_rect, width=2, border_radius=25)
     
     # Ikona głośnika - lepsza wersja
     ikona_x = x + 15
@@ -154,19 +154,19 @@ def narysuj_suwak_glosnosci(x, y, szerokosc, wysokosc, wartosc=0.5):
         (ikona_x + 8, ikona_y + 6),
         (ikona_x, ikona_y + 6)
     ]
-    pygame.draw.polygon(ekran, CIEMNY_FIOLET, punkty_glosnika)
+    pygame.draw.polygon(surface, CIEMNY_FIOLET, punkty_glosnika)
     
     # Fale dźwiękowe - bardziej eleganckie
     if wartosc > 0.3:
-        pygame.draw.arc(ekran, CIEMNY_FIOLET, 
+        pygame.draw.arc(surface, CIEMNY_FIOLET, 
                        (ikona_x + 20, ikona_y - 8, 12, 16), 
                        -math.pi/3, math.pi/3, 2)
     if wartosc > 0.6:
-        pygame.draw.arc(ekran, CIEMNY_FIOLET, 
+        pygame.draw.arc(surface, CIEMNY_FIOLET, 
                        (ikona_x + 25, ikona_y - 12, 16, 24), 
                        -math.pi/3, math.pi/3, 2)
     if wartosc > 0.8:
-        pygame.draw.arc(ekran, CIEMNY_FIOLET, 
+        pygame.draw.arc(surface, CIEMNY_FIOLET, 
                        (ikona_x + 30, ikona_y - 16, 20, 32), 
                        -math.pi/3, math.pi/3, 2)
     
@@ -177,7 +177,7 @@ def narysuj_suwak_glosnosci(x, y, szerokosc, wysokosc, wartosc=0.5):
     sciezka_wysokosc = 6
     
     # Tło ścieżki
-    pygame.draw.rect(ekran, SZARY_CIEMNY, 
+    pygame.draw.rect(surface, SZARY_CIEMNY, 
                     (sciezka_x, sciezka_y - sciezka_wysokosc//2, sciezka_szerokosc, sciezka_wysokosc), 
                     border_radius=3)
     
@@ -190,7 +190,7 @@ def narysuj_suwak_glosnosci(x, y, szerokosc, wysokosc, wartosc=0.5):
             kolor_r = int(100 + alpha * 120)  # Od ciemnego do jasnego zielonego
             kolor_g = int(200 + alpha * 55)
             kolor_b = int(100 + alpha * 50)
-            pygame.draw.line(ekran, (kolor_r, kolor_g, kolor_b), 
+            pygame.draw.line(surface, (kolor_r, kolor_g, kolor_b), 
                            (sciezka_x + i, sciezka_y - sciezka_wysokosc//2), 
                            (sciezka_x + i, sciezka_y + sciezka_wysokosc//2))
     
@@ -199,23 +199,23 @@ def narysuj_suwak_glosnosci(x, y, szerokosc, wysokosc, wartosc=0.5):
     uchwyt_promien = 12
     
     # Cień uchwytu
-    pygame.gfxdraw.filled_circle(ekran, uchwyt_x + 2, sciezka_y + 2, uchwyt_promien, (0, 0, 0, 40))
-    pygame.gfxdraw.aacircle(ekran, uchwyt_x + 2, sciezka_y + 2, uchwyt_promien, (0, 0, 0, 40))
+    pygame.gfxdraw.filled_circle(surface, uchwyt_x + 2, sciezka_y + 2, uchwyt_promien, (0, 0, 0, 40))
+    pygame.gfxdraw.aacircle(surface, uchwyt_x + 2, sciezka_y + 2, uchwyt_promien, (0, 0, 0, 40))
     
     # Główny uchwyt z antyaliasingiem
-    pygame.gfxdraw.filled_circle(ekran, uchwyt_x, sciezka_y, uchwyt_promien, BIALY)
-    pygame.gfxdraw.aacircle(ekran, uchwyt_x, sciezka_y, uchwyt_promien, BIALY)
-    pygame.gfxdraw.aacircle(ekran, uchwyt_x, sciezka_y, uchwyt_promien, SZARY_CIEMNY)
+    pygame.gfxdraw.filled_circle(surface, uchwyt_x, sciezka_y, uchwyt_promien, BIALY)
+    pygame.gfxdraw.aacircle(surface, uchwyt_x, sciezka_y, uchwyt_promien, BIALY)
+    pygame.gfxdraw.aacircle(surface, uchwyt_x, sciezka_y, uchwyt_promien, SZARY_CIEMNY)
     
     # Wewnętrzny punkt z antyaliasingiem
-    pygame.gfxdraw.filled_circle(ekran, uchwyt_x, sciezka_y, 4, CIEMNY_FIOLET)
-    pygame.gfxdraw.aacircle(ekran, uchwyt_x, sciezka_y, 4, CIEMNY_FIOLET)
+    pygame.gfxdraw.filled_circle(surface, uchwyt_x, sciezka_y, 4, CIEMNY_FIOLET)
+    pygame.gfxdraw.aacircle(surface, uchwyt_x, sciezka_y, 4, CIEMNY_FIOLET)
     
     # Tekst procentowy
     czcionka_procent = pygame.font.SysFont('Arial', 18, bold=True)
     tekst_procent = f"{int(wartosc * 100)}%"
     surface_procent = czcionka_procent.render(tekst_procent, True, CIEMNY_FIOLET)
-    ekran.blit(surface_procent, (x + szerokosc - 45, y + wysokosc // 2 - 10))
+    surface.blit(surface_procent, (x + szerokosc - 45, y + wysokosc // 2 - 10))
     
     # Obsługa kliknięcia i przeciągania
     myszka = pygame.mouse.get_pos()
@@ -228,71 +228,117 @@ def narysuj_suwak_glosnosci(x, y, szerokosc, wysokosc, wartosc=0.5):
     return wartosc
 
 # Funkcja do rysowania karty gracza
-def narysuj_karte_gracza(x, y, szerokosc, wysokosc, nazwa="Gracz", nr_gracza=1):
+def narysuj_karte_gracza(surface, x, y, szerokosc, wysokosc, nazwa="Gracz", nr_gracza=1):
     """Rysuje kartę gracza z lepszym designem"""
     # Cień karty
-    pygame.draw.rect(ekran, (0, 0, 0, 40), (x+3, y+3, szerokosc, wysokosc), border_radius=12)
+    pygame.draw.rect(surface, (0, 0, 0, 40), (x+3, y+3, szerokosc, wysokosc), border_radius=12)
     
     # Tło karty
-    pygame.draw.rect(ekran, SZARY_JASNY, (x, y, szerokosc, wysokosc), border_radius=12)
-    pygame.draw.rect(ekran, SZARY_CIEMNY, (x, y, szerokosc, wysokosc), width=2, border_radius=12)
+    pygame.draw.rect(surface, SZARY_JASNY, (x, y, szerokosc, wysokosc), border_radius=12)
+    pygame.draw.rect(surface, SZARY_CIEMNY, (x, y, szerokosc, wysokosc), width=2, border_radius=12)
     
     # Kolor gracza
     kolor_gracza = KOLORY_GRACZY[(nr_gracza - 1) % len(KOLORY_GRACZY)]
     kolo_kolorow = KoloKolorow(x + szerokosc//2, y + 40, 25, kolor_gracza)
-    kolo_kolorow.rysuj(ekran)
+    kolo_kolorow.rysuj(surface)
     
     # Pole nazwy
     nazwa_rect = pygame.Rect(x + 15, y + 75, szerokosc - 30, 35)
-    pygame.draw.rect(ekran, CIEMNY_FIOLET, nazwa_rect, border_radius=8)
+    pygame.draw.rect(surface, CIEMNY_FIOLET, nazwa_rect, border_radius=8)
     
     czcionka = pygame.font.SysFont('Arial', 20, bold=True)
     tekst_nazwa = czcionka.render(nazwa, True, BIALY)
     tekst_nazwa_rect = tekst_nazwa.get_rect(center=nazwa_rect.center)
-    ekran.blit(tekst_nazwa, tekst_nazwa_rect)
+    surface.blit(tekst_nazwa, tekst_nazwa_rect)
     
     # Pionek
-    narysuj_pionek(x + szerokosc//4, y + 125, szerokosc//2, wysokosc - 150, kolor_gracza)
+    narysuj_pionek(surface, x + szerokosc//4, y + 125, szerokosc//2, wysokosc - 150, kolor_gracza)
 
+
+# Funkcja pomocnicza do skalowania pozycji myszy
+def skaluj_pozycje_myszy(event, interface_x, interface_y, skala_interfejsu, bazowa_szerokosc, bazowa_wysokosc):
+    """Skaluje pozycję myszy do współrzędnych interface_surface"""
+    if hasattr(event, 'pos'):
+        mouse_x, mouse_y = event.pos
+        # Przelicz pozycję myszy na współrzędne względem interface_surface
+        scaled_mouse_x = int((mouse_x - interface_x) / skala_interfejsu)
+        scaled_mouse_y = int((mouse_y - interface_y) / skala_interfejsu)
+        # Sprawdź czy pozycja jest w granicach interface_surface
+        if 0 <= scaled_mouse_x < bazowa_szerokosc and 0 <= scaled_mouse_y < bazowa_wysokosc:
+            event.pos = (scaled_mouse_x, scaled_mouse_y)
+            return True
+    return False
 
 # Funkcja główna dla strony ustawień
-def strona_ustawien(ekran_zewnetrzny=None):
+def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
     """
-    Wyświetla ekran ustawień gry z wyśrodkowanymi elementami
+    Wyświetla ekran ustawień gry z wyśrodkowanymi elementami i obsługą skalowania
     """
     global ekran
     
-    # Używaj przekazanego ekranu lub utwórz własny
+    # Bazowe wymiary interfejsu
+    bazowa_szerokosc = SZEROKOSC
+    bazowa_wysokosc = WYSOKOSC
+      # Używaj przekazanego ekranu lub utwórz własny
     if ekran_zewnetrzny:
         ekran = ekran_zewnetrzny
-    elif 'ekran' not in globals():
+        screen_width, screen_height = ekran.get_size()
+    else:
         ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
         pygame.display.set_caption("MonoPOLI - Ustawienia")
+        screen_width, screen_height = SZEROKOSC, WYSOKOSC
+    
+    # Utwórz surface dla interfejsu o bazowym rozmiarze
+    interface_surface = pygame.Surface((bazowa_szerokosc, bazowa_wysokosc), pygame.SRCALPHA)
+    
+    # Oblicz docelowe wymiary po skalowaniu
+    skalowana_szerokosc = int(bazowa_szerokosc * skala_interfejsu)
+    skalowana_wysokosc = int(bazowa_wysokosc * skala_interfejsu)
+    
+    # Pozycja interfejsu na ekranie (centrowanie)
+    interface_x = (screen_width - skalowana_szerokosc) // 2
+    interface_y = (screen_height - skalowana_wysokosc) // 2
     
     # Wartość suwaka głośności
     glosnosc = 0.7
-    
-    # Główna pętla
+      # Główna pętla
     zegar = pygame.time.Clock()
     running = True
     
     while running:
+        # Oblicz aktualną pozycję myszy względem interface_surface
+        mouse_pos = pygame.mouse.get_pos()
+        scaled_mouse_x = int((mouse_pos[0] - interface_x) / skala_interfejsu)
+        scaled_mouse_y = int((mouse_pos[1] - interface_y) / skala_interfejsu)
+        
+        # Tymczasowo nadpisz pozycję myszy dla funkcji rysujących
+        original_mouse_get_pos = pygame.mouse.get_pos
+        def get_scaled_mouse_pos():
+            return (scaled_mouse_x, scaled_mouse_y)
+        pygame.mouse.get_pos = get_scaled_mouse_pos
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                    return False
         
-        # Wypełnij tło gradientem
-        for y in range(WYSOKOSC):
-            ratio = y / WYSOKOSC
+        # Wyczyść główny ekran
+        ekran.fill(NIEBIESKI_TLO)
+        
+        # Wyczyść powierzchnię interfejsu gradientem
+        for y in range(bazowa_wysokosc):
+            ratio = y / bazowa_wysokosc
             r = int(ZIELONY_TLO[0] * (1 - ratio) + NIEBIESKI_TLO[0] * ratio)
             g = int(ZIELONY_TLO[1] * (1 - ratio) + NIEBIESKI_TLO[1] * ratio)
             b = int(ZIELONY_TLO[2] * (1 - ratio) + NIEBIESKI_TLO[2] * ratio)
-            pygame.draw.line(ekran, (r, g, b), (0, y), (SZEROKOSC, y))
+            pygame.draw.line(interface_surface, (r, g, b), (0, y), (bazowa_szerokosc, y))
         
         # Wyśrodkowanie wszystkich elementów w pionie i poziomie
-        
-        # Oblicz pozycje dla idealnego wyśrodkowania pionowego
+          # Oblicz pozycje dla idealnego wyśrodkowania pionowego
         total_content_height = 80 + 200 + 60 + 80 + 60 + 100  # tytuł + karty + odstęp + głośność + odstęp + przycisk
         start_y = (WYSOKOSC - total_content_height) // 2
         
@@ -302,8 +348,8 @@ def strona_ustawien(ekran_zewnetrzny=None):
         tytul_rect = tekst_tytul.get_rect(center=(SZEROKOSC//2, start_y + 40))
         # Cień tytułu
         tekst_tytul_cien = czcionka_tytul.render("USTAWIENIA GRY", True, (0, 0, 0, 100))
-        ekran.blit(tekst_tytul_cien, (tytul_rect.x + 3, tytul_rect.y + 3))
-        ekran.blit(tekst_tytul, tytul_rect)
+        interface_surface.blit(tekst_tytul_cien, (tytul_rect.x + 3, tytul_rect.y + 3))
+        interface_surface.blit(tekst_tytul, tytul_rect)
         
         # Sekcja graczy - wyśrodkowana
         sekcja_y = start_y + 120
@@ -319,7 +365,7 @@ def strona_ustawien(ekran_zewnetrzny=None):
         for i in range(4):
             x_pozycja = start_x + i * (karta_szerokosc + odstepy)
             nazwy_graczy = ["Gracz 1", "Gracz 2", "Gracz 3", "Gracz 4"]
-            narysuj_karte_gracza(x_pozycja, sekcja_y, karta_szerokosc, karta_wysokosc, nazwy_graczy[i], i + 1)
+            narysuj_karte_gracza(interface_surface, x_pozycja, sekcja_y, karta_szerokosc, karta_wysokosc, nazwy_graczy[i], i + 1)
         
         # Sekcja głośności - wyśrodkowana
         glosnosc_y = sekcja_y + karta_wysokosc + 80
@@ -333,24 +379,35 @@ def strona_ustawien(ekran_zewnetrzny=None):
         glosnosc_naglowek_rect = tekst_glosnosc.get_rect(center=(SZEROKOSC//2, glosnosc_y - 40))
         # Cień nagłówka
         tekst_glosnosc_cien = czcionka_naglowek.render("GŁOŚNOŚĆ", True, (0, 0, 0, 100))
-        ekran.blit(tekst_glosnosc_cien, (glosnosc_naglowek_rect.x + 2, glosnosc_naglowek_rect.y + 2))
-        ekran.blit(tekst_glosnosc, glosnosc_naglowek_rect)
+        interface_surface.blit(tekst_glosnosc_cien, (glosnosc_naglowek_rect.x + 2, glosnosc_naglowek_rect.y + 2))
+        interface_surface.blit(tekst_glosnosc, glosnosc_naglowek_rect)
         
         # Suwak głośności
-        nowa_glosnosc = narysuj_suwak_glosnosci(glosnosc_x, glosnosc_y, glosnosc_szerokosc, glosnosc_wysokosc, glosnosc)
+        nowa_glosnosc = narysuj_suwak_glosnosci(interface_surface, glosnosc_x, glosnosc_y, glosnosc_szerokosc, glosnosc_wysokosc, glosnosc)
         if nowa_glosnosc != glosnosc:
             glosnosc = nowa_glosnosc
             print(f"Ustawiono głośność: {glosnosc*100:.0f}%")
-        
-        # Przycisk powrotu - wyśrodkowany
+          # Przycisk powrotu - wyśrodkowany
         przycisk_szerokosc = 300
         przycisk_wysokosc = 80
         przycisk_x = (SZEROKOSC - przycisk_szerokosc) // 2
         przycisk_y = glosnosc_y + glosnosc_wysokosc + 60
         
-        if utworz_przycisk("POWRÓT DO MENU", przycisk_x, przycisk_y, przycisk_szerokosc, przycisk_wysokosc, NIEBIESKI_TLO, BIALY):
+        if utworz_przycisk(interface_surface, "POWRÓT DO MENU", przycisk_x, przycisk_y, przycisk_szerokosc, przycisk_wysokosc, NIEBIESKI_TLO, BIALY):
             running = False
+            # Przywróć oryginalną funkcję myszy
+            pygame.mouse.get_pos = original_mouse_get_pos
             return True
+        
+        # Przywróć oryginalną funkcję myszy
+        pygame.mouse.get_pos = original_mouse_get_pos
+        
+        # Skaluj i wyrysuj interface_surface na głównym ekranie
+        if skala_interfejsu != 1.0:
+            scaled_surface = pygame.transform.scale(interface_surface, (skalowana_szerokosc, skalowana_wysokosc))
+            ekran.blit(scaled_surface, (interface_x, interface_y))
+        else:
+            ekran.blit(interface_surface, (interface_x, interface_y))
         
         # Aktualizuj ekran
         pygame.display.flip()
