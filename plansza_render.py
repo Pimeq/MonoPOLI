@@ -352,8 +352,8 @@ def narysuj_plansze(ekran, gracze, skala=1):
     
 
     # KARTA SZANSY (lewa)
-    karta1_x = plansza_x + rozmiar_pola_bok_wys + 50
-    karta1_y = plansza_y + plansza_rozmiar//2 - 60
+    karta1_x = surface_x  + rozmiar_pola_bok_wys + 50
+    karta1_y = surface_y  + surface_rozmiar//2 - 60
 
     # Jasno pomarańczowy środek i biała obramówka
     narysuj_zaokraglony_prostokat(plansza_surface, (255, 200, 100), (karta1_x, karta1_y, karta_szer, karta_wys), 6)
@@ -367,8 +367,8 @@ def narysuj_plansze(ekran, gracze, skala=1):
     plansza_surface.blit(tekst_szansa, tekst_rect)
 
     # KARTA SZANSY (prawa)
-    karta2_x = plansza_x + plansza_rozmiar - rozmiar_pola_bok_wys - karta_szer - 50
-    karta2_y = plansza_y + plansza_rozmiar//2 - 60
+    karta2_x = surface_x + surface_rozmiar  - rozmiar_pola_bok_wys - karta_szer - 50
+    karta2_y = surface_y  + surface_rozmiar //2 - 60
 
     narysuj_zaokraglony_prostokat(plansza_surface, (255, 200, 100), (karta2_x, karta2_y, karta_szer, karta_wys), 6)
     pygame.draw.rect(plansza_surface, BIALY, (karta2_x, karta2_y, karta_szer, karta_wys), 4, border_radius=6)
