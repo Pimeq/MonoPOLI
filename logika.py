@@ -4,10 +4,10 @@ from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_ka
 
 # Dane graczy (przykładowe)
 gracze = [
-    {"nazwa": "Jan", "pozycja": 0, "pieniadze": 1500, "kolor": (255, 50, 50), "budynki": 0, "ects": 0,'jail_free': 0},
-    {"nazwa": "Sołtys", "pozycja": 0, "pieniadze": 1500, "kolor": (50, 255, 50), "budynki": 0, "ects": 0,'jail_free': 0},
-    {"nazwa": "Doktor", "pozycja": 0, "pieniadze": 1500, "kolor": (50, 50, 255), "budynki": 0, "ects": 0,'jail_free': 0},
-    {"nazwa": "Analizator", "pozycja": 0, "pieniadze": 1500, "kolor": (255, 255, 50), "budynki": 0, "ects": 0,'jail_free': 0}
+    {"nazwa": "Gracz 1", "pozycja": 0, "pieniadze": 1500, "kolor": (255, 50, 50), "budynki": 0, "ects": 0,'jail_free': 0},
+    {"nazwa": "Gracz 2", "pozycja": 0, "pieniadze": 1500, "kolor": (50, 255, 50), "budynki": 0, "ects": 0,'jail_free': 0},
+    {"nazwa": "Gracz 3", "pozycja": 0, "pieniadze": 1500, "kolor": (50, 50, 255), "budynki": 0, "ects": 0,'jail_free': 0},
+    {"nazwa": "Gracz 4", "pozycja": 0, "pieniadze": 1500, "kolor": (255, 255, 50), "budynki": 0, "ects": 0,'jail_free': 0}
 ]
 
 # Aktualna tura gracza
