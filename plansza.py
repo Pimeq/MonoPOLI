@@ -60,6 +60,11 @@ def ekran_gry(ekran_zewnetrzny=None):
                     # Rozpocznij animację
                     animacja_aktywna = True
                     animacja_krok = 0
+                if event.key == pygame.K_SPACE and tura_wykonana and not animacja_aktywna:
+                    aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
+                    tura_wykonana = False
+                    kupowanie_pola = False
+                    print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
                 
         # Wypełnij tło
         ekran.fill(CIEMNY_NIEBIESKI)
