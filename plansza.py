@@ -77,7 +77,6 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
             # Obsługa klawiszy
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not tura_wykonana and not animacja_aktywna:
@@ -99,6 +98,25 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     tura_wykonana = False
                     kupowanie_pola = False
                     print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
+                
+                # DEBUG: Dodaj domek na aktualnym polu po wciśnięciu D
+                if event.key == pygame.K_d:
+                    pozycja = gracze[aktualny_gracz]["pozycja"]
+                    pole = pobierz_pole(pozycja)
+                    if pole["typ"] in ["wydzial", "akademik", "uslugi"]:
+                        if pole.get("domki", 0) < 4:
+                            pole["domki"] = pole.get("domki", 0) + 1
+                            print(f"[DEBUG] Dodano domek na {pole['nazwa']} (liczba domków: {pole['domki']})")
+                        else:
+                            print(f"[DEBUG] Na polu {pole['nazwa']} nie można mieć więcej niż 4 domki!")
+                
+                # DEBUG: Przekaż wszystkie posiadłości graczowi z tury po wciśnięciu F
+                if event.key == pygame.K_f:
+                    for idx, pole in enumerate(pola):
+                        if pole["typ"] in ["wydzial", "akademik", "uslugi"]:
+                            pole["wlasciciel"] = aktualny_gracz
+                            pole["domki"] = 0  # opcjonalnie zeruj domki
+                    print(f"[DEBUG] Wszystkie posiadłości zostały przekazane graczowi {gracze[aktualny_gracz]['nazwa']}")
                 
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
@@ -231,8 +249,37 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     gracze[aktualny_gracz]["budynki"] += 1
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił {pole['nazwa']} za {pole['cena']} PLN")
                     kupowanie_pola = False
+                    tura_wykonana = False
+                    aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
+                    continue
+
                 else:
                     print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy, aby kupić {pole['nazwa']}")
+        
+        # Przycisk kupowania domku na swoim polu (otwiera okno po kliknięciu)
+        if (
+            tura_wykonana and not animacja_aktywna and not kupowanie_pola
+        ):
+            pozycja = gracze[aktualny_gracz]["pozycja"]
+            pole = pobierz_pole(pozycja)
+            if (
+                pole["typ"] in ["wydzial", "akademik", "uslugi"]
+                and pole.get("wlasciciel") == aktualny_gracz
+                and pole.get("domki", 0) < 4
+            ):
+                cena_domku = int(pole["cena"] * 0.5)
+                # Przycisk w tym samym miejscu co kupno działki
+                if utworz_przycisk(ekran, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+                    from interfejs import wyswietl_okno_kupna_domkow
+                    ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz])
+                    if ilosc > 0:
+                        suma = ilosc * cena_domku
+                        if gracze[aktualny_gracz]["pieniadze"] >= suma:
+                            gracze[aktualny_gracz]["pieniadze"] -= suma
+                            pole["domki"] = pole.get("domki", 0) + ilosc
+                            print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił {ilosc} domków na {pole['nazwa']} (razem: {pole['domki']})")
+                        else:
+                            print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy na {ilosc} domków na {pole['nazwa']}")
         
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:

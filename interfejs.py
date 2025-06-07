@@ -319,3 +319,215 @@ def wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole, kwota)
     pygame.display.flip()
     
     return przycisk_klikniety
+
+def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
+    """Wyświetla okno do kupna domków na polu. Pozwala wybrać liczbę domków do kupienia (1-4, max 4 na polu). Zwraca liczbę domków do kupienia lub 0 jeśli anulowano."""
+    szerokosc_okna = 550  # Zwiększono z 450
+    wysokosc_okna = 520   # Zwiększono jeszcze bardziej z 500 na 520
+    x_okna = (1200 - szerokosc_okna) // 2
+    y_okna = (1000 - wysokosc_okna) // 2
+    
+    domki_aktualne = pole.get("domki", 0)
+    domki_max = 4
+    domki_mozna_kupic = domki_max - domki_aktualne
+    if domki_mozna_kupic <= 0:
+        return 0
+    cena_domku = int(pole["cena"] * 0.5)
+    wybrana_ilosc = 1
+    
+    # Zapisz aktualny stan ekranu
+    background = ekran.copy()
+    
+    # Główna pętla okna modalnego
+    running = True
+    clock = pygame.time.Clock()
+    
+    while running:
+        # Obsługa eventów
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return 0  # Anuluj
+                elif event.key == pygame.K_RETURN:
+                    # Kup wybrane domki
+                    suma = wybrana_ilosc * cena_domku
+                    if suma <= gracz['pieniadze']:
+                        return wybrana_ilosc
+                    else:
+                        return 0
+                elif event.key == pygame.K_LEFT or event.key == pygame.K_MINUS:
+                    if wybrana_ilosc > 1:
+                        wybrana_ilosc -= 1
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_PLUS:
+                    if wybrana_ilosc < domki_mozna_kupic:
+                        wybrana_ilosc += 1
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                
+                # Sprawdź przyciski minus/plus
+                btn_w = 50    # Zwiększono z 48
+                btn_h = 50    # Zwiększono z 48  
+                btn_y = y_okna + 365  # Dostosowane do y_info + 170 (gdzie y_info = ikona_y + 110 = y_okna + 85 + 110)
+                btn_x_minus = x_okna + szerokosc_okna//2 - 120  # Więcej miejsca z lewej
+                btn_x_plus = x_okna + szerokosc_okna//2 + 70    # Więcej miejsca z prawej
+                
+                btn_minus_rect = pygame.Rect(btn_x_minus, btn_y, btn_w, btn_h)
+                btn_plus_rect = pygame.Rect(btn_x_plus, btn_y, btn_w, btn_h)
+                
+                if btn_minus_rect.collidepoint(mouse_pos):
+                    if wybrana_ilosc > 1:
+                        wybrana_ilosc -= 1
+                elif btn_plus_rect.collidepoint(mouse_pos):
+                    if wybrana_ilosc < domki_mozna_kupic:
+                        wybrana_ilosc += 1
+                
+                # Sprawdź przyciski kup/anuluj - FIXED: dostosowane do pozycji w renderingu
+                btn_kup_x = x_okna + szerokosc_okna//2 - 190   # Dopasowane do renderingu (-190)
+                btn_anuluj_x = x_okna + szerokosc_okna//2 + 90  # Dopasowane do renderingu (+90)
+                btn_y2 = y_okna + wysokosc_okna - 90            # Jeszcze więcej miejsca z dołu (90px od dołu)
+                
+                btn_kup_rect = pygame.Rect(btn_kup_x, btn_y2, 100, 50)    # Większe przyciski
+                btn_anuluj_rect = pygame.Rect(btn_anuluj_x, btn_y2, 100, 50)  # Większe przyciski
+                
+                if btn_kup_rect.collidepoint(mouse_pos):
+                    suma = wybrana_ilosc * cena_domku
+                    if suma <= gracz['pieniadze']:
+                        return wybrana_ilosc
+                    else:
+                        return 0
+                elif btn_anuluj_rect.collidepoint(mouse_pos):
+                    return 0
+        
+        # Przywróć tło
+        ekran.blit(background, (0, 0))
+        
+        # Półprzezroczyste tło - FIXED
+        overlay = pygame.Surface((1200, 1000), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))  # RGBA format zamiast set_alpha
+        ekran.blit(overlay, (0, 0))
+        
+        # Okno
+        narysuj_zaokraglony_prostokat(ekran, BIALY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 15)
+        pygame.draw.rect(ekran, CZARNY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 3, border_radius=15)
+        
+        # Nagłówek
+        czcionka_tytul = pygame.font.SysFont('Arial', 28, bold=True)
+        tekst_tytul = czcionka_tytul.render("KUPNO DOMKÓW", True, ZIELONY)
+        tytul_rect = tekst_tytul.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_okna + 25)
+        ekran.blit(tekst_tytul, tytul_rect)
+        
+        # Linia pod tytułem
+        pygame.draw.line(ekran, ZIELONY, (x_okna + 30, y_okna + 65), (x_okna + szerokosc_okna - 30, y_okna + 65), 2)
+        
+        # Ikona domu/pola
+        ikona_y = y_okna + 85
+        pygame.draw.rect(ekran, pole.get("kolor", SZARY), (x_okna + szerokosc_okna//2 - 40, ikona_y, 80, 60), border_radius=5)
+        pygame.draw.rect(ekran, CZARNY, (x_okna + szerokosc_okna//2 - 40, ikona_y, 80, 60), 2, border_radius=5)
+        
+        # Nazwa pola
+        czcionka_pole = pygame.font.SysFont('Arial', 20, bold=True)
+        tekst_pole = czcionka_pole.render(pole["nazwa"], True, CZARNY)
+        pole_rect = tekst_pole.get_rect(centerx=x_okna + szerokosc_okna//2, y=ikona_y + 70)
+        ekran.blit(tekst_pole, pole_rect)
+        
+        # Info o domkach
+        czcionka_info = pygame.font.SysFont('Arial', 18)
+        y_info = ikona_y + 110
+        info1 = czcionka_info.render(f"Masz już: {domki_aktualne} domków", True, CZARNY)
+        info2 = czcionka_info.render(f"Możesz dokupić: {domki_mozna_kupic} (max 4)", True, CZARNY)
+        info3 = czcionka_info.render(f"Cena za domek: {cena_domku} PLN", True, CZARNY)
+        info4 = czcionka_info.render(f"Twój stan konta: {gracz['pieniadze']} PLN", True, (40, 100, 40))
+        ekran.blit(info1, (x_okna + 50, y_info))           # Więcej marginesu
+        ekran.blit(info2, (x_okna + 50, y_info + 30))      # Większe odstępy
+        ekran.blit(info3, (x_okna + 50, y_info + 60))      # Większe odstępy
+        ekran.blit(info4, (x_okna + 50, y_info + 90))      # Większe odstępy
+        
+        # Wybór ilości domków
+        czcionka_wyb = pygame.font.SysFont('Arial', 22, bold=True)
+        ekran.blit(czcionka_wyb.render("Wybierz liczbę domków do kupienia:", True, CZARNY), (x_okna + 50, y_info + 130))  # Więcej miejsca
+        
+        # Strzałki i liczba - FIXED buttons with better spacing
+        btn_w = 50
+        btn_h = 50
+        btn_y = y_info + 170  # Więcej miejsca od góry - musi pasować do pozycji w obsłudze zdarzeń
+        btn_x_minus = x_okna + szerokosc_okna//2 - 120  # Więcej miejsca z lewej
+        btn_x_plus = x_okna + szerokosc_okna//2 + 70    # Więcej miejsca z prawej
+        
+        # Sprawdź hover dla przycisków
+        mouse_pos = pygame.mouse.get_pos()
+        btn_minus_rect = pygame.Rect(btn_x_minus, btn_y, btn_w, btn_h)
+        btn_plus_rect = pygame.Rect(btn_x_plus, btn_y, btn_w, btn_h)
+        
+        # Przycisk minus
+        minus_color = (70, 120, 170) if btn_minus_rect.collidepoint(mouse_pos) else NIEBIESKI_POLE
+        narysuj_zaokraglony_prostokat(ekran, minus_color, btn_minus_rect, 12)
+        czcionka_btn = pygame.font.SysFont('Arial', 32, bold=True)
+        tekst_minus = czcionka_btn.render("-", True, BIALY)
+        minus_text_rect = tekst_minus.get_rect(center=btn_minus_rect.center)
+        ekran.blit(tekst_minus, minus_text_rect)
+        
+        # Przycisk plus
+        plus_color = (70, 120, 170) if btn_plus_rect.collidepoint(mouse_pos) else NIEBIESKI_POLE
+        narysuj_zaokraglony_prostokat(ekran, plus_color, btn_plus_rect, 12)
+        tekst_plus = czcionka_btn.render("+", True, BIALY)
+        plus_text_rect = tekst_plus.get_rect(center=btn_plus_rect.center)
+        ekran.blit(tekst_plus, plus_text_rect)
+        
+        # Liczba - wyśrodkowana między przyciskami
+        liczba_rect = pygame.Rect(x_okna + szerokosc_okna//2 - 30, btn_y, 60, btn_h)
+        pygame.draw.rect(ekran, ZIELONY, liczba_rect, border_radius=12)
+        liczba_txt = czcionka_wyb.render(str(wybrana_ilosc), True, BIALY)
+        liczba_text_rect = liczba_txt.get_rect(center=liczba_rect.center)
+        ekran.blit(liczba_txt, liczba_text_rect)
+        
+        # Suma - więcej miejsca między cenę a przyciskami
+        suma = wybrana_ilosc * cena_domku
+        czcionka_kwota = pygame.font.SysFont('Arial', 36, bold=True)
+        tekst_kwota = czcionka_kwota.render(f"{suma} PLN", True, CZERWONY)
+        kwota_rect = tekst_kwota.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_info + 240)
+        tlo_kwota = pygame.Rect(kwota_rect.x - 20, kwota_rect.y - 5, kwota_rect.width + 40, kwota_rect.height + 10)
+        narysuj_zaokraglony_prostokat(ekran, (255, 230, 230), tlo_kwota, 5)
+        ekran.blit(tekst_kwota, kwota_rect)
+        
+        # Przyciski kup i anuluj - pozycje z większym odstępem
+        btn_kup_x = x_okna + szerokosc_okna//2 - 190   # Więcej w lewo dla lepszego rozłożenia
+        btn_anuluj_x = x_okna + szerokosc_okna//2 + 90  # Więcej w prawo dla lepszego rozłożenia
+        btn_y2 = y_okna + wysokosc_okna - 90            # Jeszcze więcej miejsca z dołu (90px od dołu - więcej miejsca od ceny)
+        
+        btn_kup_rect = pygame.Rect(btn_kup_x, btn_y2, 100, 50)    # Większe przyciski
+        btn_anuluj_rect = pygame.Rect(btn_anuluj_x, btn_y2, 100, 50)  # Większe przyciski
+        
+        # Sprawdź hover
+        kup_hover = btn_kup_rect.collidepoint(mouse_pos)
+        anuluj_hover = btn_anuluj_rect.collidepoint(mouse_pos)
+        
+        # Przycisk Kup
+        kup_color = (50, 180, 50) if kup_hover else ZIELONY
+        if suma > gracz['pieniadze']:
+            kup_color = (150, 150, 150)  # Szary jeśli nie stać
+        narysuj_zaokraglony_prostokat(ekran, kup_color, btn_kup_rect, 10)
+        czcionka_btn_text = pygame.font.SysFont('Arial', 20, bold=True)  # Większa czcionka
+        tekst_kup = czcionka_btn_text.render("Kup", True, BIALY)
+        kup_text_rect = tekst_kup.get_rect(center=btn_kup_rect.center)
+        ekran.blit(tekst_kup, kup_text_rect)
+        
+        # Przycisk Anuluj
+        anuluj_color = (220, 50, 50) if anuluj_hover else CZERWONY
+        narysuj_zaokraglony_prostokat(ekran, anuluj_color, btn_anuluj_rect, 10)
+        tekst_anuluj = czcionka_btn_text.render("Anuluj", True, BIALY)
+        anuluj_text_rect = tekst_anuluj.get_rect(center=btn_anuluj_rect.center)
+        ekran.blit(tekst_anuluj, anuluj_text_rect)
+        
+        # Instrukcje - dostosowane do nowej pozycji przycisków
+        czcionka_instr = pygame.font.SysFont('Arial', 12)
+        tekst_instr = czcionka_instr.render("ENTER=Kup, ESC=Anuluj, ←→=Zmień ilość", True, (100, 100, 100))
+        instr_rect = tekst_instr.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_okna + wysokosc_okna - 30)
+        ekran.blit(tekst_instr, instr_rect)
+        
+        pygame.display.flip()
+        clock.tick(60)
+    
+    return 0
