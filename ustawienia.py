@@ -3,9 +3,8 @@ import pygame
 import pygame.gfxdraw
 import sys
 import math
-
-# Inicjalizacja Pygame
-pygame.init()
+import random
+import time
 
 # Paleta kolorów graczy
 KOLORY_GRACZY = [
@@ -21,6 +20,75 @@ KOLORY_GRACZY = [
 
 # Rozmiar okna
 SZEROKOSC, WYSOKOSC = 1200, 1000
+
+# Klasa animowanego tła (skopiowana z landing page)
+class AnimowaneTlo:
+    def __init__(self, szerokosc, wysokosc):
+        self.szerokosc = szerokosc
+        self.wysokosc = wysokosc
+        self.punkty = []
+        self.linie = []
+        self.czas = 0
+        
+        # Utwórz 20 losowych punktów
+        for _ in range(20):
+            self.punkty.append([random.randint(0, szerokosc), random.randint(0, wysokosc), 
+                              random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)])
+        
+        # Utwórz linie łączące punkty
+        self.przelicz_linie()
+    
+    def przelicz_linie(self):
+        self.linie = []
+        for i in range(len(self.punkty)):
+            for j in range(i+1, len(self.punkty)):
+                odleglosc = math.sqrt((self.punkty[i][0] - self.punkty[j][0])**2 + 
+                                    (self.punkty[i][1] - self.punkty[j][1])**2)
+                if odleglosc < 300:  # Łącz tylko punkty w odległości mniejszej niż 300
+                    alpha = int(255 * (1 - odleglosc / 300))
+                    self.linie.append((i, j, alpha))
+    
+    def aktualizuj(self):
+        self.czas += 0.01
+        
+        # Aktualizuj pozycje punktów
+        for punkt in self.punkty:
+            punkt[0] += punkt[2]
+            punkt[1] += punkt[3]
+            
+            # Dodaj delikatną sinusoidalną animację
+            punkt[0] += math.sin(self.czas + punkt[0] * 0.01) * 0.2
+            punkt[1] += math.cos(self.czas + punkt[1] * 0.01) * 0.2
+            
+            # Odbicie od krawędzi
+            if punkt[0] < 0:
+                punkt[0] = 0
+                punkt[2] *= -1
+            if punkt[0] > self.szerokosc:
+                punkt[0] = self.szerokosc
+                punkt[2] *= -1
+            if punkt[1] < 0:
+                punkt[1] = 0
+                punkt[3] *= -1
+            if punkt[1] > self.wysokosc:
+                punkt[1] = self.wysokosc
+                punkt[3] *= -1
+        
+        # Przeliczaj linie co 10 klatek
+        if int(self.czas * 100) % 10 == 0:
+            self.przelicz_linie()
+    
+    def rysuj(self, ekran):
+        # Rysuj linie
+        for i, j, alpha in self.linie:
+            kolor = (100, 150, 255, alpha // 3)
+            pygame.gfxdraw.line(ekran, int(self.punkty[i][0]), int(self.punkty[i][1]), 
+                              int(self.punkty[j][0]), int(self.punkty[j][1]), kolor)
+        
+        # Rysuj punkty
+        for punkt in self.punkty:
+            pygame.gfxdraw.filled_circle(ekran, int(punkt[0]), int(punkt[1]), 3, (150, 200, 255, 100))
+            pygame.gfxdraw.aacircle(ekran, int(punkt[0]), int(punkt[1]), 3, (200, 230, 255, 150))
 
 class KoloKolorow:
     def __init__(self, x, y, promien, kolor_gracza):
@@ -67,10 +135,10 @@ def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_teks
         kolor = kolor_hover
     
     # Cień
-    pygame.draw.rect(surface, (0, 0, 0, 60), (x+3, y+3, szerokosc, wysokosc), border_radius=15)
+    pygame.draw.rect(surface, (0, 0, 0, 60), (x+3, y+3, szerokosc, wysokosc), border_radius=0)
     
     # Rysuj przycisk
-    narysuj_zaokraglony_prostokat(surface, kolor, prostokat, 15)
+    narysuj_zaokraglony_prostokat(surface, kolor, prostokat, 0)
     
     # Renderuj tekst z antyaliasingiem
     tekst_surface = czcionka.render(tekst, True, kolor_tekstu)
@@ -245,32 +313,68 @@ def narysuj_karte_gracza(surface, x, y, szerokosc, wysokosc, nazwa="Gracz", nr_g
     # Pionek
     narysuj_pionek(surface, x + szerokosc//4, y + 125, szerokosc//2, wysokosc - 150, kolor_gracza)
 
+# Funkcja do animacji tytułu dla strony ustawień
+def animuj_tytul_ustawienia(ekran, x, y):
+    czcionka_tytul = pygame.font.SysFont('Arial', 48, bold=True)
+    
+    czas = pygame.time.get_ticks() / 1000
+    
+    # Animowany kolor (pulsujący)
+    kolor_pulsujacy = (
+        min(255, max(200, int(255 + 35 * math.sin(czas * 2)))),
+        min(255, max(200, int(255 + 35 * math.sin(czas * 2.5)))),
+        min(255, max(200, int(255 + 35 * math.cos(czas * 2))))
+    )
+    
+    # Renderowanie tekstu z efektem świecenia
+    tekst = czcionka_tytul.render("USTAWIENIA GRY", True, kolor_pulsujacy)
+    
+    # Efekt świecenia
+    for i in range(6, 0, -2):
+        alpha = 30 - i * 3
+        if alpha > 0:
+            powierzchnia = pygame.Surface((tekst.get_width() + i*2, tekst.get_height() + i*2), pygame.SRCALPHA)
+            powierzchnia.fill((0, 0, 0, 0))
+            pygame.gfxdraw.filled_ellipse(powierzchnia, powierzchnia.get_width()//2, powierzchnia.get_height()//2, 
+                                       powierzchnia.get_width()//2, powierzchnia.get_height()//2, 
+                                       (kolor_pulsujacy[0], kolor_pulsujacy[1], kolor_pulsujacy[2], alpha))
+            ekran.blit(powierzchnia, (x - i, y - i))
+    
+    # Cień tekstu
+    tekst_cien = czcionka_tytul.render("USTAWIENIA GRY", True, (0, 0, 0, 100))
+    ekran.blit(tekst_cien, (x + 3, y + 3))
+    
+    # Główny tekst
+    ekran.blit(tekst, (x, y))
 
-# Funkcja pomocnicza do skalowania pozycji myszy
-def skaluj_pozycje_myszy(event, interface_x, interface_y, skala_interfejsu, bazowa_szerokosc, bazowa_wysokosc):
-    """Skaluje pozycję myszy do współrzędnych interface_surface"""
-    if hasattr(event, 'pos'):
-        mouse_x, mouse_y = event.pos
-        # Przelicz pozycję myszy na współrzędne względem interface_surface
-        scaled_mouse_x = int((mouse_x - interface_x) / skala_interfejsu)
-        scaled_mouse_y = int((mouse_y - interface_y) / skala_interfejsu)
-        # Sprawdź czy pozycja jest w granicach interface_surface
-        if 0 <= scaled_mouse_x < bazowa_szerokosc and 0 <= scaled_mouse_y < bazowa_wysokosc:
-            event.pos = (scaled_mouse_x, scaled_mouse_y)
-            return True
-    return False
+# Funkcja do animowanego pionka dla strony ustawień
+def animuj_pionek_ustawienia(ekran, x, y, rozmiar, kolor_pionka):
+    czas = pygame.time.get_ticks() / 1000
+    
+    # Animacja skakania
+    offset_y = int(math.sin(czas * 2 + x * 0.01) * 8)
+    skala = 1.0 + 0.03 * math.sin(czas * 3 + y * 0.01)
+    
+    # Dodaj cień pod pionkiem
+    pygame.gfxdraw.filled_ellipse(ekran, x, y + rozmiar//2 - offset_y//2, 
+                               int(rozmiar * 0.6), int(rozmiar * 0.2), (0, 0, 0, 80))
+    
+    # Rysuj pionek z animacją
+    narysuj_pionek(ekran, x - int(rozmiar * skala)//2, y - offset_y, 
+                  int(rozmiar * skala), int(rozmiar * skala), kolor_pionka)
 
-# Funkcja główna dla strony ustawień
+# Funkcja główna dla strony ustawień z animowanym tłem
 def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
     """
-    Wyświetla ekran ustawień gry z wyśrodkowanymi elementami i obsługą skalowania
+    Wyświetla ekran ustawień gry z animowanym tłem jak na landing page
     """
     global ekran
     
     # Bazowe wymiary interfejsu
     bazowa_szerokosc = SZEROKOSC
     bazowa_wysokosc = WYSOKOSC
-      # Używaj przekazanego ekranu lub utwórz własny
+    
+    # Używaj przekazanego ekranu lub utwórz własny
     if ekran_zewnetrzny:
         ekran = ekran_zewnetrzny
         screen_width, screen_height = ekran.get_size()
@@ -278,6 +382,9 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
         pygame.display.set_caption("MonoPOLI - Ustawienia")
         screen_width, screen_height = SZEROKOSC, WYSOKOSC
+    
+    # Utwórz animowane tło
+    animowane_tlo = AnimowaneTlo(bazowa_szerokosc, bazowa_wysokosc)
     
     # Utwórz surface dla interfejsu o bazowym rozmiarze
     interface_surface = pygame.Surface((bazowa_szerokosc, bazowa_wysokosc), pygame.SRCALPHA)
@@ -292,7 +399,8 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
     
     # Wartość suwaka głośności
     glosnosc = 0.7
-      # Główna pętla
+    
+    # Główna pętla
     zegar = pygame.time.Clock()
     running = True
     
@@ -318,29 +426,39 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
                     return False
         
         # Wyczyść główny ekran
-        ekran.fill(NIEBIESKI_TLO)
+        ekran.fill((0, 0, 20))
         
-        # Wyczyść powierzchnię interfejsu gradientem
-        for y in range(bazowa_wysokosc):
-            ratio = y / bazowa_wysokosc
-            r = int(ZIELONY_TLO[0] * (1 - ratio) + NIEBIESKI_TLO[0] * ratio)
-            g = int(ZIELONY_TLO[1] * (1 - ratio) + NIEBIESKI_TLO[1] * ratio)
-            b = int(ZIELONY_TLO[2] * (1 - ratio) + NIEBIESKI_TLO[2] * ratio)
-            pygame.draw.line(interface_surface, (r, g, b), (0, y), (bazowa_szerokosc, y))
+        # ===== ANIMOWANE TŁO (tak samo jak na landing page) =====
+        # Narysuj animowane tło punktów i linii
+        animowane_tlo.aktualizuj()
+        animowane_tlo.rysuj(ekran)
         
-        # Wyśrodkowanie wszystkich elementów w pionie i poziomie
-          # Oblicz pozycje dla idealnego wyśrodkowania pionowego
+        # Rysuj półprzezroczysty gradient (tak samo jak na landing page)
+        for i in range(0, WYSOKOSC, 2):  # Rysuj co drugą linię dla szybkości
+            alpha = 150 - i * 0.15
+            if alpha > 0:
+                pygame.gfxdraw.hline(ekran, 0, SZEROKOSC, i, 
+                                  (0, int(30 + i * 0.05), int(80 + i * 0.15), int(alpha)))
+        
+        # Wyczyść powierzchnię interfejsu (przezroczysta)
+        interface_surface.fill((0, 0, 0, 0))
+        
+        # ===== ZAWARTOŚĆ STRONY USTAWIEŃ =====
+        
+        # Oblicz pozycje dla idealnego wyśrodkowania pionowego
         total_content_height = 80 + 200 + 60 + 80 + 60 + 100  # tytuł + karty + odstęp + głośność + odstęp + przycisk
         start_y = (WYSOKOSC - total_content_height) // 2
         
-        # Tytuł główny
-        czcionka_tytul = pygame.font.SysFont('Arial', 48, bold=True)
-        tekst_tytul = czcionka_tytul.render("USTAWIENIA GRY", True, BIALY)
-        tytul_rect = tekst_tytul.get_rect(center=(SZEROKOSC//2, start_y + 40))
-        # Cień tytułu
-        tekst_tytul_cien = czcionka_tytul.render("USTAWIENIA GRY", True, (0, 0, 0, 100))
-        interface_surface.blit(tekst_tytul_cien, (tytul_rect.x + 3, tytul_rect.y + 3))
-        interface_surface.blit(tekst_tytul, tytul_rect)
+        # Tytuł główny z animacją
+        tytul_x = SZEROKOSC//2 - 200
+        tytul_y = start_y + 40
+        animuj_tytul_ustawienia(interface_surface, tytul_x, tytul_y)
+        
+        # Animowane pionki w rogach
+        animuj_pionek_ustawienia(interface_surface, 80, 80, 60, KOLORY_GRACZY[0])
+        animuj_pionek_ustawienia(interface_surface, SZEROKOSC - 80, 80, 60, KOLORY_GRACZY[1])
+        animuj_pionek_ustawienia(interface_surface, 80, WYSOKOSC - 80, 60, KOLORY_GRACZY[2])
+        animuj_pionek_ustawienia(interface_surface, SZEROKOSC - 80, WYSOKOSC - 80, 60, KOLORY_GRACZY[3])
         
         # Sekcja graczy - wyśrodkowana
         sekcja_y = start_y + 120
@@ -364,9 +482,15 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         glosnosc_wysokosc = 80
         glosnosc_x = (SZEROKOSC - glosnosc_szerokosc) // 2
         
-        # Nagłówek głośności
+        # Nagłówek głośności z animacją
         czcionka_naglowek = pygame.font.SysFont('Arial', 32, bold=True)
-        tekst_glosnosc = czcionka_naglowek.render("GŁOŚNOŚĆ", True, BIALY)
+        czas = pygame.time.get_ticks() / 1000
+        kolor_naglowka = (
+            min(255, max(200, int(255 + 25 * math.sin(czas * 1.5)))),
+            min(255, max(200, int(255 + 25 * math.sin(czas * 1.8)))),
+            min(255, max(200, int(255 + 25 * math.cos(czas * 1.2))))
+        )
+        tekst_glosnosc = czcionka_naglowek.render("GŁOŚNOŚĆ", True, kolor_naglowka)
         glosnosc_naglowek_rect = tekst_glosnosc.get_rect(center=(SZEROKOSC//2, glosnosc_y - 40))
         # Cień nagłówka
         tekst_glosnosc_cien = czcionka_naglowek.render("GŁOŚNOŚĆ", True, (0, 0, 0, 100))
@@ -378,13 +502,14 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         if nowa_glosnosc != glosnosc:
             glosnosc = nowa_glosnosc
             print(f"Ustawiono głośność: {glosnosc*100:.0f}%")
-          # Przycisk powrotu - wyśrodkowany
+        
+        # Przycisk powrotu - wyśrodkowany
         przycisk_szerokosc = 300
         przycisk_wysokosc = 80
         przycisk_x = (SZEROKOSC - przycisk_szerokosc) // 2
         przycisk_y = glosnosc_y + glosnosc_wysokosc + 60
         
-        if utworz_przycisk(interface_surface, "POWRÓT DO MENU", przycisk_x, przycisk_y, przycisk_szerokosc, przycisk_wysokosc, NIEBIESKI_TLO, BIALY):
+        if utworz_przycisk(interface_surface, "POWRÓT DO MENU", przycisk_x, przycisk_y, przycisk_szerokosc, przycisk_wysokosc, CZERWONY_CIEMNY, BIALY):
             running = False
             # Przywróć oryginalną funkcję myszy
             pygame.mouse.get_pos = original_mouse_get_pos
@@ -393,7 +518,7 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         # Przywróć oryginalną funkcję myszy
         pygame.mouse.get_pos = original_mouse_get_pos
         
-        # Skaluj i wyrysuj interface_surface na głównym ekranie
+        # Narysuj interface_surface na głównym ekranie (z animowanym tłem)
         if skala_interfejsu != 1.0:
             scaled_surface = pygame.transform.scale(interface_surface, (skalowana_szerokosc, skalowana_wysokosc))
             ekran.blit(scaled_surface, (interface_x, interface_y))
@@ -405,3 +530,11 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         zegar.tick(60)
     
     return False
+
+# Test funkcji (jeśli uruchomiony bezpośrednio)
+if __name__ == "__main__":
+    pygame.init()
+    ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
+    pygame.display.set_caption("MonoPOLI - Ustawienia Test")
+    strona_ustawien(ekran)
+    pygame.quit()
