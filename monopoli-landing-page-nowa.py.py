@@ -1,10 +1,10 @@
+from kolory import *
 import pygame
 import sys
 import math
 import random
 from pygame import gfxdraw
 import time
-from kolory import *
 from pygame.locals import *
 from interfejs import utworz_przycisk, narysuj_zaokraglony_prostokat, narysuj_kostke, narysuj_pionek
 from plansza import *

@@ -77,7 +77,6 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
             # Obsługa klawiszy
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not tura_wykonana and not platnosc_do_wyswietlenia and not animacja_aktywna and not karta_do_wyswietlenia:
@@ -86,7 +85,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     suma_oczek = ostatni_rzut[0] + ostatni_rzut[1]
                     
                     # Zapisz pozycję początkową i docelową dla animacji
-                    animacja_start_pozycja = gracze[aktualny_gracz]["pozycja"]
+                    animacja_start_pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
                     animacja_docelowa_pozycja = (animacja_start_pozycja + suma_oczek) % 36
                     
                     # Rozpocznij animację
@@ -105,8 +104,27 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                     tura_wykonana = False
                     kupowanie_pola = False
-                    print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
+                    print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
 
+                
+                # DEBUG: Dodaj domek na aktualnym polu po wciśnięciu D
+                if event.key == pygame.K_d:
+                    pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
+                    pole = pobierz_pole(pozycja)
+                    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
+                        if pole.get(KEY_DOMKI, 0) < 4:
+                            pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + 1
+                            print(f"[DEBUG] Dodano domek na {pole[KEY_NAZWA]} (liczba domków: {pole[KEY_DOMKI]})")
+                        else:
+                            print(f"[DEBUG] Na polu {pole[KEY_NAZWA]} nie można mieć więcej niż 4 domki!")
+                
+                # DEBUG: Przekaż wszystkie posiadłości graczowi z tury po wciśnięciu F
+                if event.key == pygame.K_f:
+                    for idx, pole in enumerate(pola):
+                        if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
+                            pole[KEY_WLASCICIEL] = aktualny_gracz
+                            pole[KEY_DOMKI] = 0  # opcjonalnie zeruj domki
+                    print(f"[DEBUG] Wszystkie posiadłości zostały przekazane graczowi {gracze[aktualny_gracz][KEY_NAZWA]}")
                 
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
@@ -115,12 +133,12 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         if animacja_aktywna:
             if animacja_krok < ostatni_rzut[0] + ostatni_rzut[1]:
                 # Przesuń gracza o jeden krok
-                gracze[aktualny_gracz]["pozycja"] = (animacja_start_pozycja + animacja_krok + 1) % 36
+                gracze[aktualny_gracz][KEY_POZYCJA] = (animacja_start_pozycja + animacja_krok + 1) % 36
                 
                 # Sprawdź czy gracz przekroczył START (tylko podczas animacji)
-                if gracze[aktualny_gracz]["pozycja"] == 0 and animacja_krok > 0:
-                    gracze[aktualny_gracz]["pieniadze"] += 200
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} przeszedł przez START i otrzymuje 200 PLN")
+                if gracze[aktualny_gracz][KEY_POZYCJA] == 0 and animacja_krok > 0:
+                    gracze[aktualny_gracz][KEY_PIENIADZE] += 200
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN")
                 
                 animacja_krok += 1
                 
@@ -132,7 +150,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                 tura_wykonana = True
                 
                 # Sprawdzenie końcowej pozycji (pola specjalne, podatki itp.)
-                pozycja = gracze[aktualny_gracz]["pozycja"]
+                pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
                 pole = pobierz_pole(pozycja)
 
                 # Sprawdź czy gracz musi zapłacić czynsz
@@ -149,37 +167,35 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                     "rzut": ostatni_rzut[0] + ostatni_rzut[1]
                 })
                   # Logika pól specjalnych
-                if pole["typ"] == "podatek":
-                    # Pobierz opłatę
-                    gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} płaci {pole['cena']} PLN podatku")
+                if pole[KEY_TYP] == "podatek":
+                    gracze[aktualny_gracz][KEY_PIENIADZE] -= pole[KEY_CENA]
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} płaci {pole['cena']} PLN podatku")
                 
-                elif pole["typ"] == "narozne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
-                    # Idź do dziekanatu
-                    gracze[aktualny_gracz]["pozycja"] = 9
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} idzie na poprawkę (dziekanat)")
+                elif pole[KEY_TYP] == "narozne" and pole[KEY_NAZWA] == "IDŹ NA POPRAWKĘ":
+                    gracze[aktualny_gracz][KEY_POZYCJA] = 9
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} idzie na poprawkę (dziekanat)")
                 
-                elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
+                elif pole[KEY_TYP] == "specjalne" and pole[KEY_NAZWA] == "SZANSA":
                     # Wyciągnij kartę Szansa
                     from karty import pobierz_karte_szansa, wykonaj_karte
                     karta = pobierz_karte_szansa()
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} wyciągnął kartę Szansa")
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} wyciągnął kartę Szansa")
                     karta_do_wyswietlenia = ("SZANSA", karta)
                     wykonaj_karte(karta, aktualny_gracz, gracze)
                 
-                elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
+                elif pole[KEY_TYP] == "specjalne" and pole[KEY_NAZWA] == "KASA STUDENCKA":
                     # Wyciągnij kartę Kasa Studencka
                     from karty import pobierz_karte_kasa_studencka, wykonaj_karte
                     karta = pobierz_karte_kasa_studencka()
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} wyciągnął kartę Kasa Studencka")
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} wyciągnął kartę Kasa Studencka")
                     karta_do_wyswietlenia = ("KASA STUDENCKA", karta)
                     wykonaj_karte(karta, aktualny_gracz, gracze)
                 
                 # Za każdy ruch dodaj ECTS
-                gracze[aktualny_gracz]["ects"] += 1
+                gracze[aktualny_gracz][KEY_ECTS] += 1
                 
                 # Sprawdzenie, czy może kupić pole
-                if pole["typ"] in ["wydzial", "akademik", "uslugi"] and pole.get("wlasciciel") is None:
+                if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"] and pole.get(KEY_WLASCICIEL) is None:
                     kupowanie_pola = True
           # Rysuj planszę i pobierz jej wymiary
         plansza_x, plansza_y, plansza_rozmiar = narysuj_plansze(interface_surface, gracze)
@@ -224,23 +240,73 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         
         # Status tury
 
-        status_tekst = f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}"
+        status_tekst = f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}"
         status_render = czcionka_suma.render(status_tekst, True, ZLOTY)
         interface_surface.blit(status_render, (400, panel_dol_y + 35))
           # Przycisk kupowania pola
         if kupowanie_pola and tura_wykonana and not animacja_aktywna:
-            pozycja = gracze[aktualny_gracz]["pozycja"]
+            pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
             pole = pobierz_pole(pozycja)
-            if utworz_przycisk(interface_surface, f"Kup {pole['nazwa']} za {pole['cena']} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18):
+            if utworz_przycisk(interface_surface, f"Kup {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18):
 
-                if gracze[aktualny_gracz]["pieniadze"] >= pole["cena"]:
-                    gracze[aktualny_gracz]["pieniadze"] -= pole["cena"]
-                    pole["wlasciciel"] = aktualny_gracz
-                    gracze[aktualny_gracz]["budynki"] += 1
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} kupił {pole['nazwa']} za {pole['cena']} PLN")
+                if gracze[aktualny_gracz][KEY_PIENIADZE] >= pole[KEY_CENA]:
+                    gracze[aktualny_gracz][KEY_PIENIADZE] -= pole[KEY_CENA]
+                    pole[KEY_WLASCICIEL] = aktualny_gracz
+                    gracze[aktualny_gracz][KEY_BUDYNKI] += 1
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN")
                     kupowanie_pola = False
+                    tura_wykonana = False
+                    aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
+                    continue
+
                 else:
-                    print(f"Gracz {gracze[aktualny_gracz]['nazwa']} nie ma wystarczająco pieniędzy, aby kupić {pole['nazwa']}")
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy, aby kupić {pole[KEY_NAZWA]}")
+        
+        # Przycisk kupowania domku na swoim polu (otwiera okno po kliknięciu)
+        if (
+            tura_wykonana and not animacja_aktywna and not kupowanie_pola
+        ):
+            pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
+            pole = pobierz_pole(pozycja)
+            if (
+                pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]
+                and pole.get(KEY_WLASCICIEL) == aktualny_gracz
+                and pole.get(KEY_DOMKI, 0) < 4
+            ):
+                cena_domku = int(pole[KEY_CENA] * 0.5)
+                if utworz_przycisk(interface_surface, f"Kup domek na {pole[KEY_NAZWA]} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+                    ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz])
+                    interface_surface.fill(CIEMNY_NIEBIESKI)
+                    plansza_x, plansza_y, plansza_rozmiar = narysuj_plansze(interface_surface, gracze)
+                    panel_x = plansza_x + plansza_rozmiar + 20
+                    pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (panel_x, plansza_y, bazowa_szerokosc - panel_x - 20, plansza_rozmiar + 120), border_radius=10)
+                    czcionka_naglowek = pygame.font.SysFont('Arial', 30, bold=True)
+                    tekst_naglowek = czcionka_naglowek.render("Status graczy", True, BIALY)
+                    interface_surface.blit(tekst_naglowek, (panel_x + 20, plansza_y + 20))
+                    for i, gracz in enumerate(gracze):
+                        karta_wysokosc = 180
+                        karta_y = plansza_y + 70 + i * (karta_wysokosc + 10)
+                        narysuj_karte_gracza(interface_surface, gracz, panel_x + 20, karta_y, bazowa_szerokosc - panel_x - 60, karta_wysokosc, i == aktualny_gracz)
+                    pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (50, panel_dol_y, bazowa_szerokosc - 70, bazowa_wysokosc - panel_dol_y - 20), border_radius=10)
+                    narysuj_kostke(interface_surface, 80, panel_dol_y + 20, 50, ostatni_rzut[0])
+                    narysuj_kostke(interface_surface, 150, panel_dol_y + 20, 50, ostatni_rzut[1])
+                    czcionka_suma = pygame.font.SysFont('Arial', 24, bold=True)
+                    suma_tekst = czcionka_suma.render(f"Suma: {ostatni_rzut[0] + ostatni_rzut[1]}", True, BIALY)
+                    interface_surface.blit(suma_tekst, (230, panel_dol_y + 35))
+                    czcionka_instr = pygame.font.SysFont('Arial', 20)
+                    instr_tekst1 = czcionka_instr.render("Spacja = rzut kostką", True, BIALY)
+                    interface_surface.blit(instr_tekst1, (80, panel_dol_y + 80))
+                    status_tekst = f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}"
+                    status_render = czcionka_suma.render(status_tekst, True, ZLOTY)
+                    interface_surface.blit(status_render, (400, panel_dol_y + 35))
+                    if ilosc > 0:
+                        suma = ilosc * cena_domku
+                        if gracze[aktualny_gracz][KEY_PIENIADZE] >= suma:
+                            gracze[aktualny_gracz][KEY_PIENIADZE] -= suma
+                            pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + ilosc
+                            print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {ilosc} domków na {pole[KEY_NAZWA]} (razem: {pole[KEY_DOMKI]})")
+                        else:
+                            print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy na {ilosc} domków na {pole[KEY_NAZWA]}")
         
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
@@ -250,7 +316,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                 aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                 tura_wykonana = False
                 kupowanie_pola = False
-                print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
+                print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
             # Wyświetl okno płatności jeśli była transakcja
         if platnosc_do_wyswietlenia:
             from interfejs import wyswietl_okno_platnosci

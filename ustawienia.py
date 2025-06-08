@@ -1,3 +1,4 @@
+from kolory import *
 import pygame
 import pygame.gfxdraw
 import sys
@@ -5,30 +6,16 @@ import math
 import random
 import time
 
-# Inicjalizacja Pygame
-pygame.init()
-
-# Kolory
-NIEBIESKI_TLO = (39, 72, 98)
-ZIELONY_TLO = (123, 175, 157)
-CIEMNY_FIOLET = (30, 20, 50)
-CZERWONY = (230, 30, 30)
-CZERWONY_CIEMNY = (180, 20, 20)
-BIALY = (255, 255, 255)
-SZARY = (220, 220, 220)
-SZARY_JASNY = (235, 235, 235)
-SZARY_CIEMNY = (180, 180, 180)
-
 # Paleta kolorów graczy
 KOLORY_GRACZY = [
-    (220, 20, 20),    # Czerwony
-    (20, 20, 220),    # Niebieski
-    (20, 180, 20),    # Zielony
-    (220, 180, 20),   # Żółty
-    (180, 20, 180),   # Fioletowy
-    (220, 100, 20),   # Pomarańczowy
-    (20, 180, 180),   # Cyjan
-    (180, 100, 180),  # Różowy
+    KOLOR_GRACZ_CZERWONY,    # Czerwony
+    KOLOR_GRACZ_NIEBIESKI,   # Niebieski
+    KOLOR_GRACZ_ZIELONY,     # Zielony
+    KOLOR_GRACZ_ZOLTY,       # Żółty
+    KOLOR_GRACZ_FIOLETOWY,   # Fioletowy
+    KOLOR_GRACZ_POMARANCZOWY,# Pomarańczowy
+    KOLOR_GRACZ_CYJAN,       # Cyjan
+    KOLOR_GRACZ_ROZOWY,      # Różowy
 ]
 
 # Rozmiar okna
