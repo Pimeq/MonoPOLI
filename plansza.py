@@ -277,9 +277,34 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             ):
                 cena_domku = int(pole["cena"] * 0.5)
                 # Przycisk w tym samym miejscu co kupno działki
-                if utworz_przycisk(ekran, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
-                    from interfejs import wyswietl_okno_kupna_domkow
+                if utworz_przycisk(interface_surface, f"Kup domek na {pole['nazwa']} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+                    # Poprawka: okno modalne na głównym ekranie, nie na interface_surface
                     ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz])
+                    # Po zamknięciu okna odśwież interfejs
+                    interface_surface.fill(CIEMNY_NIEBIESKI)
+                    plansza_x, plansza_y, plansza_rozmiar = narysuj_plansze(interface_surface, gracze)
+                    panel_x = plansza_x + plansza_rozmiar + 20
+                    pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (panel_x, plansza_y, bazowa_szerokosc - panel_x - 20, plansza_rozmiar + 120), border_radius=10)
+                    czcionka_naglowek = pygame.font.SysFont('Arial', 30, bold=True)
+                    tekst_naglowek = czcionka_naglowek.render("Status graczy", True, BIALY)
+                    interface_surface.blit(tekst_naglowek, (panel_x + 20, plansza_y + 20))
+                    for i, gracz in enumerate(gracze):
+                        karta_wysokosc = 180
+                        karta_y = plansza_y + 70 + i * (karta_wysokosc + 10)
+                        narysuj_karte_gracza(interface_surface, gracz, panel_x + 20, karta_y, bazowa_szerokosc - panel_x - 60, karta_wysokosc, i == aktualny_gracz)
+                    pygame.draw.rect(interface_surface, NIEBIESKI_POLE, (50, panel_dol_y, bazowa_szerokosc - 70, bazowa_wysokosc - panel_dol_y - 20), border_radius=10)
+                    narysuj_kostke(interface_surface, 80, panel_dol_y + 20, 50, ostatni_rzut[0])
+                    narysuj_kostke(interface_surface, 150, panel_dol_y + 20, 50, ostatni_rzut[1])
+                    czcionka_suma = pygame.font.SysFont('Arial', 24, bold=True)
+                    suma_tekst = czcionka_suma.render(f"Suma: {ostatni_rzut[0] + ostatni_rzut[1]}", True, BIALY)
+                    interface_surface.blit(suma_tekst, (230, panel_dol_y + 35))
+                    czcionka_instr = pygame.font.SysFont('Arial', 20)
+                    instr_tekst1 = czcionka_instr.render("Spacja = rzut kostką", True, BIALY)
+                    interface_surface.blit(instr_tekst1, (80, panel_dol_y + 80))
+                    status_tekst = f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}"
+                    status_render = czcionka_suma.render(status_tekst, True, ZLOTY)
+                    interface_surface.blit(status_render, (400, panel_dol_y + 35))
+                    # --- koniec odświeżania interfejsu ---
                     if ilosc > 0:
                         suma = ilosc * cena_domku
                         if gracze[aktualny_gracz]["pieniadze"] >= suma:
