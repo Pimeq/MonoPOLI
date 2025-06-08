@@ -46,126 +46,141 @@ class KostkaTrojwymiarowa:
         self.obrot_y = 0
         self.obrot_z = 0
         
-        # Wolne stałe prędkości obrotu (bez docelowych wartości)
-        # Użycie różnych wartości dla każdej osi daje ciekawszy efekt
-        self.predkosc_x = 35  # stopni na sekundę
-        self.predkosc_y = 25   # stopni na sekundę
-        self.predkosc_z = 10
+        # Stałe prędkości obrotu
+        self.predkosc_x = 20  # stopni na sekundę
+        self.predkosc_y = 30   # stopni na sekundę
+        self.predkosc_z = 15
     
     def aktualizuj(self, delta_czas):
-        # Stały, ciągły obrót bez przeskoków
+        # Stały, ciągły obrót
         self.obrot_x = (self.obrot_x + self.predkosc_x * delta_czas) % 360
         self.obrot_y = (self.obrot_y + self.predkosc_y * delta_czas) % 360
         self.obrot_z = (self.obrot_z + self.predkosc_z * delta_czas) % 360
         
     def rysuj(self, ekran):
-        # Zawsze rysuj kostkę 3D w animacji
         self._rysuj_3d(ekran)
     
     def _rysuj_3d(self, ekran):
-        # Przygotowanie parametrów rysowania idealnie kwadratowej kostki
         centrum_x = self.x
         centrum_y = self.y
-        polowa_rozmiaru = self.rozmiar // 2
-        
-        # Definiuj wierzchołki kostki 3D - idealny sześcian
-        wierzcholki = [
-            [-polowa_rozmiaru, -polowa_rozmiaru, -polowa_rozmiaru],  # 0: tylny dolny lewy
-            [polowa_rozmiaru, -polowa_rozmiaru, -polowa_rozmiaru],   # 1: tylny dolny prawy
-            [polowa_rozmiaru, polowa_rozmiaru, -polowa_rozmiaru],    # 2: tylny górny prawy
-            [-polowa_rozmiaru, polowa_rozmiaru, -polowa_rozmiaru],   # 3: tylny górny lewy
-            [-polowa_rozmiaru, -polowa_rozmiaru, polowa_rozmiaru],   # 4: przedni dolny lewy
-            [polowa_rozmiaru, -polowa_rozmiaru, polowa_rozmiaru],    # 5: przedni dolny prawy
-            [polowa_rozmiaru, polowa_rozmiaru, polowa_rozmiaru],     # 6: przedni górny prawy
-            [-polowa_rozmiaru, polowa_rozmiaru, polowa_rozmiaru]     # 7: przedni górny lewy
+        polowa = self.rozmiar / 2.0
+
+        # 1) Definiujemy 8 wierzchołków kostki w lokalnym układzie
+        local_verts = [
+            (-polowa, -polowa, -polowa),
+            ( polowa, -polowa, -polowa),
+            ( polowa,  polowa, -polowa),
+            (-polowa,  polowa, -polowa),
+            (-polowa, -polowa,  polowa),
+            ( polowa, -polowa,  polowa),
+            ( polowa,  polowa,  polowa),
+            (-polowa,  polowa,  polowa),
         ]
-        
-        # Definiuj ściany kostki (indeksy wierzchołków)
-        sciany = [
-            [0, 1, 2, 3],  # Tył
-            [4, 5, 6, 7],  # Przód
-            [0, 4, 7, 3],  # Lewa
-            [1, 5, 6, 2],  # Prawa
-            [0, 1, 5, 4],  # Dół
-            [3, 2, 6, 7]   # Góra
+
+        # 2) Ściany - indeksy wierzchołków i odpowiadające im wartości oczek
+        faces = [
+            ( [0,1,2,3], 1 ),  # tył
+            ( [4,5,6,7], 6 ),  # przód
+            ( [0,4,7,3], 2 ),  # lewa
+            ( [1,5,6,2], 5 ),  # prawa
+            ( [0,1,5,4], 3 ),  # dół
+            ( [3,2,6,7], 4 ),  # góra
         ]
-        
-        # Wartości na ścianach - ZMIANA: wszystkie ściany mają tę samą wartość
-        stala_wartosc = 6  # Możesz ustawić dowolną wartość od 1 do 6
-        wartosci_scian = [stala_wartosc, stala_wartosc, stala_wartosc, stala_wartosc, stala_wartosc, stala_wartosc]
-        
-        # Kolory ścian - bardziej kontrastowe i wyraziste
         kolory_scian = [
-            (230, 50, 50),     # Czerwony
-            (180, 40, 40),    # Ciemno czerwony
-            (230, 50, 50),  # Jasny czerwony
-            (230, 50, 50),     # Ciemny czerwony
-            (180, 40, 40),   # Bardzo jasny czerwony
-            (230, 50, 50)      # Bardzo ciemny czerwony
-        ]
-        
-        # Obrót wierzchołków
-        obrocone_wierzcholki = []
-        for v in wierzcholki:
-            # Obroty w 3D
-            # Obrót X
-            x = v[0]
-            y = v[1] * math.cos(math.radians(self.obrot_x)) - v[2] * math.sin(math.radians(self.obrot_x))
-            z = v[1] * math.sin(math.radians(self.obrot_x)) + v[2] * math.cos(math.radians(self.obrot_x))
-            
-            # Obrót Y
-            x2 = x * math.cos(math.radians(self.obrot_y)) + z * math.sin(math.radians(self.obrot_y))
-            y2 = y
-            z2 = -x * math.sin(math.radians(self.obrot_y)) + z * math.cos(math.radians(self.obrot_y))
-            
-            # Obrót Z
-            x3 = x2 * math.cos(math.radians(self.obrot_z)) - y2 * math.sin(math.radians(self.obrot_z))
-            y3 = x2 * math.sin(math.radians(self.obrot_z)) + y2 * math.cos(math.radians(self.obrot_z))
-            z3 = z2
-            
-            # ZMIANA: Usunięcie efektu perspektywy dla idealnie kwadratowego wyglądu
-            # Teraz używamy ortogonalnej projekcji zamiast perspektywicznej
-            x_proj = x3
-            y_proj = y3
-            
-            obrocone_wierzcholki.append([centrum_x + x_proj, centrum_y + y_proj, z3])
-        
-        # Sortuj ściany według głębokości (aby najpierw rysować te z tyłu)
-        sortowane_sciany = []
-        for i, s in enumerate(sciany):
-            # Oblicz średnią wartość Z dla ściany
-            srednia_z = sum([obrocone_wierzcholki[j][2] for j in s]) / 4
-            sortowane_sciany.append((i, srednia_z))
-        
-        sortowane_sciany.sort(key=lambda x: x[1], reverse=True)
-        
-        # Rysuj ściany
-        for i, _ in sortowane_sciany:
-            punkty = [(obrocone_wierzcholki[j][0], obrocone_wierzcholki[j][1]) for j in sciany[i]]
-            
-            # Rysuj ścianę jako wielokąt z większym obramowaniem dla lepszej widoczności krawędzi
-            pygame.draw.polygon(ekran, kolory_scian[i], punkty)
-            pygame.draw.polygon(ekran, (0, 0, 0), punkty, 3)  # Grubszy czarny obrys (3px)
-            
-            # Dodaj kropki dla numeru na ścianie
-            wartosc = wartosci_scian[i]
-            
-            # Środek ściany
-            sr_x = sum([p[0] for p in punkty]) / 4
-            sr_y = sum([p[1] for p in punkty]) / 4
-            
-            # Oblicz rozmiar ściany dla odpowiedniego skalowania kropek
-            max_x = max([p[0] for p in punkty])
-            min_x = min([p[0] for p in punkty])
-            max_y = max([p[1] for p in punkty])
-            min_y = min([p[1] for p in punkty])
-            
-            # Oblicz odpowiedni promień kropek na podstawie rozmiaru ściany
-            rozmiar_sciany = min(max_x - min_x, max_y - min_y)
-            promien = rozmiar_sciany * 0.35  # Zwiększony promień dla lepszej widoczności
-            
-            # Dodaj kropki w zależności od wartości
-            self._rysuj_kropki(ekran, sr_x, sr_y, wartosc, promien)
+                (220, 220, 220),  # tył
+                (255, 255, 255),  # przód
+                (200, 200, 200),  # lewa
+                (240, 240, 240),  # prawa
+                (180, 180, 180),  # dół
+                (230, 230, 230),  # góra
+            ]
+        # 3) Obrót wszystkich wierzchołków i zapis w postaci (x3d,y3d,z3d,x2d,y2d)
+        transformed = []
+        for vx, vy, vz in local_verts:
+            # obrót X
+            ry = vy * math.cos(math.radians(self.obrot_x)) \
+                 - vz * math.sin(math.radians(self.obrot_x))
+            rz = vy * math.sin(math.radians(self.obrot_x)) \
+                 + vz * math.cos(math.radians(self.obrot_x))
+            rx = vx
+            # obrót Y
+            rz2 = rz * math.cos(math.radians(self.obrot_y)) \
+                  - rx * math.sin(math.radians(self.obrot_y))
+            rx2 = rz * math.sin(math.radians(self.obrot_y)) \
+                  + rx * math.cos(math.radians(self.obrot_y))
+            ry2 = ry
+            # obrót Z
+            rx3 = rx2 * math.cos(math.radians(self.obrot_z)) \
+                  - ry2 * math.sin(math.radians(self.obrot_z))
+            ry3 = rx2 * math.sin(math.radians(self.obrot_z)) \
+                  + ry2 * math.cos(math.radians(self.obrot_z))
+            rz3 = rz2
+
+            # rzutowanie ortogonalne
+            x2 = centrum_x + rx3
+            y2 = centrum_y + ry3
+            transformed.append((rx3, ry3, rz3, x2, y2))
+
+        # 4) Sortujemy ściany po głębokości (średnie z >0 z wierzchołków)
+        face_order = []
+        for idx, (inds, val) in enumerate(faces):
+            avg_z = sum(transformed[i][2] for i in inds) / 4.0
+            face_order.append((idx, avg_z))
+        face_order.sort(key=lambda x: x[1], reverse=True)
+
+        # 5) Rysujemy ściany i pipsy
+        for face_idx, _ in face_order:
+            inds, val = faces[face_idx]
+
+            # punkty 2D do polygonu
+            poly2d = [(transformed[i][3], transformed[i][4]) for i in inds]
+            pygame.draw.polygon(ekran, kolory_scian[face_idx], poly2d)
+            pygame.draw.polygon(ekran, (0,0,0), poly2d, 2)
+
+            # --- tutaj ustalamy ramkę ściany w 3D ---
+            # weź trzy wierzchołki, zrób bazę u,v na 3D
+            p0 = transformed[inds[0]][:3]
+            p1 = transformed[inds[1]][:3]
+            p3 = transformed[inds[3]][:3]
+            # wektor u wzdłuż pierwszej krawędzi
+            ux, uy, uz = (p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2])
+            # wektor v wzdłuż trzeciej krawędzi
+            vx, vy, vz = (p3[0]-p0[0], p3[1]-p0[1], p3[2]-p0[2])
+            # normalizacja u i v
+            ul = math.sqrt(ux*ux + uy*uy + uz*uz)
+            vl = math.sqrt(vx*vx + vy*vy + vz*vz)
+            ux, uy, uz = ux/ul, uy/ul, uz/ul
+            vx, vy, vz = vx/vl, vy/vl, vz/vl
+
+            # środek ściany w 3D
+            cx3 = sum(transformed[i][0] for i in inds) / 4.0
+            cy3 = sum(transformed[i][1] for i in inds) / 4.0
+            cz3 = sum(transformed[i][2] for i in inds) / 4.0
+
+            # promień rozstawu pipsów w lokalnych współrzędnych [0..1]
+            offset = polowa * 0.7
+
+            # pozycje pipsów w lokalnych współrzędnych u,v
+            pip_patterns = {
+                1: [(0,0)],
+                2: [(-.5,-.5),(.5,.5)],
+                3: [(-.5,-.5),(0,0),(.5,.5)],
+                4: [(-.5,-.5),(-.5,.5),(.5,-.5),(.5,.5)],
+                5: [(-.5,-.5),(-.5,.5),(0,0),(.5,-.5),(.5,.5)],
+                6: [(-.5,-.5),(-.5,0),(-.5,.5),(.5,-.5),(.5,0),(.5,.5)],
+            }
+
+            # rysujemy każdy pips jako punkt 3D → projektujemy
+            for pu, pv in pip_patterns[val]:
+                # punkt 3D
+                px3 = cx3 + ux * (pu * offset) + vx * (pv * offset)
+                py3 = cy3 + uy * (pu * offset) + vy * (pv * offset)
+                # pomijamy z3 (rzut orto)
+                sx = int(centrum_x + px3)
+                sy = int(centrum_y + py3)
+                # promień kropki w pikselach
+                r = max(3, int(offset * 0.15))
+                pygame.gfxdraw.filled_circle(ekran, sx, sy, r, (0,0,0))
     
     def _rysuj_kropki(self, ekran, x, y, wartosc, promien):
         # Układy kropek dla każdej wartości kostki
@@ -178,16 +193,16 @@ class KostkaTrojwymiarowa:
             6: [(-0.5, -0.5), (-0.5, 0), (-0.5, 0.5), (0.5, -0.5), (0.5, 0), (0.5, 0.5)]
         }
         
-        rozmiar_kropki = promien * 0.2  # Większe kropki
+        rozmiar_kropki = max(3, promien * 0.15)
         
         for px, py in kropki_pozycje[wartosc]:
-            # ZMIANA: Rysuj białe kropki zamiast czarnych
             pygame.draw.circle(
                 ekran,
-                (255, 255, 255),  # Biały kolor
-                (int(x + px * promien * 0.8), int(y + py * promien * 0.8)),  # Pozycja kropki
-                int(rozmiar_kropki)  # Rozmiar kropki
+                (0, 0, 0),  # Czarne kropki
+                (int(x + px * promien * 0.7), int(y + py * promien * 0.7)),
+                int(rozmiar_kropki)
             )
+
 class Czasteczka:
     def __init__(self, x, y, kolor):
         self.x = x
@@ -280,34 +295,41 @@ class AnimowaneTlo:
             pygame.gfxdraw.filled_circle(ekran, int(punkt[0]), int(punkt[1]), 3, (150, 200, 255, 100))
             pygame.gfxdraw.aacircle(ekran, int(punkt[0]), int(punkt[1]), 3, (200, 230, 255, 150))
 
-# Funkcja do rysowania pięknych przycisków
+# Poprawiona funkcja do rysowania przycisków - jednoznacznie czerwone
 def narysuj_przycisk_3d(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, animacja=0):
-    # Przygotowanie kolorów
-    kolor_jasny = (min(kolor[0] + 50, 255), min(kolor[1] + 50, 255), min(kolor[2] + 50, 255))
-    kolor_ciemny = (max(kolor[0] - 50, 0), max(kolor[1] - 50, 0), max(kolor[2] - 50, 0))
+    # Sprawdź hover
+    myszka_x, myszka_y = pygame.mouse.get_pos()
+    hover = (x <= myszka_x <= x + szerokosc and y <= myszka_y <= y + wysokosc)
     
-    # Zastosuj animację (dla efektu wciśnięcia przycisku)
-    pozycja_y = y + animacja * 5
+    # Określ kolor przycisku
+    if hover:
+        # Lekko jaśniejszy czerwony przy hover
+        kolor_przycisku = (min(kolor[0] + 30, 255), min(kolor[1] + 20, 255), min(kolor[2] + 20, 255))
+    else:
+        kolor_przycisku = kolor
+    
+    # Pozycja z animacją wciśnięcia
+    pozycja_y = y + animacja * 3
     
     # Narysuj cień
-    pygame.draw.rect(ekran, (0, 0, 0, 50), (x + 5, pozycja_y + 5, szerokosc, wysokosc))
+    pygame.draw.rect(ekran, (0, 0, 0, 80), (x + 3, pozycja_y + 3, szerokosc, wysokosc))
     
-    # Narysuj prostokąt główny - używając prostego pygame.draw.rect zamiast narysuj_zaokraglony_prostokat
-    pygame.draw.rect(ekran, kolor, (x, pozycja_y, szerokosc, wysokosc))
+    # Narysuj główny prostokąt
+    pygame.draw.rect(ekran, kolor_przycisku, (x, pozycja_y, szerokosc, wysokosc))
     
-    # Narysuj gradient na górze (efekt światła)
-    for i in range(20):
-        alpha = 120 - i * 6
+    # Dodaj subtelny gradient tylko na górze (bez białego koloru)
+    for i in range(15):
+        alpha = 50 - i * 3
         if alpha > 0:
-            pygame.draw.rect(ekran, (255, 255, 255, alpha), (x, pozycja_y, szerokosc, i))
-    
-    # Dodaj błyszczący efekt na przycisku
-    if animacja > 0:
-        for i in range(int(wysokosc * 0.7)):
-            alpha = int(20 - i * 0.3)
-            if alpha > 0:
-                pygame.draw.rect(ekran, (255, 255, 255, alpha), 
-                              (x + 10, pozycja_y + i + int(wysokosc * 0.3), szerokosc - 20, 1))
+            # Używamy tego samego koloru co przycisk, tylko jaśniejszego
+            gradient_kolor = (
+                min(kolor_przycisku[0] + 20, 255),
+                min(kolor_przycisku[1] + 15, 255),
+                min(kolor_przycisku[2] + 15, 255)
+            )
+            powierzchnia = pygame.Surface((szerokosc, 1), pygame.SRCALPHA)
+            powierzchnia.fill((*gradient_kolor, alpha))
+            ekran.blit(powierzchnia, (x, pozycja_y + i))
     
     # Dodaj tekst
     czcionka = pygame.font.SysFont('Arial', 30, bold=True)
@@ -316,22 +338,13 @@ def narysuj_przycisk_3d(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_te
     ekran.blit(tekst_powierzchnia, tekst_rect)
     
     # Sprawdź kliknięcie
-    myszka_x, myszka_y = pygame.mouse.get_pos()
     kliknieto = False
-    
-    if (x <= myszka_x <= x + szerokosc and 
-        pozycja_y <= myszka_y <= pozycja_y + wysokosc):
-        # Dodaj delikatną poświatę przy najechaniu
-        for i in range(10):
-            alpha = 20 - i * 2
-            if alpha > 0:
-                pygame.draw.rect(ekran, (255, 255, 255, alpha), 
-                              (x - i, pozycja_y - i, szerokosc + i*2, wysokosc + i*2))
-        
-        if pygame.mouse.get_pressed()[0]:
-            kliknieto = True
+    if hover and pygame.mouse.get_pressed()[0]:
+        kliknieto = True
             
     return kliknieto
+
+# Reszta kodu pozostaje bez zmian...
 
 # Efekt przejścia
 def efekt_przejscia(ekran, funkcja_docelowa, typ="fade"):
@@ -615,10 +628,9 @@ def main():
         kostka1.rysuj(ekran)
         kostka2.rysuj(ekran)
         
-        # Kostki obracają się cały czas, nie ma potrzeby rzucać ich ponownie
-        
         # Aktualizuj ekran
         pygame.display.flip()
         zegar.tick(60)
+
 if __name__ == "__main__":
     main()
