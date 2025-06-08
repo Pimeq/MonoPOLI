@@ -1,6 +1,6 @@
 import pygame
 import sys
-import math  # Dodany import math dla funkcji trygonometrycznych
+import math 
 from kolory import *
 from pola import pobierz_pole
 from interfejs import narysuj_zaokraglony_prostokat, narysuj_logo_pl
@@ -9,7 +9,11 @@ from interfejs import narysuj_zaokraglony_prostokat, narysuj_logo_pl
 def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
     """Rysuje pojedyncze pole planszy z uwzględnieniem jego typu - ulepszona wersja"""
     pole = pobierz_pole(pole_id)
-    kolor_pola = BIALY
+    
+    if pole_id%9 == 0:
+        kolor_pola = SZARY_CIEMNY
+    else:
+        kolor_pola = BIALY
     
     # Rysuj tło pola z zaokrąglonymi rogami
     narysuj_zaokraglony_prostokat(ekran, kolor_pola, (x, y, szerokosc, wysokosc), 5)
@@ -29,6 +33,8 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
         )
     
     # Dodaj ikony dla akademików - ładniejszy domek
+        #moim zdaniem niepotrzebne, wyglada cringe
+    '''
     if pole["typ"] == "akademik":
         # Tło ikony
         ikona_padding = 4  # Zmniejszony padding ikony
@@ -63,6 +69,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
             (x + szerokosc//2 - 4, y + wysokosc//5 + 2, 6, 8),
             border_radius=1
         )
+        '''
     
     # Dodaj ikony dla usług - ładniejsza ikona usług
     if pole["typ"] == "uslugi":
@@ -250,21 +257,25 @@ def oblicz_pozycje_gracza(plansza_x, plansza_y, plansza_rozmiar, pozycja, i, gra
         x, y = plansza_x + plansza_rozmiar // 2, plansza_y + plansza_rozmiar // 2
     return x, y
 
-# Funkcja do rysowania planszy MonoPOLI - ulepszona wersja
-def narysuj_plansze(ekran, gracze):
-    """Rysuje planszę do gry MonoPOLI - ulepszona wersja"""
-    # Math został już zaimportowany na górze pliku
+# Funkcja do rysowania planszy MonoPOLI - ulepszona wersja z obsługą skalowalności
+def narysuj_plansze(ekran, gracze, skala=1):
+    """Rysuje planszę do gry MonoPOLI - ulepszona wersja z obsługą skalowalności"""
+    # Bazowy rozmiar planszy (zawsze ten sam, niezależnie od skali)
+    bazowy_rozmiar = 800
     
-    # Wielkość planszy
-    plansza_rozmiar = 800
-    plansza_x = 50
-    plansza_y = 50
+    # Utwórz surface planszy o bazowym rozmiarze
+    plansza_surface = pygame.Surface((bazowy_rozmiar, bazowy_rozmiar), pygame.SRCALPHA)
     
-    # Tło planszy z cieniem
+    # Wszystkie rysowanie odbywa się na surface z bazowymi współrzędnymi
+    surface_x = 0
+    surface_y = 0
+    surface_rozmiar = bazowy_rozmiar
+    
+    # Tło planszy z cieniem na surface
     # Cień
-    pygame.draw.rect(ekran, (30, 30, 60), (plansza_x + 8, plansza_y + 8, plansza_rozmiar, plansza_rozmiar), border_radius=12)
+    pygame.draw.rect(plansza_surface, (30, 30, 60), (surface_x + 8, surface_y + 8, surface_rozmiar, surface_rozmiar), border_radius=12)
     # Główna plansza
-    narysuj_zaokraglony_prostokat(ekran, NIEBIESKI_POLE, (plansza_x, plansza_y, plansza_rozmiar, plansza_rozmiar), 10)
+    narysuj_zaokraglony_prostokat(plansza_surface, NIEBIESKI_POLE, (surface_x, surface_y, surface_rozmiar, surface_rozmiar), 10)
     
     # Ustawienia pól
     rozmiar_pola_naroza = 120  # Zmniejszony rozmiar pól narożnych
@@ -273,135 +284,91 @@ def narysuj_plansze(ekran, gracze):
     
     # Środek planszy z ładniejszym tłem - dostosowany do nowych rozmiarów pól
     narysuj_zaokraglony_prostokat(
-        ekran, 
+        plansza_surface, 
         CZERWONY_TLO, 
-        (plansza_x + rozmiar_pola_bok_wys, plansza_y + rozmiar_pola_bok_wys, 
-         plansza_rozmiar - 2*rozmiar_pola_bok_wys, plansza_rozmiar - 2*rozmiar_pola_bok_wys), 
+        (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys, 
+         surface_rozmiar - 2*rozmiar_pola_bok_wys, surface_rozmiar - 2*rozmiar_pola_bok_wys), 
         8
     )
     
-    # Efekt 3D dla środka planszy - cienki biały pasek na górze
-    pygame.draw.rect(
-        ekran, 
-        (250, 180, 180), 
-        (plansza_x + rozmiar_pola_bok_wys, plansza_y + rozmiar_pola_bok_wys, 
-         plansza_rozmiar - 2*rozmiar_pola_bok_wys, 4), 
-        border_radius=8
-    )
     
-    # Efekt 3D dla środka planszy - cienki biały pasek po lewej
-    pygame.draw.rect(
-        ekran, 
-        (250, 180, 180), 
-        (plansza_x + rozmiar_pola_bok_wys, plansza_y + rozmiar_pola_bok_wys, 
-         4, plansza_rozmiar - 2*rozmiar_pola_bok_wys), 
-        border_radius=8
-    )
-    
-    # Delikatny gradient na środku
-    srodek_szer = plansza_rozmiar - 2*rozmiar_pola_bok_wys
-    for i in range(20):  # Zmniejszona liczba iteracji
-        alpha = 200 - i * 8  # Zmniejszająca się przezroczystość
-        if alpha < 0:
-            alpha = 0
-        s = pygame.Surface((srodek_szer - i*2, srodek_szer - i*2), pygame.SRCALPHA)
-        s.fill((255, 255, 255, alpha))
-        ekran.blit(s, (plansza_x + rozmiar_pola_bok_wys + i, plansza_y + rozmiar_pola_bok_wys + i))
-    
-    # Logo i tytuł w środku
-    logo_rozmiar = 120  # Zmniejszony rozmiar logo
-    narysuj_logo_pl(
-        ekran, 
-        plansza_x + plansza_rozmiar//2 - logo_rozmiar//2, 
-        plansza_y + plansza_rozmiar//2 - logo_rozmiar//2, 
-        logo_rozmiar
-    )
+
+    # Jednolity kolor na środku planszy z czarnym obramowaniem
+    srodek_szer = surface_rozmiar - 2 * rozmiar_pola_bok_wys
+
+    ss = pygame.Surface((srodek_szer, srodek_szer))
+    ss.fill((139, 35, 29))  # Stały czerwony kolor
+    ekran.blit(ss, (surface_x + rozmiar_pola_bok_wys, surface_y + rozmiar_pola_bok_wys))
+
     
     # Tytuł gry z cieniem
-    czcionka_tytul = pygame.font.SysFont('Arial', 56, bold=True)  # Zmniejszony rozmiar czcionki
+    czcionka_tytul = pygame.font.SysFont('Arial', 70, bold=True)
     # Cień
-    tekst_mono_cien = czcionka_tytul.render("Mono", True, (100, 100, 100))
-    tekst_poli_cien = czcionka_tytul.render("POLI", True, (100, 100, 100))
-    ekran.blit(tekst_mono_cien, (plansza_x + plansza_rozmiar//2 - 120 + 3, plansza_y + plansza_rozmiar//2 - 140 + 3))
-    ekran.blit(tekst_poli_cien, (plansza_x + plansza_rozmiar//2 - 5 + 3, plansza_y + plansza_rozmiar//2 - 140 + 3))
+
+    tekst_mono_cien = czcionka_tytul.render("Mono", True, (119, 25, 19))
+    tekst_poli_cien = czcionka_tytul.render("POLI", True, (119, 25, 19))
+    plansza_surface.blit(tekst_mono_cien, (surface_x + surface_rozmiar//2 - 150 + 3, surface_y + surface_rozmiar//2 - 240 + 3))
+    plansza_surface.blit(tekst_poli_cien, (surface_x + surface_rozmiar//2 + 25 + 3, surface_y + surface_rozmiar//2 - 200 + 3))
+
     
     # Tekst główny
     tekst_mono = czcionka_tytul.render("Mono", True, BIALY)
     tekst_poli = czcionka_tytul.render("POLI", True, CZERWONY)
-    ekran.blit(tekst_mono, (plansza_x + plansza_rozmiar//2 - 120, plansza_y + plansza_rozmiar//2 - 140))
-    ekran.blit(tekst_poli, (plansza_x + plansza_rozmiar//2 - 5, plansza_y + plansza_rozmiar//2 - 140))
+
+    plansza_surface.blit(tekst_mono, (surface_x + surface_rozmiar//2 - 150, surface_y + surface_rozmiar//2 - 240))
+    plansza_surface.blit(tekst_poli, (surface_x + surface_rozmiar//2 + 25, surface_y + surface_rozmiar//2 - 200))
     
-    # Podtytuł z lepszym formatowaniem
-    czcionka_podtytul = pygame.font.SysFont('Arial', 32, bold=True)  # Zmniejszony rozmiar czcionki
-    # Cień
-    tekst_politechnika_cien = czcionka_podtytul.render("Politechnika", True, (100, 100, 100))
-    tekst_lodzka_cien = czcionka_podtytul.render("Łódzka", True, (100, 100, 100))
-    ekran.blit(tekst_politechnika_cien, (plansza_x + plansza_rozmiar//2 - 80 + 2, plansza_y + plansza_rozmiar//2 + 70 + 2))
-    ekran.blit(tekst_lodzka_cien, (plansza_x + plansza_rozmiar//2 - 35 + 2, plansza_y + plansza_rozmiar//2 + 105 + 2))
-    
-    # Tekst główny
-    tekst_politechnika = czcionka_podtytul.render("Politechnika", True, BIALY)
-    tekst_lodzka = czcionka_podtytul.render("Łódzka", True, BIALY)
-    ekran.blit(tekst_politechnika, (plansza_x + plansza_rozmiar//2 - 80, plansza_y + plansza_rozmiar//2 + 70))
-    ekran.blit(tekst_lodzka, (plansza_x + plansza_rozmiar//2 - 35, plansza_y + plansza_rozmiar//2 + 105))
+
+
     
     # Ładniejsze pionki kart pytań - dostosowane do nowych wymiarów planszy
     # Pierwsza karta
-    karta_szer = 60  # Zmniejszona szerokość karty
-    karta_wys = 75   # Zmniejszona wysokość karty
+    karta_szer = 100  # Zmniejszona szerokość karty
+    karta_wys = 160   # Zmniejszona wysokość karty
     
-    # Pozycje kart dopasowane do rozmiarów planszy - symetrycznie rozmieszczone
-    karta1_x = plansza_x + rozmiar_pola_bok_wys + 50
-    karta1_y = plansza_y + plansza_rozmiar//2 - 20
+
+    # KARTA SZANSY (lewa)
+    karta1_x = surface_x  + rozmiar_pola_bok_wys + 50
+    karta1_y = surface_y  + surface_rozmiar//2 - 60
+
+    # Jasno pomarańczowy środek i biała obramówka
+    narysuj_zaokraglony_prostokat(plansza_surface, (255, 200, 100), (karta1_x, karta1_y, karta_szer, karta_wys), 6)
+    pygame.draw.rect(plansza_surface, BIALY, (karta1_x, karta1_y, karta_szer, karta_wys), 4, border_radius=6)
+
+    # Znak zapytania poziomo na środku karty
+    czcionka_szansa = pygame.font.SysFont('Arial', 80, bold=True)
+    tekst_szansa = czcionka_szansa.render("?", True, (255, 120, 0))
+    tekst_szansa = pygame.transform.rotate(tekst_szansa, 0)  # poziomo
+    tekst_rect = tekst_szansa.get_rect(center=(karta1_x + karta_szer // 2, karta1_y + karta_wys // 2))
+    plansza_surface.blit(tekst_szansa, tekst_rect)
+
+    # KARTA SZANSY (prawa)
+    karta2_x = surface_x + surface_rozmiar  - rozmiar_pola_bok_wys - karta_szer - 50
+    karta2_y = surface_y  + surface_rozmiar //2 - 60
+
+    narysuj_zaokraglony_prostokat(plansza_surface, (255, 200, 100), (karta2_x, karta2_y, karta_szer, karta_wys), 6)
+    pygame.draw.rect(plansza_surface, BIALY, (karta2_x, karta2_y, karta_szer, karta_wys), 4, border_radius=6)
+
+    tekst_szansa2 = czcionka_szansa.render("?", True, (255, 120, 0))
+    tekst_szansa2 = pygame.transform.rotate(tekst_szansa2, 0)
+    tekst_rect2 = tekst_szansa2.get_rect(center=(karta2_x + karta_szer // 2, karta2_y + karta_wys // 2))
+    plansza_surface.blit(tekst_szansa2, tekst_rect2)
     
-    narysuj_zaokraglony_prostokat(ekran, SZARY, (karta1_x, karta1_y, karta_szer, karta_wys), 6)
-    # Górny jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta1_x, karta1_y, karta_szer, 4), border_radius=6)
-    # Lewy jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta1_x, karta1_y, 4, karta_wys), border_radius=6)
+
     
-    pygame.draw.rect(ekran, (240, 240, 240), (karta1_x + 8, karta1_y + 8, karta_szer - 16, 15), border_radius=2)
-    pygame.draw.rect(ekran, (240, 240, 240), (karta1_x + 8, karta1_y + 30, karta_szer - 16, 15), border_radius=2)
-    
-    # Ikona znaku zapytania
-    pygame.draw.circle(ekran, CZARNY, (karta1_x + karta_szer//2, karta1_y + karta_wys - 15), 10)
-    pygame.draw.circle(ekran, SZARY, (karta1_x + karta_szer//2, karta1_y + karta_wys - 15), 8)
-    czcionka_znakzap = pygame.font.SysFont('Arial', 16, bold=True)
-    tekst_znakzap = czcionka_znakzap.render("?", True, CZARNY)
-    ekran.blit(tekst_znakzap, (karta1_x + karta_szer//2 - 4, karta1_y + karta_wys - 22))
-    
-    # Druga karta
-    karta2_x = plansza_x + plansza_rozmiar - rozmiar_pola_bok_wys - karta_szer - 50
-    karta2_y = plansza_y + plansza_rozmiar//2 - 20
-    
-    narysuj_zaokraglony_prostokat(ekran, SZARY, (karta2_x, karta2_y, karta_szer, karta_wys), 6)
-    # Górny jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta2_x, karta2_y, karta_szer, 4), border_radius=6)
-    # Lewy jaśniejszy pasek karty (efekt 3D)
-    pygame.draw.rect(ekran, (180, 180, 180), (karta2_x, karta2_y, 4, karta_wys), border_radius=6)
-    
-    pygame.draw.rect(ekran, (240, 240, 240), (karta2_x + 8, karta2_y + 8, karta_szer - 16, 15), border_radius=2)
-    pygame.draw.rect(ekran, (240, 240, 240), (karta2_x + 8, karta2_y + 30, karta_szer - 16, 15), border_radius=2)
-    
-    # Ikona znaku zapytania
-    pygame.draw.circle(ekran, CZARNY, (karta2_x + karta_szer//2, karta2_y + karta_wys - 15), 10)
-    pygame.draw.circle(ekran, SZARY, (karta2_x + karta_szer//2, karta2_y + karta_wys - 15), 8)
-    tekst_znakzap = czcionka_znakzap.render("?", True, CZARNY)
-    ekran.blit(tekst_znakzap, (karta2_x + karta_szer//2 - 4, karta2_y + karta_wys - 22))
-    
-    # Rysowanie pól na planszy
+    # Rysowanie pól na planszy - na surface
     # Narożniki
-    narysuj_pole(ekran, plansza_x, plansza_y + plansza_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 0)  # START (lewy dolny róg)
-    narysuj_pole(ekran, plansza_x, plansza_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 9)  # DZIEKANAT (lewy górny róg)
-    narysuj_pole(ekran, plansza_x + plansza_rozmiar - rozmiar_pola_naroza, plansza_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 18)  # PARKING (prawy górny róg)
-    narysuj_pole(ekran, plansza_x + plansza_rozmiar - rozmiar_pola_naroza, plansza_y + plansza_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 27)  # IDŹ NA POPRAWKĘ (prawy dolny róg)
+    narysuj_pole(plansza_surface, surface_x, surface_y + surface_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 0)  # START (lewy dolny róg)
+    narysuj_pole(plansza_surface, surface_x, surface_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 9)  # DZIEKANAT (lewy górny róg)
+    narysuj_pole(plansza_surface, surface_x + surface_rozmiar - rozmiar_pola_naroza, surface_y, rozmiar_pola_naroza, rozmiar_pola_naroza, 18)  # PARKING (prawy górny róg)
+    narysuj_pole(plansza_surface, surface_x + surface_rozmiar - rozmiar_pola_naroza, surface_y + surface_rozmiar - rozmiar_pola_naroza, rozmiar_pola_naroza, rozmiar_pola_naroza, 27)  # IDŹ NA POPRAWKĘ (prawy dolny róg)
 
     # Lewa krawędź (pola 1-8) - od dołu do góry
     for i in range(1, 9):
         narysuj_pole(
-            ekran,
-            plansza_x,
-            plansza_y + plansza_rozmiar - rozmiar_pola_naroza - i * rozmiar_pola_bok_szer,
+            plansza_surface,
+            surface_x,
+            surface_y + surface_rozmiar - rozmiar_pola_naroza - i * rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,
             rozmiar_pola_bok_szer,
             i
@@ -410,9 +377,9 @@ def narysuj_plansze(ekran, gracze):
     # Górna krawędź (pola 10-17) - od lewej do prawej
     for i in range(10, 18):
         narysuj_pole(
-            ekran,
-            plansza_x + rozmiar_pola_naroza + (i - 10) * rozmiar_pola_bok_szer,
-            plansza_y,
+            plansza_surface,
+            surface_x + rozmiar_pola_naroza + (i - 10) * rozmiar_pola_bok_szer,
+            surface_y,
             rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,
             i
@@ -421,9 +388,9 @@ def narysuj_plansze(ekran, gracze):
     # Prawa krawędź (pola 19-26) - od góry do dołu
     for i in range(19, 27):
         narysuj_pole(
-            ekran,
-            plansza_x + plansza_rozmiar - rozmiar_pola_naroza,
-            plansza_y + rozmiar_pola_naroza + (i - 19) * rozmiar_pola_bok_szer,
+            plansza_surface,
+            surface_x + surface_rozmiar - rozmiar_pola_naroza,
+            surface_y + rozmiar_pola_naroza + (i - 19) * rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,
             rozmiar_pola_bok_szer,
             i
@@ -432,31 +399,43 @@ def narysuj_plansze(ekran, gracze):
     # Dolna krawędź (pola 28-35) - od prawej do lewej
     for i in range(28, 36):
         narysuj_pole(
-            ekran,
-            plansza_x + plansza_rozmiar - rozmiar_pola_naroza - (i - 27) * rozmiar_pola_bok_szer,
-            plansza_y + plansza_rozmiar - rozmiar_pola_naroza,
+            plansza_surface,
+            surface_x + surface_rozmiar - rozmiar_pola_naroza - (i - 27) * rozmiar_pola_bok_szer,
+            surface_y + surface_rozmiar - rozmiar_pola_naroza,
             rozmiar_pola_bok_szer,
             rozmiar_pola_naroza,
             i
         )
 
-    # Pozycje graczy na planszy
+    # Pozycje graczy na planszy - na surface z bazowymi współrzędnymi
     gracze_count = len(gracze)
     for i, gracz in enumerate(gracze):
         pozycja = gracz["pozycja"]
-        x, y = oblicz_pozycje_gracza(plansza_x, plansza_y, plansza_rozmiar, pozycja, i, gracze_count)
+        x, y = oblicz_pozycje_gracza(surface_x, surface_y, surface_rozmiar, pozycja, i, gracze_count)
         
         # Rysuj ładniejszy pionek gracza z efektem 3D
         # Cień
-        pygame.draw.circle(ekran, (50, 50, 50), (x + 2, y + 2), 12)  # Zmniejszony rozmiar pionka
+        pygame.draw.circle(plansza_surface, (50, 50, 50), (x + 2, y + 2), 12)  # Zmniejszony rozmiar pionka
         # Główna część pionka
-        pygame.draw.circle(ekran, gracz["kolor"], (x, y), 12)
+        pygame.draw.circle(plansza_surface, gracz["kolor"], (x, y), 12)
         # Odblaski
-        pygame.draw.circle(ekran, CZARNY, (x, y), 12, 1)  # Obramowanie
+        pygame.draw.circle(plansza_surface, CZARNY, (x, y), 12, 1)  # Obramowanie
         # Wewnętrzny krąg
-        pygame.draw.circle(ekran, mix_color(gracz["kolor"], BIALY, 0.3), (x, y), 8)
+        pygame.draw.circle(plansza_surface, mix_color(gracz["kolor"], BIALY, 0.3), (x, y), 8)
         # Odblask
-        pygame.draw.circle(ekran, BIALY, (x - 3, y - 3), 3)
+        pygame.draw.circle(plansza_surface, BIALY, (x - 3, y - 3), 3)
+    
+    # Skalowanie i blitowanie na główny ekran
+    plansza_rozmiar = int(bazowy_rozmiar * skala)
+    if skala != 1.0:
+        plansza_surface = pygame.transform.scale(plansza_surface, (plansza_rozmiar, plansza_rozmiar))
+    
+    # Pozycja planszy na ekranie (wycentrowana)
+    plansza_x = 50
+    plansza_y = 50
+    
+    # Blituj przeskalowaną planszę na główny ekran
+    ekran.blit(plansza_surface, (plansza_x, plansza_y))
     
     return plansza_x, plansza_y, plansza_rozmiar  # Zwracamy wymiary planszy do późniejszego użycia
 

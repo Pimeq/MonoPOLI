@@ -13,12 +13,12 @@ karty_szansa = [
     {
         "tekst": "Idź do DZIEKANATU\nJeśli przejdziesz przez START,\nzbierz 200 PLN",
         "typ": "ruch",
-        "pozycja": 10
+        "pozycja": 9
     },
     {
         "tekst": "Plagiat!!!\nZostałeś złapany na plagiacie\nIdziesz do dziekanatu\nNie przechodź przez START",
         "typ": "ruch",
-        "pozycja": 30
+        "pozycja": 9
     },
     {
         "tekst": "Nie wiesz jak działają ECTS\n Placisz:200 PLN",
@@ -62,7 +62,7 @@ karty_szansa = [
         "kwota": 3
     },
     {
-        "tekst": "Karta 'Wyjście z Poprawki'\nMożesz zatrzymać tę kartę\nlub sprzedać",
+        "tekst": "Karta 'Wyjście z Poprawki'\nNastępny raz, gdy\nbędziesz w Poprawce,\nmożesz użyć tej karty,\naby wyjść",
         "typ": "wyjscie_z_wiezienia"
     }
 ]
@@ -93,7 +93,7 @@ karty_kasa_studencka = [
     {
         "tekst": "Idź na POPRAWKĘ\nIdź prosto na POPRAWKĘ\nNie przechodź przez START",
         "typ": "ruch",
-        "pozycja": 30
+        "pozycja": 27
     },
     {
         "tekst": "Otrzymujesz spadek\n100 PLN",
@@ -141,7 +141,6 @@ random.shuffle(talia_szansa)
 random.shuffle(talia_kasa_studencka)
 
 # Karty specjalne w posiadaniu graczy
-karty_graczy = {i: [] for i in range(4)}
 
 def przetasuj_karty():
     """Przetasowuje obie talie kart"""
@@ -220,7 +219,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
         
     elif karta["typ"] == "wyjscie_z_wiezienia":
         # Dodaj kartę do posiadanych przez gracza
-        karty_graczy[gracz_index].append(karta)
+        gracz['jail_free'] = 1;
         
     elif karta["typ"] == "ruch_specjalny":
         # Logika dla specjalnych ruchów (np. do najbliższego akademika)
@@ -228,7 +227,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
             # Znajdź najbliższy akademik
             pozycja_gracza = gracz["pozycja"]
             najblizsza_pozycja = znajdz_najblizszy_akademik(pozycja_gracza)
-            
+            print(f"Gracz {gracz_index} przesuwa się do najbliższego akademika na pozycji {najblizsza_pozycja}")
             stara_pozycja = gracz["pozycja"]
             gracz["pozycja"] = najblizsza_pozycja
             
