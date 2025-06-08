@@ -9,20 +9,17 @@ from interfejs import narysuj_zaokraglony_prostokat, narysuj_logo_pl
 def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
     """Rysuje pojedyncze pole planszy z uwzględnieniem jego typu - ulepszona wersja"""
     pole = pobierz_pole(pole_id)
-    
     if pole_id%9 == 0:
         kolor_pola = SZARY_CIEMNY
     else:
         kolor_pola = BIALY
-    
     # Rysuj tło pola z zaokrąglonymi rogami
     narysuj_zaokraglony_prostokat(ekran, kolor_pola, (x, y, szerokosc, wysokosc), 5)
     # Dla obramowania używamy natywnej funkcji pygame
     pygame.draw.rect(ekran, CZARNY, (x, y, szerokosc, wysokosc), 2, border_radius=5)
-    
     # Dodaj kolorowy pasek dla wydziałów
-    if pole["typ"] == "wydzial":
-        kolor_wydzialu = pole["kolor"]
+    if pole[KEY_TYP] == "wydzial":
+        kolor_wydzialu = pole[KEY_KOLOR]
         pasek_wysokosc = wysokosc // 5  # Zmniejszony rozmiar paska kolorowego
         # Używamy zwykłego prostokąta dla paska wydziału
         pygame.draw.rect(
@@ -31,125 +28,71 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
             (x + 1, y + 1, szerokosc - 2, pasek_wysokosc),
             border_radius=4
         )
-    
-    # Dodaj ikony dla akademików - ładniejszy domek
-        #moim zdaniem niepotrzebne, wyglada cringe
-    '''
-    if pole["typ"] == "akademik":
-        # Tło ikony
-        ikona_padding = 4  # Zmniejszony padding ikony
-        pygame.draw.rect(
-            ekran, 
-            (220, 250, 220), 
-            (x + ikona_padding, y + ikona_padding, szerokosc - 2*ikona_padding, wysokosc//4),
-            border_radius=2
-        )
-        
-        # Domek
-        pygame.draw.polygon(
-            ekran, 
-            (40, 140, 40), 
-            [
-                (x + szerokosc//2, y + ikona_padding),
-                (x + szerokosc - ikona_padding - 2, y + wysokosc//5),
-                (x + ikona_padding + 2, y + wysokosc//5)
-            ]
-        )
-        # Podstawa domku
-        pygame.draw.rect(
-            ekran, 
-            (40, 120, 40), 
-            (x + szerokosc//4, y + wysokosc//5, szerokosc//2, wysokosc//8),
-            border_radius=2
-        )
-        # Drzwi
-        pygame.draw.rect(
-            ekran, 
-            (120, 80, 40), 
-            (x + szerokosc//2 - 4, y + wysokosc//5 + 2, 6, 8),
-            border_radius=1
-        )
-        '''
-    
     # Dodaj ikony dla usług - ładniejsza ikona usług
-    if pole["typ"] == "uslugi":
+    if pole[KEY_TYP] == "uslugi":
         ikona_padding = 4  # Zmniejszony padding ikony
         # Tło ikony
         pygame.draw.rect(
             ekran, 
-            (220, 220, 250), 
+            KOLOR_USLUGI_TLO, 
             (x + ikona_padding, y + ikona_padding, szerokosc - 2*ikona_padding, wysokosc//4),
             border_radius=2
         )
-        
         # Ikona narzędzi
         pygame.draw.circle(
             ekran, 
-            (40, 40, 140), 
+            KOLOR_USLUGI_KOLO, 
             (x + szerokosc//2, y + wysokosc//6), 
             szerokosc//8
         )
         pygame.draw.circle(
             ekran, 
-            (220, 220, 250), 
+            KOLOR_USLUGI_KOLO_TLO, 
             (x + szerokosc//2, y + wysokosc//6), 
             szerokosc//12
         )
-        
         # Prosty symbol narzędzia
         grubosc = 2  # Zmniejszona grubość linii
         dlugosc = szerokosc//5  # Zmniejszona długość linii
         pygame.draw.line(
             ekran, 
-            (40, 40, 140), 
+            KOLOR_USLUGI_KOLO, 
             (x + szerokosc//2 - dlugosc//2, y + wysokosc//6), 
             (x + szerokosc//2 + dlugosc//2, y + wysokosc//6), 
             grubosc
         )
         pygame.draw.line(
             ekran, 
-            (40, 40, 140), 
+            KOLOR_USLUGI_KOLO, 
             (x + szerokosc//2, y + wysokosc//6 - dlugosc//2), 
             (x + szerokosc//2, y + wysokosc//6 + dlugosc//2), 
             grubosc
         )
-    
     # Dodaj tekst nazwy pola z lepszym formatowaniem
-    nazwa = pole["nazwa"]
-    
-    # Dostosuj rozmiar czcionki w zależności od długości nazwy i typu pola
+    nazwa = pole[KEY_NAZWA]
     rozmiar_czcionki = 11  # Zmniejszony domyślny rozmiar czcionki
     if len(nazwa) > 12:
         rozmiar_czcionki = 9
     if len(nazwa) > 16:
         rozmiar_czcionki = 7
-    
-    # Użyj pogrubionej czcionki dla lepszej czytelności
     czcionka_nazwa = pygame.font.SysFont('Arial', rozmiar_czcionki, bold=True)
-    
-    # Dostosuj pozycję tekstu w zależności od typu pola
     tekst_y_offset = 0
-    if pole["typ"] == "wydzial":
+    if pole[KEY_TYP] == "wydzial":
         tekst_y_offset = wysokosc // 10  # Zmniejszone przesunięcie
-    
     max_linia_dlugosc = 10  # Zmniejszona maksymalna długość linii
-    
     # Podziel długie nazwy na kilka linii bardziej inteligentnie
     if len(nazwa) > max_linia_dlugosc:
         slowa = nazwa.split()
         linii = []
         aktualna_linia = ""
-        
         for slowo in slowa:
             if len(aktualna_linia + " " + slowo) <= max_linia_dlugosc:
                 aktualna_linia += " " + slowo if aktualna_linia else slowo
             else:
                 linii.append(aktualna_linia)
                 aktualna_linia = slowo
-        
         if aktualna_linia:
             linii.append(aktualna_linia)
-        
         for i, linia in enumerate(linii):
             tekst = czcionka_nazwa.render(linia, True, CZARNY)
             tekst_rect = tekst.get_rect(center=(
@@ -161,44 +104,40 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
         tekst = czcionka_nazwa.render(nazwa, True, CZARNY)
         tekst_rect = tekst.get_rect(center=(x + szerokosc//2, y + wysokosc//2 + tekst_y_offset))
         ekran.blit(tekst, tekst_rect)
-    
     # Dodaj cenę dla wydziałów, akademików i usług z lepszym formatowaniem
-    if pole["typ"] in ["wydzial", "akademik", "uslugi"]:
+    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
         czcionka_cena = pygame.font.SysFont('Arial', 10, bold=True)  # Zmniejszony rozmiar czcionki
-        tekst_cena = czcionka_cena.render(f"{pole['cena']} PLN", True, CZARNY)
-        
+        tekst_cena = czcionka_cena.render(f"{pole[KEY_CENA]} PLN", True, CZARNY)
         # Tło dla ceny
         tekst_szerokosc = tekst_cena.get_width() + 6  # Zmniejszony padding
         tekst_wysokosc = tekst_cena.get_height() + 2  # Zmniejszony padding
         narysuj_zaokraglony_prostokat(
             ekran, 
-            (245, 245, 245), 
+            KOLOR_CENA_TLO, 
             (x + (szerokosc - tekst_szerokosc)//2, y + wysokosc - tekst_wysokosc - 3, 
              tekst_szerokosc, tekst_wysokosc), 
             3  # Mniejszy promień zaokrąglenia
         )
-        
         # Tekst ceny wycentrowany
         ekran.blit(
             tekst_cena, 
             (x + (szerokosc - tekst_cena.get_width())//2, y + wysokosc - tekst_wysokosc - 2)
         )
-
     # Rysuj domki na nieruchomości, jeśli są
-    if pole["typ"] in ["wydzial", "akademik", "uslugi"] and pole.get("domki", 0) > 0:
+    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"] and pole.get(KEY_DOMKI, 0) > 0:
         max_houses_inline = 4
-        domki = pole["domki"]
+        domki = pole[KEY_DOMKI]
         for i in range(min(domki, max_houses_inline)):
             house_width = szerokosc // 8
             house_height = wysokosc // 10
             house_x = x + 5 + i * (house_width + 2)
             house_y = y + wysokosc - house_height - 5
-            pygame.draw.rect(ekran, (40, 140, 40), (house_x, house_y, house_width, house_height), border_radius=2)
-            pygame.draw.rect(ekran, (0, 0, 0), (house_x, house_y, house_width, house_height), 1, border_radius=2)
+            pygame.draw.rect(ekran, KOLOR_DOMKU, (house_x, house_y, house_width, house_height), border_radius=2)
+            pygame.draw.rect(ekran, CZARNY, (house_x, house_y, house_width, house_height), 1, border_radius=2)
         # Jeśli domków jest więcej niż 4, pokaż liczbę
         if domki > max_houses_inline:
             czcionka_domki = pygame.font.SysFont('Arial', 14, bold=True)
-            tekst_domki = czcionka_domki.render(f"x{domki}", True, (40, 140, 40))
+            tekst_domki = czcionka_domki.render(f"x{domki}", True, KOLOR_DOMKI_TEKST)
             ekran.blit(tekst_domki, (x + szerokosc//2 - tekst_domki.get_width()//2, y + wysokosc - house_height - 22))
 # Poprawiona funkcja oblicz_pozycje_gracza
 # Funkcja do obliczania współrzędnych pozycji gracza na planszy - ulepszona

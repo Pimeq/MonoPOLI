@@ -1,13 +1,14 @@
 import random
 from pola import pobierz_pole, pola
+from kolory import *
 from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_karte
 
 # Dane graczy (przykładowe)
 gracze = [
-    {"nazwa": "Gracz 1", "pozycja": 0, "pieniadze": 1500, "kolor": (255, 50, 50), "budynki": 0, "ects": 0,'jail_free': 0},
-    {"nazwa": "Gracz 2", "pozycja": 0, "pieniadze": 1500, "kolor": (50, 255, 50), "budynki": 0, "ects": 0,'jail_free': 0},
-    {"nazwa": "Gracz 3", "pozycja": 0, "pieniadze": 1500, "kolor": (50, 50, 255), "budynki": 0, "ects": 0,'jail_free': 0},
-    {"nazwa": "Gracz 4", "pozycja": 0, "pieniadze": 1500, "kolor": (255, 255, 50), "budynki": 0, "ects": 0,'jail_free': 0}
+    {KEY_NAZWA: "Gracz 1", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: CZERWONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+    {KEY_NAZWA: "Gracz 2", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZIELONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+    {KEY_NAZWA: "Gracz 3", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: NIEBIESKI_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+    {KEY_NAZWA: "Gracz 4", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZOLTY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0}
 ]
 
 # Aktualna tura gracza
@@ -30,15 +31,15 @@ def przesun_gracza(gracz_index, liczba_pol):
     """Przesuwa gracza o określoną liczbę pól (dla planszy 36-polowej)"""
     global gracze, historia_ruchow
     
-    stara_pozycja = gracze[gracz_index]["pozycja"]
+    stara_pozycja = gracze[gracz_index][KEY_POZYCJA]
     nowa_pozycja = (stara_pozycja + liczba_pol) % 36
 
     # Jeśli przekroczył START, dodaj 200 PLN
     if nowa_pozycja < stara_pozycja:
-        gracze[gracz_index]["pieniadze"] += 200
-        print(f"Gracz {gracze[gracz_index]['nazwa']} przeszedł przez START i otrzymuje 200 PLN")
+        gracze[gracz_index][KEY_PIENIADZE] += 200
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN")
 
-    gracze[gracz_index]["pozycja"] = nowa_pozycja
+    gracze[gracz_index][KEY_POZYCJA] = nowa_pozycja
     
     # Zapisz ruch w historii
     historia_ruchow.append({
@@ -50,36 +51,36 @@ def przesun_gracza(gracz_index, liczba_pol):
     
     # Zwróć nową pozycję i nazwę pola
     pole = pobierz_pole(nowa_pozycja)
-    print(f"Gracz {gracze[gracz_index]['nazwa']} przesunął się na pole {pole['nazwa']}")
+    print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przesunął się na pole {pole['nazwa']}")
       # Logika pól specjalnych
     if pole["typ"] == "podatek":
         # Pobierz opłatę
-        gracze[gracz_index]["pieniadze"] -= pole["cena"]
-        print(f"Gracz {gracze[gracz_index]['nazwa']} płaci {pole['cena']} PLN podatku")
+        gracze[gracz_index][KEY_PIENIADZE] -= pole["cena"]
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} płaci {pole['cena']} PLN podatku")
     
     elif pole["typ"] == "narozne" and pole["nazwa"] == "IDŹ NA POPRAWKĘ":
         # Idź do więzienia
-        if(gracze[gracz_index]["jail_free"] == 0):
-            gracze[gracz_index]["pozycja"] = 9  # Dostosuj do nowego indeksu DZIEKANAT jeśli trzeba
-            print(f"Gracz {gracze[gracz_index]['nazwa']} idzie na poprawkę (dziekanat)")
+        if(gracze[gracz_index][KEY_JAIL_FREE] == 0):
+            gracze[gracz_index][KEY_POZYCJA] = 9  # Dostosuj do nowego indeksu DZIEKANAT jeśli trzeba
+            print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} idzie na poprawkę (dziekanat)")
         else:
-            gracze[gracz_index]['jail_free'] = 0;
+            gracze[gracz_index][KEY_JAIL_FREE] = 0;
     
     elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
         # Wyciągnij kartę Szansa
         karta = pobierz_karte_szansa()
-        print(f"Gracz {gracze[gracz_index]['nazwa']} wyciągnął kartę Szansa: {karta['tekst']}")
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Szansa: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
         return karta  # Zwróć kartę do wyświetlenia
     
     elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
         # Wyciągnij kartę Kasa Studencka
         karta = pobierz_karte_kasa_studencka()
-        print(f"Gracz {gracze[gracz_index]['nazwa']} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
         return karta  # Zwróć kartę do wyświetlenia
       # Za każdy ruch dodaj ECTS
-    gracze[gracz_index]["ects"] += 1
+    gracze[gracz_index][KEY_ECTS] += 1
     
     # Zwróć nową pozycję (i kartę jeśli została wyciągnięta)
     return None  # Domyślnie brak karty
@@ -90,7 +91,7 @@ def nastepny_gracz():
     global aktualny_gracz, tura_wykonana
     aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
     tura_wykonana = False
-    print(f"Tura gracza: {gracze[aktualny_gracz]['nazwa']}")
+    print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
     return aktualny_gracz
 
 # Funkcja do kupowania pola
@@ -105,17 +106,17 @@ def kup_pole(gracz_index, pozycja_pola):
         return False
         
     # Sprawdź czy gracz ma wystarczająco pieniędzy
-    if gracze[gracz_index]["pieniadze"] < pole["cena"]:
+    if gracze[gracz_index][KEY_PIENIADZE] < pole["cena"]:
         return False
         
     # Kup pole
-    gracze[gracz_index]["pieniadze"] -= pole["cena"]
+    gracze[gracz_index][KEY_PIENIADZE] -= pole["cena"]
     pole["wlasciciel"] = gracz_index
     
     # Dodaj budynek do statystyk gracza
-    gracze[gracz_index]["budynki"] += 1
+    gracze[gracz_index][KEY_BUDYNKI] += 1
     
-    print(f"Gracz {gracze[gracz_index]['nazwa']} kupił {pole['nazwa']} za {pole['cena']} PLN")
+    print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} kupił {pole['nazwa']} za {pole['cena']} PLN")
     return True
 
 # Funkcja do pobierania statystyk graczy
@@ -194,7 +195,7 @@ def sprawdz_platnosc(gracz_index, pozycja, gracze):
         if gracze[gracz_index]["pieniadze"] >= czynsz:
             gracze[gracz_index]["pieniadze"] -= czynsz
             gracze[pole["wlasciciel"]]["pieniadze"] += czynsz
-            print(f"Gracz {gracze[gracz_index]['nazwa']} płaci {czynsz} PLN czynszu graczowi {gracze[pole['wlasciciel']]['nazwa']}")
+            print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} płaci {czynsz} PLN czynszu graczowi {gracze[pole['wlasciciel']][KEY_NAZWA]}")
             
             # Zwróć informacje potrzebne do wyświetlenia okna
             return {
@@ -208,7 +209,7 @@ def sprawdz_platnosc(gracz_index, pozycja, gracze):
             kwota = gracze[gracz_index]["pieniadze"]
             gracze[gracz_index]["pieniadze"] = 0
             gracze[pole["wlasciciel"]]["pieniadze"] += kwota
-            print(f"Gracz {gracze[gracz_index]['nazwa']} nie ma wystarczająco pieniędzy! Płaci tylko {kwota} PLN")
+            print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} nie ma wystarczająco pieniędzy! Płaci tylko {kwota} PLN")
             
             # Zwróć informacje potrzebne do wyświetlenia okna
             return {

@@ -1,7 +1,7 @@
-import pygame
-import sys
-import math
 from kolory import *
+import pygame
+import math
+import sys
 
 # Funkcja do rysowania zaokrąglonego prostokąta
 def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
@@ -24,7 +24,7 @@ def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu
     narysuj_zaokraglony_prostokat(ekran, kolor, prostokat, 10)
     
     # Dodaj cień do przycisku
-    pygame.draw.rect(ekran, (0, 0, 0, 50), (x+3, y+3, szerokosc, wysokosc), border_radius=10)
+    pygame.draw.rect(ekran, KOLOR_PRZYCISK_CIEN2, (x+3, y+3, szerokosc, wysokosc), border_radius=10)
     
     # Renderuj tekst
     tekst_surface = czcionka.render(tekst, True, kolor_tekstu)
@@ -50,7 +50,7 @@ def narysuj_kostke(ekran, x, y, rozmiar, liczba_oczek):
     # Pozycje oczek zależnie od liczby
     if liczba_oczek == 1 or liczba_oczek == 3 or liczba_oczek == 5:
         # Środkowe oczko
-        pygame.draw.circle(ekran, CZARNY, (x + rozmiar // 2, y + rozmiar // 2), promien_oczka)
+        pygame.draw.circle(ekran, CZARNY, (x + rozmiar//2, y + rozmiar//2), promien_oczka)
     
     if liczba_oczek >= 2:
         # Lewy górny i prawy dolny
@@ -64,13 +64,12 @@ def narysuj_kostke(ekran, x, y, rozmiar, liczba_oczek):
     
     if liczba_oczek == 6:
         # Środkowe lewe i prawe
-        pygame.draw.circle(ekran, CZARNY, (x + padding, y + rozmiar // 2), promien_oczka)
-        pygame.draw.circle(ekran, CZARNY, (x + rozmiar - padding, y + rozmiar // 2), promien_oczka)
+        pygame.draw.circle(ekran, CZARNY, (x + padding, y + rozmiar//2), promien_oczka)
+        pygame.draw.circle(ekran, CZARNY, (x + rozmiar - padding, y + rozmiar//2), promien_oczka)
 
 # Funkcja do rysowania logo Politechniki Łódzkiej
 def narysuj_logo_pl(ekran, x, y, rozmiar):
     """Rysuje uproszczone logo Politechniki Łódzkiej"""
-    import math
     # Tarcza
     pygame.draw.polygon(ekran, BIALY, [
         (x, y + rozmiar*0.5),
@@ -90,7 +89,7 @@ def narysuj_logo_pl(ekran, x, y, rozmiar):
     
     # Koło zębate
     promien_kola = rozmiar * 0.6
-    pygame.draw.circle(ekran, BIALY, (x + rozmiar*0.5, y + rozmiar*0.5), promien_kola, width=3)
+    pygame.draw.circle(ekran, BIALY, (int(x + rozmiar*0.5), int(y + rozmiar*0.5)), int(promien_kola), width=3)
     
     for i in range(8):
         kat = i * math.pi / 4
@@ -123,10 +122,10 @@ def narysuj_pionek(ekran, x, y, rozmiar):
     
     # Dla pionka w prawym dolnym rogu rysujemy "?"
     if x > 400:  # Zmieniono z SZEROKOSC // 2 na stałą wartość, ponieważ SZEROKOSC nie jest dostępna
-        tekst = czcionka.render("?", True, (100, 100, 100))
+        tekst = czcionka.render("?", True, CZARNY)
     # Dla pionka w lewym górnym rysujemy "c"
     else:
-        tekst = czcionka.render("c", True, (100, 100, 100))
+        tekst = czcionka.render("c", True, CZARNY)
     
     tekst_rect = tekst.get_rect(center=(x + rozmiar // 2, y + rozmiar // 2))
     ekran.blit(tekst, tekst_rect)
@@ -137,13 +136,13 @@ def narysuj_karte_gracza(ekran, gracz, x, y, szerokosc, wysokosc, aktywny=False)
     from pola import pobierz_nazwe_pola
     
     # Tło karty
-    kolor_tla = gracz["kolor"] if aktywny else (100, 100, 100)
+    kolor_tla = gracz[KEY_KOLOR] if aktywny else KOLOR_KARTA_NIEAKTYWNA
     narysuj_zaokraglony_prostokat(ekran, kolor_tla, (x, y, szerokosc, wysokosc), 10)
-    narysuj_zaokraglony_prostokat(ekran, (40, 40, 40), (x+3, y+3, szerokosc-6, wysokosc-6), 8)
+    narysuj_zaokraglony_prostokat(ekran, KOLOR_KARTA_OBRAMOWANIE, (x+3, y+3, szerokosc-6, wysokosc-6), 8)
     
     # Nagłówek z nazwą gracza
     czcionka_nazwa = pygame.font.SysFont('Arial', 24, bold=True)
-    tekst_nazwa = czcionka_nazwa.render(gracz["nazwa"], True, BIALY)
+    tekst_nazwa = czcionka_nazwa.render(gracz[KEY_NAZWA], True, BIALY)
     tekst_nazwa_rect = tekst_nazwa.get_rect(center=(x + szerokosc//2, y + 25))
     ekran.blit(tekst_nazwa, tekst_nazwa_rect)
     
@@ -155,12 +154,16 @@ def narysuj_karte_gracza(ekran, gracz, x, y, szerokosc, wysokosc, aktywny=False)
     odst = 30  # Odstęp między wierszami
     
     # Pieniądze
-    tekst_pieniadze = czcionka_info.render(f"Pieniądze: {gracz['pieniadze']} PLN", True, BIALY)
+    tekst_pieniadze = czcionka_info.render(f"Pieniądze: {gracz[KEY_PIENIADZE]} PLN", True, BIALY)
     ekran.blit(tekst_pieniadze, (x + 10, y + 55))
     
     # Pozycja
-    nazwa_pola = pobierz_nazwe_pola(gracz["pozycja"]) if len(pobierz_nazwe_pola(gracz["pozycja"])) < 20 else pobierz_nazwe_pola(gracz["pozycja"])[:17] + "..."
-    tekst_pozycja = czcionka_info.render(f"Pozycja: {nazwa_pola}", True, BIALY)
+    nazwa_pola = pobierz_nazwe_pola(gracz[KEY_POZYCJA])
+    if len(nazwa_pola) < 20:
+        pole_str = nazwa_pola
+    else:
+        pole_str = nazwa_pola[:17] + "..."
+    tekst_pozycja = czcionka_info.render(f"Pozycja: {pole_str}", True, BIALY)
     ekran.blit(tekst_pozycja, (x + 10, y + 55 + odst))
     
     # Budynki
