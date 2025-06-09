@@ -1,6 +1,6 @@
 import random
 import pygame
-from kolory import *
+from constants import *
 
 # Definicje kart Szansa
 karty_szansa = [

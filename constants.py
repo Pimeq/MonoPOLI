@@ -1,6 +1,7 @@
 # Definicje kolorów używanych w grze
 
 # Kolory podstawowe
+SZARY_CIEMNY_POLE = (240, 240, 240)
 CZERWONY_TLO = (160, 30, 30)
 NIEBIESKI_POLE = (39, 72, 98)
 CIEMNY_NIEBIESKI = (20, 40, 60)

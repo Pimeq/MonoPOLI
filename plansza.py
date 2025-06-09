@@ -1,6 +1,6 @@
 import pygame
 import sys
-from kolory import *
+from constants import *
 from pola import *
 from logika import *
 from interfejs import *
