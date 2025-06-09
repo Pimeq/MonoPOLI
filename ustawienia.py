@@ -1,4 +1,4 @@
-from kolory import *
+from constants import *
 import pygame
 import pygame.gfxdraw
 import sys

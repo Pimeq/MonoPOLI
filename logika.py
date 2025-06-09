@@ -1,6 +1,6 @@
 import random
 from pola import pobierz_pole, pola
-from kolory import *
+from constants import *
 from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_karte
 
 # Dane graczy (przykładowe)

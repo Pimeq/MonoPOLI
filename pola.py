@@ -1,4 +1,4 @@
-from kolory import *
+from constants import *
 
 # pola.py - definicje pól na planszy MonoPOLI
 

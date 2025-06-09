@@ -1,7 +1,7 @@
 import pygame
 import sys
 import math 
-from kolory import *
+from constants import *
 from pola import pobierz_pole
 from interfejs import narysuj_zaokraglony_prostokat, narysuj_logo_pl
 
@@ -10,7 +10,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
     """Rysuje pojedyncze pole planszy z uwzględnieniem jego typu - ulepszona wersja"""
     pole = pobierz_pole(pole_id)
     if pole_id%9 == 0:
-        kolor_pola = SZARY_CIEMNY
+        kolor_pola = SZARY_CIEMNY_POLE
     else:
         kolor_pola = BIALY
     # Rysuj tło pola z zaokrąglonymi rogami
