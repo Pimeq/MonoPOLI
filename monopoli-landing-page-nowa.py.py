@@ -34,6 +34,13 @@ SZEROKOSC, WYSOKOSC = 1200, 1000
 ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC), HWSURFACE)
 pygame.display.set_caption("MonoPOLI")
 
+# Audio setup
+pygame.mixer.init()
+SOUND_BUTTON = pygame.mixer.Sound("Audio/button.mp3")
+SOUND_DICE = pygame.mixer.Sound("Audio/dice.mp3")
+SOUND_PLAYERMOVE = pygame.mixer.Sound("Audio/playermove.mp3")
+pygame.mixer.music.load("Audio/music.mp3")
+
 class KostkaTrojwymiarowa:
     def __init__(self, x, y, rozmiar):
         self.x = x
@@ -341,7 +348,7 @@ def narysuj_przycisk_3d(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_te
     kliknieto = False
     if hover and pygame.mouse.get_pressed()[0]:
         kliknieto = True
-            
+        SOUND_BUTTON.play()
     return kliknieto
 
 # Reszta kodu pozostaje bez zmian...
@@ -542,6 +549,9 @@ def main():
     # Główna pętla gry
     animacja_przycisku_graj = 0
     animacja_przycisku_ustawienia = 0
+    
+    # Start background music
+    pygame.mixer.music.play(-1)  # Loop background music
     
     while True:
         obecny_czas = time.time()
