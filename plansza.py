@@ -13,7 +13,7 @@ pygame.init()
 SZEROKOSC, WYSOKOSC = 1200, 1000
 
 # Funkcja główna dla ekranu gry
-def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
+def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
     """Główna funkcja obsługująca rozgrywkę z obsługą skalowania"""
     global gracze, aktualny_gracz, ostatni_rzut, tura_wykonana
     
@@ -82,7 +82,9 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                 if event.key == pygame.K_SPACE and not tura_wykonana and not platnosc_do_wyswietlenia and not animacja_aktywna and not karta_do_wyswietlenia:
                     # Play dice sound
                     try:
-                        pygame.mixer.Sound("Audio/dice.mp3").play()
+                        d = pygame.mixer.Sound("Audio/dice.mp3")
+                        d.set_volume(glosnosc_efekty)
+                        d.play()
                     except Exception:
                         pass
                     # Rzut kostką po naciśnięciu spacji
@@ -139,7 +141,9 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             if animacja_krok < ostatni_rzut[0] + ostatni_rzut[1]:
                 # Play player move sound
                 try:
-                    pygame.mixer.Sound("Audio/playermove.mp3").play()
+                    m = pygame.mixer.Sound("Audio/playermove.mp3")
+                    m.set_volume(glosnosc_efekty)
+                    m.play()
                 except Exception:
                     pass
                 # Przesuń gracza o jeden krok
@@ -257,7 +261,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         if kupowanie_pola and tura_wykonana and not animacja_aktywna:
             pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
             pole = pobierz_pole(pozycja)
-            if utworz_przycisk(interface_surface, f"Kup {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18):
+            if utworz_przycisk(interface_surface, f"Kup {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18, glosnosc_efekty=glosnosc_efekty):
 
                 if gracze[aktualny_gracz][KEY_PIENIADZE] >= pole[KEY_CENA]:
                     gracze[aktualny_gracz][KEY_PIENIADZE] -= pole[KEY_CENA]
@@ -284,7 +288,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
                 and pole.get(KEY_DOMKI, 0) < 4
             ):
                 cena_domku = int(pole[KEY_CENA] * 0.5)
-                if utworz_przycisk(interface_surface, f"Kup domek na {pole[KEY_NAZWA]} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18):
+                if utworz_przycisk(interface_surface, f"Kup domek na {pole[KEY_NAZWA]} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18, glosnosc_efekty=glosnosc_efekty):
                     ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz])
                     interface_surface.fill(CIEMNY_NIEBIESKI)
                     plansza_x, plansza_y, plansza_rozmiar = narysuj_plansze(interface_surface, gracze)
@@ -321,7 +325,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
 
-            if utworz_przycisk(interface_surface, "Następny gracz", 740, panel_dol_y + 30, 200, 40, ZIELONY, BIALY, 20):
+            if utworz_przycisk(interface_surface, "Następny gracz", 740, panel_dol_y + 30, 200, 40, ZIELONY, BIALY, 20, glosnosc_efekty=glosnosc_efekty):
 
                 aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                 tura_wykonana = False
