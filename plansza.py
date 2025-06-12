@@ -80,6 +80,11 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
             # Obsługa klawiszy
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not tura_wykonana and not platnosc_do_wyswietlenia and not animacja_aktywna and not karta_do_wyswietlenia:
+                    # Play dice sound
+                    try:
+                        pygame.mixer.Sound("Audio/dice.mp3").play()
+                    except Exception:
+                        pass
                     # Rzut kostką po naciśnięciu spacji
                     ostatni_rzut = rzut_kostka()
                     suma_oczek = ostatni_rzut[0] + ostatni_rzut[1]
@@ -132,6 +137,11 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1):
         # Animacja ruchu gracza
         if animacja_aktywna:
             if animacja_krok < ostatni_rzut[0] + ostatni_rzut[1]:
+                # Play player move sound
+                try:
+                    pygame.mixer.Sound("Audio/playermove.mp3").play()
+                except Exception:
+                    pass
                 # Przesuń gracza o jeden krok
                 gracze[aktualny_gracz][KEY_POZYCJA] = (animacja_start_pozycja + animacja_krok + 1) % 36
                 
