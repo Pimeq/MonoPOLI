@@ -303,7 +303,7 @@ class AnimowaneTlo:
             pygame.gfxdraw.aacircle(ekran, int(punkt[0]), int(punkt[1]), 3, (200, 230, 255, 150))
 
 # Poprawiona funkcja do rysowania przycisków - jednoznacznie czerwone
-def narysuj_przycisk_3d(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, animacja=0):
+def narysuj_przycisk_3d(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, animacja=0, glosnosc_efekty=None):
     # Sprawdź hover
     myszka_x, myszka_y = pygame.mouse.get_pos()
     hover = (x <= myszka_x <= x + szerokosc and y <= myszka_y <= y + wysokosc)
@@ -348,6 +348,8 @@ def narysuj_przycisk_3d(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_te
     kliknieto = False
     if hover and pygame.mouse.get_pressed()[0]:
         kliknieto = True
+        if glosnosc_efekty is not None:
+            SOUND_BUTTON.set_volume(glosnosc_efekty)
         SOUND_BUTTON.play()
     return kliknieto
 
@@ -499,6 +501,7 @@ def main():
     ostatni_czas = time.time()
     animowane_tlo = AnimowaneTlo(SZEROKOSC, WYSOKOSC)
     czasteczki = []
+    glosnosc_efekty = 0.7
     
     # Animacja wstępna - przyspieszona (max 2-3 sekundy)
     alfa_ekranu = 0
@@ -607,28 +610,24 @@ def main():
         
         # Rysuj przyciski
         if narysuj_przycisk_3d(ekran, "GRAJ", SZEROKOSC // 2 - 150, 250, 300, 70, 
-                            CZERWONY_CIEMNY, BIALY, animacja_przycisku_graj):
+                            CZERWONY_CIEMNY, BIALY, animacja_przycisku_graj, glosnosc_efekty):
             animacja_przycisku_graj = 1.0
-            
-            # Dodaj efekt cząsteczek przy kliknięciu
             for _ in range(30):
                 czasteczki.append(Czasteczka(SZEROKOSC // 2, 250 + 35, CZERWONY_CIEMNY))
-            
-            # Wywołanie ekranu gry z efektem przejścia
             print("Kliknięto przycisk GRAJ!")
-            efekt_przejscia(ekran, ekran_gry, "slide")
+            efekt_przejscia(ekran, lambda e: ekran_gry(e, 1, glosnosc_efekty), "slide")
         
         if narysuj_przycisk_3d(ekran, "Ustawienia", SZEROKOSC // 2 - 150, 350, 300, 70, 
-                            CZERWONY_CIEMNY, BIALY, animacja_przycisku_ustawienia):
+                            CZERWONY_CIEMNY, BIALY, animacja_przycisku_ustawienia, glosnosc_efekty):
             animacja_przycisku_ustawienia = 1.0
-            
-            # Dodaj efekt cząsteczek przy kliknięciu
             for _ in range(30):
                 czasteczki.append(Czasteczka(SZEROKOSC // 2, 350 + 35, CZERWONY_CIEMNY))
-            
-            # Wywołanie strony ustawień z efektem przejścia
             print("Kliknięto przycisk Ustawienia!")
-            efekt_przejscia(ekran, strona_ustawien, "fade")
+            # Przechwyć głośność efektów z ustawień
+            wynik = efekt_przejscia(ekran, strona_ustawien, "fade")
+            if wynik and hasattr(strona_ustawien, 'glosnosc_efekty'):
+                glosnosc_efekty = strona_ustawien.glosnosc_efekty
+            main.glosnosc_efekty = glosnosc_efekty
         
         # Aktualizuj animowane kostki
         kostka1.aktualizuj(delta_czas)
