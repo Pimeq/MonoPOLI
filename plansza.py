@@ -138,14 +138,14 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
         
         # Animacja ruchu gracza
         if animacja_aktywna:
+            # Play player move sound on every animation step, including the last
+            try:
+                m = pygame.mixer.Sound("Audio/playermove.mp3")
+                m.set_volume(glosnosc_efekty)
+                m.play()
+            except Exception:
+                pass
             if animacja_krok < ostatni_rzut[0] + ostatni_rzut[1]:
-                # Play player move sound
-                try:
-                    m = pygame.mixer.Sound("Audio/playermove.mp3")
-                    m.set_volume(glosnosc_efekty)
-                    m.play()
-                except Exception:
-                    pass
                 # Przesuń gracza o jeden krok
                 gracze[aktualny_gracz][KEY_POZYCJA] = (animacja_start_pozycja + animacja_krok + 1) % 36
                 
