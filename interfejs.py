@@ -33,6 +33,11 @@ def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu
     
     # Sprawdź czy przycisk został kliknięty
     if prostokat.collidepoint(myszka) and klikniecie:
+        if hasattr(pygame, 'mixer') and hasattr(pygame.mixer, 'Sound'):
+            try:
+                pygame.mixer.Sound("Audio/button.mp3").play()
+            except Exception:
+                pass
         return True
     return False
 
