@@ -1,6 +1,7 @@
 from constants import *
 import pygame
 import pygame.gfxdraw
+import pygame.mixer
 import sys
 import math
 import random
@@ -121,9 +122,7 @@ def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
     # Użyj wbudowanej funkcji z antyaliasingiem
     pygame.draw.rect(powierzchnia, kolor, prostokat, border_radius=promien)
 
-# Funkcja do tworzenia przycisku z lepszym wyglądem
-def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=32):
-    """Tworzy przycisk z lepszym designem i antyaliasingiem"""
+def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=32, glosnosc_efekty=None):
     czcionka = pygame.font.SysFont('Arial', rozmiar_czcionki, bold=True)
     prostokat = pygame.Rect(x, y, szerokosc, wysokosc)
     myszka = pygame.mouse.get_pos()
@@ -135,7 +134,7 @@ def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_teks
         kolor = kolor_hover
     
     # Cień
-    pygame.draw.rect(surface, (0, 0, 0, 60), (x+3, y+3, szerokosc, wysokosc), border_radius=0)
+    pygame.draw.rect(surface, (0, 0, 0), (x+3, y+3, szerokosc, wysokosc), border_radius=0)
     
     # Rysuj przycisk
     narysuj_zaokraglony_prostokat(surface, kolor, prostokat, 0)
@@ -147,6 +146,13 @@ def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_teks
     
     # Sprawdź czy przycisk został kliknięty
     if prostokat.collidepoint(myszka) and klikniecie:
+        try:
+            sound = pygame.mixer.Sound("Audio/button.mp3")
+            if glosnosc_efekty is not None:
+                sound.set_volume(glosnosc_efekty)
+            sound.play()
+        except Exception:
+            pass
         return True
     return False
 
@@ -195,14 +201,13 @@ def narysuj_suwak_glosnosci(surface, x, y, szerokosc, wysokosc, wartosc=0.5):
     """Rysuje nowoczesny suwak głośności"""
     # Tło suwaka
     tlo_rect = pygame.Rect(x, y, szerokosc, wysokosc)
-    pygame.draw.rect(surface, (0, 0, 0, 30), (x+2, y+2, szerokosc, wysokosc), border_radius=25)
+    pygame.draw.rect(surface, (0, 0, 0), (x+2, y+2, szerokosc, wysokosc), border_radius=25)
     pygame.draw.rect(surface, SZARY_JASNY, tlo_rect, border_radius=25)
     pygame.draw.rect(surface, SZARY_CIEMNY, tlo_rect, width=2, border_radius=25)
     
     # Ikona głośnika - lepsza wersja
     ikona_x = x + 15
     ikona_y = y + wysokosc // 2
-    ikona_rozmiar = 16
     
     # Główny kształt głośnika
     punkty_glosnika = [
@@ -399,6 +404,7 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
     
     # Wartość suwaka głośności
     glosnosc = 0.7
+    glosnosc_efekty = 0.7
     
     # Główna pętla
     zegar = pygame.time.Clock()
@@ -482,7 +488,7 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         glosnosc_wysokosc = 80
         glosnosc_x = (SZEROKOSC - glosnosc_szerokosc) // 2
         
-        # Nagłówek głośności z animacją
+        # Nagłówek głośności muzyki
         czcionka_naglowek = pygame.font.SysFont('Arial', 32, bold=True)
         czas = pygame.time.get_ticks() / 1000
         kolor_naglowka = (
@@ -490,26 +496,43 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
             min(255, max(200, int(255 + 25 * math.sin(czas * 1.8)))),
             min(255, max(200, int(255 + 25 * math.cos(czas * 1.2))))
         )
-        tekst_glosnosc = czcionka_naglowek.render("GŁOŚNOŚĆ", True, kolor_naglowka)
+        tekst_glosnosc = czcionka_naglowek.render("GŁOŚNOŚĆ MUZYKI", True, kolor_naglowka)
         glosnosc_naglowek_rect = tekst_glosnosc.get_rect(center=(SZEROKOSC//2, glosnosc_y - 40))
-        # Cień nagłówka
-        tekst_glosnosc_cien = czcionka_naglowek.render("GŁOŚNOŚĆ", True, (0, 0, 0, 100))
+        tekst_glosnosc_cien = czcionka_naglowek.render("GŁOŚNOŚĆ MUZYKI", True, (0, 0, 0))
         interface_surface.blit(tekst_glosnosc_cien, (glosnosc_naglowek_rect.x + 2, glosnosc_naglowek_rect.y + 2))
         interface_surface.blit(tekst_glosnosc, glosnosc_naglowek_rect)
         
-        # Suwak głośności
+        # Suwak muzyki
         nowa_glosnosc = narysuj_suwak_glosnosci(interface_surface, glosnosc_x, glosnosc_y, glosnosc_szerokosc, glosnosc_wysokosc, glosnosc)
         if nowa_glosnosc != glosnosc:
             glosnosc = nowa_glosnosc
-            print(f"Ustawiono głośność: {glosnosc*100:.0f}%")
+            try:
+                pygame.mixer.music.set_volume(glosnosc)
+            except:
+                pass
+            print(f"Ustawiono głośność muzyki: {glosnosc*100:.0f}%")
         
-        # Przycisk powrotu - wyśrodkowany
+        # Suwak efektów dźwiękowych
+        efekty_y = glosnosc_y + glosnosc_wysokosc + 60
+        tekst_efekty = czcionka_naglowek.render("GŁOŚNOŚĆ EFEKTÓW", True, kolor_naglowka)
+        efekty_naglowek_rect = tekst_efekty.get_rect(center=(SZEROKOSC//2, efekty_y - 40))
+        tekst_efekty_cien = czcionka_naglowek.render("GŁOŚNOŚĆ EFEKTÓW", True, (0, 0, 0))
+        interface_surface.blit(tekst_efekty_cien, (efekty_naglowek_rect.x + 2, efekty_naglowek_rect.y + 2))
+        interface_surface.blit(tekst_efekty, efekty_naglowek_rect)
+        
+        nowa_glosnosc_efekty = narysuj_suwak_glosnosci(interface_surface, glosnosc_x, efekty_y, glosnosc_szerokosc, glosnosc_wysokosc, glosnosc_efekty)
+        if nowa_glosnosc_efekty != glosnosc_efekty:
+            glosnosc_efekty = nowa_glosnosc_efekty
+            print(f"Ustawiono głośność efektów: {glosnosc_efekty*100:.0f}%")
+        strona_ustawien.glosnosc_efekty = glosnosc_efekty
+        
+        # Przycisk powrotu - wyśrodkowany, przesunięty pod suwak efektów
         przycisk_szerokosc = 300
         przycisk_wysokosc = 80
         przycisk_x = (SZEROKOSC - przycisk_szerokosc) // 2
-        przycisk_y = glosnosc_y + glosnosc_wysokosc + 60
+        przycisk_y = efekty_y + glosnosc_wysokosc + 60  # Teraz pod suwakiem efektów
         
-        if utworz_przycisk(interface_surface, "POWRÓT DO MENU", przycisk_x, przycisk_y, przycisk_szerokosc, przycisk_wysokosc, CZERWONY_CIEMNY, BIALY):
+        if utworz_przycisk(interface_surface, "POWRÓT DO MENU", przycisk_x, przycisk_y, przycisk_szerokosc, przycisk_wysokosc, CZERWONY_CIEMNY, BIALY, 32, glosnosc_efekty):
             running = False
             # Przywróć oryginalną funkcję myszy
             pygame.mouse.get_pos = original_mouse_get_pos
@@ -534,6 +557,7 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
 # Test funkcji (jeśli uruchomiony bezpośrednio)
 if __name__ == "__main__":
     pygame.init()
+    pygame.mixer.init()
     ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
     pygame.display.set_caption("MonoPOLI - Ustawienia Test")
     strona_ustawien(ekran)

@@ -13,7 +13,7 @@ def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
     pygame.draw.rect(powierzchnia, kolor, prostokat, border_radius=promien)
 
 # Funkcja do tworzenia przycisku
-def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=24):
+def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=24, glosnosc_efekty=None):
     """Tworzy przycisk i sprawdza czy został kliknięty"""
     czcionka = pygame.font.SysFont('Arial', rozmiar_czcionki)
     prostokat = pygame.Rect(x, y, szerokosc, wysokosc)
@@ -33,6 +33,14 @@ def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu
     
     # Sprawdź czy przycisk został kliknięty
     if prostokat.collidepoint(myszka) and klikniecie:
+        if hasattr(pygame, 'mixer') and hasattr(pygame.mixer, 'Sound'):
+            try:
+                sound = pygame.mixer.Sound("Audio/button.mp3")
+                if glosnosc_efekty is not None:
+                    sound.set_volume(glosnosc_efekty)
+                sound.play()
+            except Exception:
+                pass
         return True
     return False
 
