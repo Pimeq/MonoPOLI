@@ -17,6 +17,10 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
     """Główna funkcja obsługująca rozgrywkę z obsługą skalowania"""
     global gracze, aktualny_gracz, ostatni_rzut, tura_wykonana
     
+    # --- Synchronizacja nazw graczy z ustawień ---
+    from logika import utworz_liste_graczy
+    gracze = utworz_liste_graczy()
+    
     # Bazowe wymiary interfejsu
     bazowa_szerokosc = SZEROKOSC
     bazowa_wysokosc = WYSOKOSC
