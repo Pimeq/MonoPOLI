@@ -403,8 +403,11 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
     interface_y = (screen_height - skalowana_wysokosc) // 2
     
     # Wartość suwaka głośności
-    glosnosc = 0.7
-    glosnosc_efekty = 0.7
+    try:
+        glosnosc = pygame.mixer.music.get_volume()
+    except Exception:
+        glosnosc = 0.7
+    glosnosc_efekty = getattr(strona_ustawien, 'glosnosc_efekty', 0.7)
     
     # Główna pętla
     zegar = pygame.time.Clock()

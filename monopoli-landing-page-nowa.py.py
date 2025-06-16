@@ -624,9 +624,16 @@ def main():
                 czasteczki.append(Czasteczka(SZEROKOSC // 2, 350 + 35, CZERWONY_CIEMNY))
             print("Kliknięto przycisk Ustawienia!")
             # Przechwyć głośność efektów z ustawień
-            wynik = efekt_przejscia(ekran, strona_ustawien, "fade")
-            if wynik and hasattr(strona_ustawien, 'glosnosc_efekty'):
-                glosnosc_efekty = strona_ustawien.glosnosc_efekty
+            def ustawienia_wrapper(ekran):
+                wynik = strona_ustawien(ekran)
+                # Po powrocie z ustawień pobierz aktualną głośność efektów
+                try:
+                    return getattr(strona_ustawien, 'glosnosc_efekty', glosnosc_efekty)
+                except Exception:
+                    return glosnosc_efekty
+            nowa_glosnosc_efekty = efekt_przejscia(ekran, ustawienia_wrapper, "fade")
+            if nowa_glosnosc_efekty is not None:
+                glosnosc_efekty = nowa_glosnosc_efekty
             main.glosnosc_efekty = glosnosc_efekty
         
         # Aktualizuj animowane kostki
