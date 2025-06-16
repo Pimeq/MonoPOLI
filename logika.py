@@ -3,13 +3,22 @@ from pola import pobierz_pole, pola
 from constants import *
 from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_karte
 
-# Dane graczy (przykładowe)
-gracze = [
-    {KEY_NAZWA: "Gracz 1", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: CZERWONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
-    {KEY_NAZWA: "Gracz 2", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZIELONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
-    {KEY_NAZWA: "Gracz 3", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: NIEBIESKI_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
-    {KEY_NAZWA: "Gracz 4", KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZOLTY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0}
-]
+def utworz_liste_graczy():
+    """Tworzy nową listę graczy z aktualnymi nazwami z ustawień"""
+    try:
+        from ustawienia import nazwy_graczy
+    except ImportError:
+        nazwy_graczy = ["Gracz 1", "Gracz 2", "Gracz 3", "Gracz 4"]
+    
+    return [
+        {KEY_NAZWA: nazwy_graczy[0], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: CZERWONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+        {KEY_NAZWA: nazwy_graczy[1], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZIELONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+        {KEY_NAZWA: nazwy_graczy[2], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: NIEBIESKI_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+        {KEY_NAZWA: nazwy_graczy[3], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZOLTY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0}
+    ]
+
+# Domyślna lista graczy (będzie nadpisana w ekranie gry)
+gracze = utworz_liste_graczy()
 
 # Aktualna tura gracza
 aktualny_gracz = 0

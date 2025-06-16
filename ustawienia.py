@@ -22,6 +22,9 @@ KOLORY_GRACZY = [
 # Rozmiar okna
 SZEROKOSC, WYSOKOSC = 1200, 1000
 
+# Global player names for editing in settings
+nazwy_graczy = [f"Gracz {i+1}" for i in range(4)]
+
 # Klasa animowanego tła (skopiowana z landing page)
 class AnimowaneTlo:
     def __init__(self, szerokosc, wysokosc):
@@ -479,11 +482,36 @@ def strona_ustawien(ekran_zewnetrzny=None, skala_interfejsu=1):
         calkowita_szerokosc = 4 * karta_szerokosc + 3 * odstepy
         start_x = (SZEROKOSC - calkowita_szerokosc) // 2
         
-        # Rysuj karty graczy
+        # Rysuj karty graczy i pola edycji nazw
+        global nazwy_graczy
+        aktywne_pole = getattr(strona_ustawien, 'aktywne_pole', None)
         for i in range(4):
             x_pozycja = start_x + i * (karta_szerokosc + odstepy)
-            nazwy_graczy = ["Gracz 1", "Gracz 2", "Gracz 3", "Gracz 4"]
             narysuj_karte_gracza(interface_surface, x_pozycja, sekcja_y, karta_szerokosc, karta_wysokosc, nazwy_graczy[i], i + 1)
+            # Pole edycji nazwy
+            pole_rect = pygame.Rect(x_pozycja + 15, sekcja_y + 75, karta_szerokosc - 30, 35)
+            kolor_pola = (255,255,255) if aktywne_pole == i else (230,230,230)
+            pygame.draw.rect(interface_surface, kolor_pola, pole_rect, border_radius=8)
+            pygame.draw.rect(interface_surface, (120,120,120), pole_rect, 2, border_radius=8)
+            czcionka = pygame.font.SysFont('Arial', 18)
+            tekst = czcionka.render(nazwy_graczy[i], True, (40,40,40))
+            interface_surface.blit(tekst, (pole_rect.x+8, pole_rect.y+6))
+            # Obsługa kliknięcia
+            if pygame.mouse.get_pressed()[0]:
+                mx, my = pygame.mouse.get_pos()
+                if pole_rect.collidepoint(mx, my):
+                    strona_ustawien.aktywne_pole = i
+        # Obsługa wpisywania znaków
+        for event in pygame.event.get():
+            if hasattr(strona_ustawien, 'aktywne_pole') and strona_ustawien.aktywne_pole is not None:
+                if event.type == pygame.KEYDOWN:
+                    idx = strona_ustawien.aktywne_pole
+                    if event.key == pygame.K_BACKSPACE:
+                        nazwy_graczy[idx] = nazwy_graczy[idx][:-1]
+                    elif event.key == pygame.K_RETURN:
+                        strona_ustawien.aktywne_pole = None
+                    elif len(nazwy_graczy[idx]) < 16 and event.unicode.isprintable():
+                        nazwy_graczy[idx] += event.unicode
         
         # Sekcja głośności - wyśrodkowana
         glosnosc_y = sekcja_y + karta_wysokosc + 80
