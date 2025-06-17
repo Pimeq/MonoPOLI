@@ -176,6 +176,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
         # Sprawdź czy gracz przeszedł przez START
         if nowa_pozycja < stara_pozycja or karta.get("nagroda", 0) > 0:
             gracz["pieniadze"] += karta.get("nagroda", 200)
+            gracz["ects"] += 1  # Dodaj 1 ECTS za przejście przez START
             
         gracz["pozycja"] = nowa_pozycja
         
@@ -187,6 +188,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
         # Sprawdź czy gracz przeszedł przez START (tylko do przodu)
         if karta["pozycja"] > 0 and nowa_pozycja < stara_pozycja:
             gracz["pieniadze"] += 200
+            gracz["ects"] += 1  # Dodaj 1 ECTS za przejście przez START
             
         gracz["pozycja"] = nowa_pozycja
         
@@ -234,6 +236,7 @@ def wykonaj_karte(karta, gracz_index, gracze):
             # Sprawdź czy przeszedł przez START
             if najblizsza_pozycja < stara_pozycja:
                 gracz["pieniadze"] += 200
+                gracz["ects"] += 1  # Dodaj 1 ECTS za przejście przez START
 
 def znajdz_najblizszy_akademik(pozycja_gracza):
     """Znajduje pozycję najbliższego akademika"""

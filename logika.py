@@ -43,10 +43,11 @@ def przesun_gracza(gracz_index, liczba_pol):
     stara_pozycja = gracze[gracz_index][KEY_POZYCJA]
     nowa_pozycja = (stara_pozycja + liczba_pol) % 36
 
-    # Jeśli przekroczył START, dodaj 200 PLN
+    # Jeśli przekroczył START, dodaj 200 PLN i 1 ECTS
     if nowa_pozycja < stara_pozycja:
         gracze[gracz_index][KEY_PIENIADZE] += 200
-        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN")
+        gracze[gracz_index][KEY_ECTS] += 1
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN oraz 1 ECTS")
 
     gracze[gracz_index][KEY_POZYCJA] = nowa_pozycja
     
@@ -88,8 +89,6 @@ def przesun_gracza(gracz_index, liczba_pol):
         print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
         return karta  # Zwróć kartę do wyświetlenia
-      # Za każdy ruch dodaj ECTS
-    gracze[gracz_index][KEY_ECTS] += 1
     
     # Zwróć nową pozycję (i kartę jeśli została wyciągnięta)
     return None  # Domyślnie brak karty

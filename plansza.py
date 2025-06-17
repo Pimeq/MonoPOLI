@@ -156,7 +156,8 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                 # Sprawdź czy gracz przekroczył START (tylko podczas animacji)
                 if gracze[aktualny_gracz][KEY_POZYCJA] == 0 and animacja_krok > 0:
                     gracze[aktualny_gracz][KEY_PIENIADZE] += 200
-                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN")
+                    gracze[aktualny_gracz][KEY_ECTS] += 1
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN oraz 1 ECTS")
                 
                 animacja_krok += 1
                 
@@ -208,9 +209,6 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} wyciągnął kartę Kasa Studencka")
                     karta_do_wyswietlenia = ("KASA STUDENCKA", karta)
                     wykonaj_karte(karta, aktualny_gracz, gracze)
-                
-                # Za każdy ruch dodaj ECTS
-                gracze[aktualny_gracz][KEY_ECTS] += 1
                 
                 # Sprawdzenie, czy może kupić pole
                 if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"] and pole.get(KEY_WLASCICIEL) is None:
