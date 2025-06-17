@@ -293,7 +293,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
             ):
                 cena_domku = int(pole[KEY_CENA] * 0.5)
                 if utworz_przycisk(interface_surface, f"Kup domek na {pole[KEY_NAZWA]} za {cena_domku} PLN", 400, panel_dol_y + 80, 350, 40, ZIELONY, BIALY, 18, glosnosc_efekty=glosnosc_efekty):
-                    ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz])
+                    ilosc = wyswietl_okno_kupna_domkow(ekran, pole, gracze[aktualny_gracz], glosnosc_efekty)
                     interface_surface.fill(CIEMNY_NIEBIESKI)
                     plansza_x, plansza_y, plansza_rozmiar = narysuj_plansze(interface_surface, gracze)
                     panel_x = plansza_x + plansza_rozmiar + 20
@@ -343,13 +343,13 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
             pole_info = platnosc_do_wyswietlenia["pole"]
             kwota = platnosc_do_wyswietlenia["kwota"]
             
-            if wyswietl_okno_platnosci(interface_surface, gracz_platnik, gracz_wlasciciel, pole_info, kwota):
+            if wyswietl_okno_platnosci(interface_surface, gracz_platnik, gracz_wlasciciel, pole_info, kwota, glosnosc_efekty):
                 platnosc_do_wyswietlenia = None
           
           # Wyświetl kartę jeśli została wyciągnięta
         if karta_do_wyswietlenia:
             tytul, karta = karta_do_wyswietlenia
-            if wyswietl_okno_karty(interface_surface, karta, tytul):
+            if wyswietl_okno_karty(interface_surface, karta, tytul, glosnosc_efekty):
                 karta_do_wyswietlenia = None
           # Przycisk powrotu
 

@@ -188,7 +188,7 @@ def narysuj_karte_gracza(ekran, gracz, x, y, szerokosc, wysokosc, aktywny=False)
         pygame.draw.circle(ekran, (200, 150, 0), (x + szerokosc - 20, y + 20), 8)
 
 # Funkcja do wyświetlania okna z kartą
-def wyswietl_okno_karty(ekran, karta, tytul="KARTA"):
+def wyswietl_okno_karty(ekran, karta, tytul="KARTA", glosnosc_efekty=0.7):
     """Wyświetla okno z kartą i czeka na reakcję gracza"""
     # Wymiary okna karty
     szerokosc_okna = 400
@@ -236,14 +236,14 @@ def wyswietl_okno_karty(ekran, karta, tytul="KARTA"):
     przycisk_y = y_okna + wysokosc_okna - 70
     przycisk_klikniety = utworz_przycisk(ekran, "OK", x_okna + szerokosc_okna//2 - 60, 
                                         przycisk_y, 120, 40, 
-                                        ZIELONY, BIALY, 18)
+                                        ZIELONY, BIALY, 18, glosnosc_efekty)
     
     pygame.display.flip()
     
     return przycisk_klikniety
 
 
-def wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole, kwota):
+def wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole, kwota, glosnosc_efekty=0.7):
     """Wyświetla okno informujące o płatności czynszu"""
     # Wymiary okna
     szerokosc_okna = 450
@@ -325,13 +325,13 @@ def wyswietl_okno_platnosci(ekran, gracz_platnik, gracz_wlasciciel, pole, kwota)
     przycisk_y = y_okna + wysokosc_okna - 60
     przycisk_klikniety = utworz_przycisk(ekran, "OK", x_okna + szerokosc_okna//2 - 60, 
                                         przycisk_y, 120, 40, 
-                                        ZIELONY, BIALY, 18)
+                                        ZIELONY, BIALY, 18, glosnosc_efekty)
     
     pygame.display.flip()
     
     return przycisk_klikniety
 
-def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
+def wyswietl_okno_kupna_domkow(ekran, pole, gracz, glosnosc_efekty=0.7):
     """Wyświetla okno do kupna domków na polu. Pozwala wybrać liczbę domków do kupienia (1-4, max 4 na polu). Zwraca liczbę domków do kupienia lub 0 jeśli anulowano."""
     szerokosc_okna = 550  # Zwiększono z 450
     wysokosc_okna = 520   # Zwiększono jeszcze bardziej z 500 na 520
@@ -390,9 +390,27 @@ def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
                 
                 if btn_minus_rect.collidepoint(mouse_pos):
                     if wybrana_ilosc > 1:
+                        # Odtwórz dźwięk kliknięcia
+                        if hasattr(pygame, 'mixer') and hasattr(pygame.mixer, 'Sound'):
+                            try:
+                                sound = pygame.mixer.Sound("Audio/button.mp3")
+                                if glosnosc_efekty is not None:
+                                    sound.set_volume(glosnosc_efekty)
+                                sound.play()
+                            except Exception:
+                                pass
                         wybrana_ilosc -= 1
                 elif btn_plus_rect.collidepoint(mouse_pos):
                     if wybrana_ilosc < domki_mozna_kupic:
+                        # Odtwórz dźwięk kliknięcia
+                        if hasattr(pygame, 'mixer') and hasattr(pygame.mixer, 'Sound'):
+                            try:
+                                sound = pygame.mixer.Sound("Audio/button.mp3")
+                                if glosnosc_efekty is not None:
+                                    sound.set_volume(glosnosc_efekty)
+                                sound.play()
+                            except Exception:
+                                pass
                         wybrana_ilosc += 1
                 
                 # Sprawdź przyciski kup/anuluj - FIXED: dostosowane do pozycji w renderingu
@@ -406,10 +424,28 @@ def wyswietl_okno_kupna_domkow(ekran, pole, gracz):
                 if btn_kup_rect.collidepoint(mouse_pos):
                     suma = wybrana_ilosc * cena_domku
                     if suma <= gracz['pieniadze']:
+                        # Odtwórz dźwięk kliknięcia
+                        if hasattr(pygame, 'mixer') and hasattr(pygame.mixer, 'Sound'):
+                            try:
+                                sound = pygame.mixer.Sound("Audio/button.mp3")
+                                if glosnosc_efekty is not None:
+                                    sound.set_volume(glosnosc_efekty)
+                                sound.play()
+                            except Exception:
+                                pass
                         return wybrana_ilosc
                     else:
                         return 0
                 elif btn_anuluj_rect.collidepoint(mouse_pos):
+                    # Odtwórz dźwięk kliknięcia
+                    if hasattr(pygame, 'mixer') and hasattr(pygame.mixer, 'Sound'):
+                        try:
+                            sound = pygame.mixer.Sound("Audio/button.mp3")
+                            if glosnosc_efekty is not None:
+                                sound.set_volume(glosnosc_efekty)
+                            sound.play()
+                        except Exception:
+                            pass
                     return 0
         
         # Przywróć tło
