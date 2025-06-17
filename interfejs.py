@@ -578,3 +578,142 @@ def wyswietl_okno_kupna_domkow(ekran, pole, gracz, glosnosc_efekty=0.7):
         clock.tick(60)
     
     return 0
+
+# Funkcja do wyświetlania ekranu wygranej
+def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
+    """Wyświetla ekran wygranej z animacjami i efektami"""
+    import pygame
+    import math
+    import time
+    
+    # Wymiary okna wygranej
+    szerokosc_okna = 600
+    wysokosc_okna = 500
+    x_okna = (1200 - szerokosc_okna) // 2
+    y_okna = (1000 - wysokosc_okna) // 2
+    
+    # Animacja
+    czas_start = time.time()
+    clock = pygame.time.Clock()
+    
+    while True:
+        czas_biezacy = time.time() - czas_start
+        
+        # Obsługa zdarzeń
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "quit"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                    return "menu"
+                elif event.key == pygame.K_ESCAPE:
+                    return "quit"
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                return "menu"
+        
+        # Półprzezroczyste tło z animacją
+        overlay = pygame.Surface((1200, 1000), pygame.SRCALPHA)
+        alpha = min(200, int(czas_biezacy * 100))
+        overlay.fill((0, 0, 0, alpha))
+        ekran.blit(overlay, (0, 0))
+        
+        # Animacja pulsowania okna
+        puls = 1 + 0.05 * math.sin(czas_biezacy * 3)
+        okno_w = int(szerokosc_okna * puls)
+        okno_h = int(wysokosc_okna * puls)
+        okno_x = (1200 - okno_w) // 2
+        okno_y = (1000 - okno_h) // 2
+        
+        # Główne okno wygranej
+        narysuj_zaokraglony_prostokat(ekran, BIALY, (okno_x, okno_y, okno_w, okno_h), 20)
+        pygame.draw.rect(ekran, ZLOTY, (okno_x, okno_y, okno_w, okno_h), 5, border_radius=20)
+        
+        # Korona zwycięzcy
+        korona_y = okno_y + 30
+        korona_x = okno_x + okno_w // 2
+        
+        # Animacja korony
+        korona_offset = 5 * math.sin(czas_biezacy * 2)
+        
+        # Rysuj koronę
+        punkty_korony = [
+            (korona_x - 40, korona_y + 40 + korona_offset),
+            (korona_x - 30, korona_y + 10 + korona_offset),
+            (korona_x - 20, korona_y + 30 + korona_offset),
+            (korona_x - 10, korona_y + 5 + korona_offset),
+            (korona_x, korona_y + 25 + korona_offset),
+            (korona_x + 10, korona_y + 5 + korona_offset),
+            (korona_x + 20, korona_y + 30 + korona_offset),
+            (korona_x + 30, korona_y + 10 + korona_offset),
+            (korona_x + 40, korona_y + 40 + korona_offset)
+        ]
+        pygame.draw.polygon(ekran, ZLOTY, punkty_korony)
+        pygame.draw.polygon(ekran, (180, 140, 0), punkty_korony, 3)
+        
+        # Dodaj klejnoty na koronie
+        for i in [-20, 0, 20]:
+            pygame.draw.circle(ekran, CZERWONY, (korona_x + i, int(korona_y + 15 + korona_offset)), 5)
+            pygame.draw.circle(ekran, (150, 0, 0), (korona_x + i, int(korona_y + 15 + korona_offset)), 5, 2)
+        
+        # Tytuł ZWYCIĘSTWO z animacją
+        czcionka_tytul = pygame.font.SysFont('Arial', 48, bold=True)
+        kolor_tytulu = (
+            int(127 + 127 * math.sin(czas_biezacy * 2)),
+            int(127 + 127 * math.sin(czas_biezacy * 2 + 2)),
+            int(127 + 127 * math.sin(czas_biezacy * 2 + 4))
+        )
+        tekst_tytul = czcionka_tytul.render("ZWYCIĘSTWO!", True, kolor_tytulu)
+        tytul_rect = tekst_tytul.get_rect(centerx=okno_x + okno_w//2, y=okno_y + 100)
+        ekran.blit(tekst_tytul, tytul_rect)
+        
+        # Linia pod tytułem
+        linia_y = okno_y + 150
+        pygame.draw.line(ekran, ZLOTY, (okno_x + 50, linia_y), (okno_x + okno_w - 50, linia_y), 3)
+        
+        # Informacje o zwycięzcy
+        czcionka_zwyciezca = pygame.font.SysFont('Arial', 32, bold=True)
+        tekst_zwyciezca = czcionka_zwyciezca.render(f"Gracz: {zwyciezca[KEY_NAZWA]}", True, zwyciezca[KEY_KOLOR])
+        zwyciezca_rect = tekst_zwyciezca.get_rect(centerx=okno_x + okno_w//2, y=okno_y + 180)
+        ekran.blit(tekst_zwyciezca, zwyciezca_rect)
+        
+        # ECTS zwycięzcy
+        czcionka_ects = pygame.font.SysFont('Arial', 36, bold=True)
+        tekst_ects = czcionka_ects.render(f"ECTS: {zwyciezca[KEY_ECTS]}/30", True, ZLOTY)
+        ects_rect = tekst_ects.get_rect(centerx=okno_x + okno_w//2, y=okno_y + 220)
+        ekran.blit(tekst_ects, ects_rect)
+        
+        # Statystyki zwycięzcy
+        czcionka_stats = pygame.font.SysFont('Arial', 20)
+        stats_y = okno_y + 270
+        
+        tekst_pieniadze = czcionka_stats.render(f"Pieniądze: {zwyciezca[KEY_PIENIADZE]} PLN", True, CZARNY)
+        pieniadze_rect = tekst_pieniadze.get_rect(centerx=okno_x + okno_w//2, y=stats_y)
+        ekran.blit(tekst_pieniadze, pieniadze_rect)
+        
+        tekst_budynki = czcionka_stats.render(f"Budynki: {zwyciezca[KEY_BUDYNKI]}", True, CZARNY)
+        budynki_rect = tekst_budynki.get_rect(centerx=okno_x + okno_w//2, y=stats_y + 30)
+        ekran.blit(tekst_budynki, budynki_rect)
+        
+        # Instrukcje
+        czcionka_instr = pygame.font.SysFont('Arial', 18)
+        tekst_instr1 = czcionka_instr.render("ENTER/SPACJA - Powrót do menu", True, (100, 100, 100))
+        tekst_instr2 = czcionka_instr.render("ESC - Wyjście z gry", True, (100, 100, 100))
+        
+        instr1_rect = tekst_instr1.get_rect(centerx=okno_x + okno_w//2, y=okno_y + okno_h - 80)
+        instr2_rect = tekst_instr2.get_rect(centerx=okno_x + okno_w//2, y=okno_y + okno_h - 60)
+        
+        ekran.blit(tekst_instr1, instr1_rect)
+        ekran.blit(tekst_instr2, instr2_rect)  
+        
+        # Efekty cząsteczkowe (proste gwiazdki)
+        if czas_biezacy > 1:
+            for i in range(10):
+                gwiazda_x = okno_x + (i * okno_w // 10) + int(20 * math.sin(czas_biezacy + i))
+                gwiazda_y = okno_y - 20 + int(10 * math.sin(czas_biezacy * 2 + i))
+                rozmiar = int(3 + 2 * math.sin(czas_biezacy * 3 + i))
+                pygame.draw.circle(ekran, ZLOTY, (gwiazda_x, gwiazda_y), rozmiar)
+        
+        pygame.display.flip()
+        clock.tick(60)
+    
+    return "menu"
