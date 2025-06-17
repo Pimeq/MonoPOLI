@@ -658,8 +658,7 @@ def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
         stats_y = 450
         stats = [
             f"Pieniądze: {zwyciezca[KEY_PIENIADZE]} PLN",
-            f"Budynki: {zwyciezca[KEY_BUDYNKI]}",
-            f"Pozycja: {zwyciezca[KEY_POZYCJA]}"
+            f"Budynki: {zwyciezca[KEY_BUDYNKI]}"
         ]
         
         for i, stat in enumerate(stats):

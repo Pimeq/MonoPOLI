@@ -137,6 +137,11 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                             pole[KEY_DOMKI] = 0  # opcjonalnie zeruj domki
                     print(f"[DEBUG] Wszystkie posiadłości zostały przekazane graczowi {gracze[aktualny_gracz][KEY_NAZWA]}")
                 
+                # DEBUG: Instant win - ustaw 30 ECTS i wygraj grę po wciśnięciu F12
+                if event.key == pygame.K_F12:
+                    debug_wygraj_gre(gracze, aktualny_gracz)
+                    print(f"[DEBUG] Gracz {gracze[aktualny_gracz][KEY_NAZWA]} wygrywa!")
+                
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
         
