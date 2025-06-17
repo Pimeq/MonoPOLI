@@ -266,17 +266,20 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
             pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
             pole = pobierz_pole(pozycja)
             if utworz_przycisk(interface_surface, f"Kup {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18, glosnosc_efekty=glosnosc_efekty):
-
                 if gracze[aktualny_gracz][KEY_PIENIADZE] >= pole[KEY_CENA]:
                     gracze[aktualny_gracz][KEY_PIENIADZE] -= pole[KEY_CENA]
                     pole[KEY_WLASCICIEL] = aktualny_gracz
                     gracze[aktualny_gracz][KEY_BUDYNKI] += 1
+                    
+                    # Dodaj 1 ECTS za kupioną działkę
+                    from logika import dodaj_ects_za_dzialke
+                    dodaj_ects_za_dzialke(aktualny_gracz)
+                    
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN")
                     kupowanie_pola = False
                     tura_wykonana = False
                     aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                     continue
-
                 else:
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy, aby kupić {pole[KEY_NAZWA]}")
         
@@ -322,10 +325,32 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                         if gracze[aktualny_gracz][KEY_PIENIADZE] >= suma:
                             gracze[aktualny_gracz][KEY_PIENIADZE] -= suma
                             pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + ilosc
+                            
+                            # Dodaj ECTS za kupione domki
+                            from logika import dodaj_ects_za_domki
+                            dodaj_ects_za_domki(aktualny_gracz, ilosc)
+                            
                             print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {ilosc} domków na {pole[KEY_NAZWA]} (razem: {pole[KEY_DOMKI]})")
                         else:
                             print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy na {ilosc} domków na {pole[KEY_NAZWA]}")
         
+        # Sprawdź zwycięzcę po każdym ruchu
+        from logika import sprawdz_zwyciezce
+        zwyciezca = sprawdz_zwyciezce()
+        if zwyciezca:
+            from interfejs import wyswietl_ekran_wygranej
+            wynik = wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty)
+            if wynik == "new_game":
+                # Resetuj grę
+                from logika import resetuj_gre
+                resetuj_gre()
+                # Odśwież listę graczy z nowymi nazwami
+                gracze[:] = utworz_liste_graczy()
+                aktualny_gracz = 0
+            elif wynik == "menu":
+                return "menu"
+            elif wynik == "quit":
+                return "quit"
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
 

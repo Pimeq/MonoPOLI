@@ -125,6 +125,9 @@ def kup_pole(gracz_index, pozycja_pola):
     # Dodaj budynek do statystyk gracza
     gracze[gracz_index][KEY_BUDYNKI] += 1
     
+    # Dodaj 1 ECTS za kupioną działkę
+    dodaj_ects_za_dzialke(gracz_index)
+    
     print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} kupił {pole['nazwa']} za {pole['cena']} PLN")
     return True
 
@@ -230,3 +233,23 @@ def sprawdz_platnosc(gracz_index, pozycja, gracze):
             }
     
     return None  # Brak płatności
+
+# Funkcja do sprawdzania zwycięzcy
+def sprawdz_zwyciezce():
+    """Sprawdza czy któryś gracz osiągnął 30 ECTS i wygrał"""
+    for gracz in gracze:
+        if gracz[KEY_ECTS] >= 30:
+            return gracz
+    return None
+
+# Funkcja do dodawania ECTS za kupno działki
+def dodaj_ects_za_dzialke(gracz_index):
+    """Dodaje 1 ECTS za kupioną działkę"""
+    gracze[gracz_index][KEY_ECTS] += 1
+    print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} otrzymuje 1 ECTS za kupioną działkę (łącznie: {gracze[gracz_index][KEY_ECTS]})")
+
+# Funkcja do dodawania ECTS za kupno domków
+def dodaj_ects_za_domki(gracz_index, liczba_domkow):
+    """Dodaje ECTS za kupione domki (1 ECTS za każdy domek)"""
+    gracze[gracz_index][KEY_ECTS] += liczba_domkow
+    print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} otrzymuje {liczba_domkow} ECTS za kupione domki (łącznie: {gracze[gracz_index][KEY_ECTS]})")
