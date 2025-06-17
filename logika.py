@@ -43,10 +43,11 @@ def przesun_gracza(gracz_index, liczba_pol):
     stara_pozycja = gracze[gracz_index][KEY_POZYCJA]
     nowa_pozycja = (stara_pozycja + liczba_pol) % 36
 
-    # Jeśli przekroczył START, dodaj 200 PLN
+    # Jeśli przekroczył START, dodaj 200 PLN i 1 ECTS
     if nowa_pozycja < stara_pozycja:
         gracze[gracz_index][KEY_PIENIADZE] += 200
-        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN")
+        gracze[gracz_index][KEY_ECTS] += 1
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN oraz 1 ECTS")
 
     gracze[gracz_index][KEY_POZYCJA] = nowa_pozycja
     
@@ -88,8 +89,6 @@ def przesun_gracza(gracz_index, liczba_pol):
         print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
         return karta  # Zwróć kartę do wyświetlenia
-      # Za każdy ruch dodaj ECTS
-    gracze[gracz_index][KEY_ECTS] += 1
     
     # Zwróć nową pozycję (i kartę jeśli została wyciągnięta)
     return None  # Domyślnie brak karty
@@ -230,3 +229,25 @@ def sprawdz_platnosc(gracz_index, pozycja, gracze):
             }
     
     return None  # Brak płatności
+
+# Funkcja do sprawdzania zwycięzcy
+def sprawdz_zwyciezce(gracze_lista):
+    """Sprawdza czy którys gracz osiągnął 30 ECTS i wygrał"""
+    for gracz in gracze_lista:
+        if gracz[KEY_ECTS] >= 30:
+            return gracz
+    return None
+
+# Funkcja do dodawania ECTS za kupno działki
+def dodaj_ects_za_dzialke(gracz_index, gracze_lista):
+    """Dodaje 1 ECTS za kupioną działkę"""
+    gracze_lista[gracz_index][KEY_ECTS] += 1
+    print(f"Gracz {gracze_lista[gracz_index][KEY_NAZWA]} otrzymuje 1 ECTS za kupioną działkę (łącznie: {gracze_lista[gracz_index][KEY_ECTS]})")
+
+# Funkcja do dodawania ECTS za kupno domków
+def dodaj_ects_za_domki(gracz_index, liczba_domkow, gracze_lista):
+    """Dodaje ECTS za kupione domki (1 ECTS za każdy domek)"""
+    gracze_lista[gracz_index][KEY_ECTS] += liczba_domkow
+    print(f"Gracz {gracze_lista[gracz_index][KEY_NAZWA]} otrzymuje {liczba_domkow} ECTS za kupione domki (łącznie: {gracze_lista[gracz_index][KEY_ECTS]})")
+
+# Funkcja debugująca - ustawia 30 ECTS dla aktualnego gracza

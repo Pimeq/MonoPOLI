@@ -118,24 +118,16 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                     print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
 
                 
-                # DEBUG: Dodaj domek na aktualnym polu po wciśnięciu D
-                if event.key == pygame.K_d:
-                    pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
-                    pole = pobierz_pole(pozycja)
-                    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
-                        if pole.get(KEY_DOMKI, 0) < 4:
-                            pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + 1
-                            print(f"[DEBUG] Dodano domek na {pole[KEY_NAZWA]} (liczba domków: {pole[KEY_DOMKI]})")
-                        else:
-                            print(f"[DEBUG] Na polu {pole[KEY_NAZWA]} nie można mieć więcej niż 4 domki!")
-                
-                # DEBUG: Przekaż wszystkie posiadłości graczowi z tury po wciśnięciu F
-                if event.key == pygame.K_f:
-                    for idx, pole in enumerate(pola):
-                        if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
-                            pole[KEY_WLASCICIEL] = aktualny_gracz
-                            pole[KEY_DOMKI] = 0  # opcjonalnie zeruj domki
-                    print(f"[DEBUG] Wszystkie posiadłości zostały przekazane graczowi {gracze[aktualny_gracz][KEY_NAZWA]}")
+                # DEBUG: Menu debugowania po wciśnięciu F12
+                if event.key == pygame.K_F12:
+                    from debug import wyswietl_menu_debug
+                    nowy_aktualny_gracz, wynik = wyswietl_menu_debug(ekran, gracze, aktualny_gracz, glosnosc_efekty)
+                    if wynik == "quit":
+                        return "menu"
+                    elif wynik == "close":
+                        aktualny_gracz = nowy_aktualny_gracz
+                        # Odśwież interfejs po powrocie z menu debug
+                        interface_surface.fill(CIEMNY_NIEBIESKI)
                 
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
@@ -156,7 +148,8 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                 # Sprawdź czy gracz przekroczył START (tylko podczas animacji)
                 if gracze[aktualny_gracz][KEY_POZYCJA] == 0 and animacja_krok > 0:
                     gracze[aktualny_gracz][KEY_PIENIADZE] += 200
-                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN")
+                    gracze[aktualny_gracz][KEY_ECTS] += 1
+                    print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN oraz 1 ECTS")
                 
                 animacja_krok += 1
                 
@@ -208,9 +201,6 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} wyciągnął kartę Kasa Studencka")
                     karta_do_wyswietlenia = ("KASA STUDENCKA", karta)
                     wykonaj_karte(karta, aktualny_gracz, gracze)
-                
-                # Za każdy ruch dodaj ECTS
-                gracze[aktualny_gracz][KEY_ECTS] += 1
                 
                 # Sprawdzenie, czy może kupić pole
                 if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"] and pole.get(KEY_WLASCICIEL) is None:
@@ -266,17 +256,19 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
             pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
             pole = pobierz_pole(pozycja)
             if utworz_przycisk(interface_surface, f"Kup {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN", 350, panel_dol_y + 30, 350, 40, ZIELONY, BIALY, 18, glosnosc_efekty=glosnosc_efekty):
-
                 if gracze[aktualny_gracz][KEY_PIENIADZE] >= pole[KEY_CENA]:
                     gracze[aktualny_gracz][KEY_PIENIADZE] -= pole[KEY_CENA]
                     pole[KEY_WLASCICIEL] = aktualny_gracz
                     gracze[aktualny_gracz][KEY_BUDYNKI] += 1
+                    
+                    # Dodaj 1 ECTS za kupioną działkę
+                    dodaj_ects_za_dzialke(aktualny_gracz, gracze)
+                    
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN")
                     kupowanie_pola = False
                     tura_wykonana = False
                     aktualny_gracz = (aktualny_gracz + 1) % len(gracze)
                     continue
-
                 else:
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy, aby kupić {pole[KEY_NAZWA]}")
         
@@ -322,10 +314,28 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                         if gracze[aktualny_gracz][KEY_PIENIADZE] >= suma:
                             gracze[aktualny_gracz][KEY_PIENIADZE] -= suma
                             pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + ilosc
+                            
+                            # Dodaj ECTS za kupione domki
+                            dodaj_ects_za_domki(aktualny_gracz, ilosc, gracze)
+                            
                             print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {ilosc} domków na {pole[KEY_NAZWA]} (razem: {pole[KEY_DOMKI]})")
                         else:
                             print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy na {ilosc} domków na {pole[KEY_NAZWA]}")
         
+        # Sprawdź zwycięzcę po każdym ruchu
+        zwyciezca = sprawdz_zwyciezce(gracze)
+        if zwyciezca:
+            wynik = wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty)
+            if wynik == "new_game":
+                # Resetuj grę
+                resetuj_gre()
+                # Odśwież listę graczy z nowymi nazwami
+                gracze[:] = utworz_liste_graczy()
+                aktualny_gracz = 0
+            elif wynik == "menu":
+                return "menu"
+            elif wynik == "quit":
+                return "quit"
         # Przycisk następnego gracza
         if tura_wykonana and not animacja_aktywna:
 
@@ -337,7 +347,6 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                 print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
             # Wyświetl okno płatności jeśli była transakcja
         if platnosc_do_wyswietlenia:
-            from interfejs import wyswietl_okno_platnosci
             gracz_platnik = gracze[platnosc_do_wyswietlenia["platnik"]]
             gracz_wlasciciel = gracze[platnosc_do_wyswietlenia["wlasciciel"]]
             pole_info = platnosc_do_wyswietlenia["pole"]
