@@ -251,7 +251,3 @@ def dodaj_ects_za_domki(gracz_index, liczba_domkow, gracze_lista):
     print(f"Gracz {gracze_lista[gracz_index][KEY_NAZWA]} otrzymuje {liczba_domkow} ECTS za kupione domki (łącznie: {gracze_lista[gracz_index][KEY_ECTS]})")
 
 # Funkcja debugująca - ustawia 30 ECTS dla aktualnego gracza
-def debug_wygraj_gre(gracze, aktualny_gracz_index):
-    """DEBUG: Ustawia 30 ECTS dla aktualnego gracza aby wygrał grę"""
-    gracze[aktualny_gracz_index][KEY_ECTS] = 30
-    print(f"DEBUG: Gracz {gracze[aktualny_gracz_index][KEY_NAZWA]} otrzymał 30 ECTS i wygrywa!")

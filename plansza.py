@@ -118,29 +118,16 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                     print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
 
                 
-                # DEBUG: Dodaj domek na aktualnym polu po wciśnięciu D
-                if event.key == pygame.K_d:
-                    pozycja = gracze[aktualny_gracz][KEY_POZYCJA]
-                    pole = pobierz_pole(pozycja)
-                    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
-                        if pole.get(KEY_DOMKI, 0) < 4:
-                            pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + 1
-                            print(f"[DEBUG] Dodano domek na {pole[KEY_NAZWA]} (liczba domków: {pole[KEY_DOMKI]})")
-                        else:
-                            print(f"[DEBUG] Na polu {pole[KEY_NAZWA]} nie można mieć więcej niż 4 domki!")
-                
-                # DEBUG: Przekaż wszystkie posiadłości graczowi z tury po wciśnięciu F
-                if event.key == pygame.K_f:
-                    for idx, pole in enumerate(pola):
-                        if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
-                            pole[KEY_WLASCICIEL] = aktualny_gracz
-                            pole[KEY_DOMKI] = 0  # opcjonalnie zeruj domki
-                    print(f"[DEBUG] Wszystkie posiadłości zostały przekazane graczowi {gracze[aktualny_gracz][KEY_NAZWA]}")
-                
-                # DEBUG: Instant win - ustaw 30 ECTS i wygraj grę po wciśnięciu F12
+                # DEBUG: Menu debugowania po wciśnięciu F12
                 if event.key == pygame.K_F12:
-                    debug_wygraj_gre(gracze, aktualny_gracz)
-                    print(f"[DEBUG] Gracz {gracze[aktualny_gracz][KEY_NAZWA]} wygrywa!")
+                    from debug import wyswietl_menu_debug
+                    nowy_aktualny_gracz, wynik = wyswietl_menu_debug(ekran, gracze, aktualny_gracz, glosnosc_efekty)
+                    if wynik == "quit":
+                        return "menu"
+                    elif wynik == "close":
+                        aktualny_gracz = nowy_aktualny_gracz
+                        # Odśwież interfejs po powrocie z menu debug
+                        interface_surface.fill(CIEMNY_NIEBIESKI)
                 
         # Wypełnij tło
         interface_surface.fill(CIEMNY_NIEBIESKI)
