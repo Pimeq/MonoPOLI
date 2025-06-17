@@ -270,8 +270,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                     gracze[aktualny_gracz][KEY_BUDYNKI] += 1
                     
                     # Dodaj 1 ECTS za kupioną działkę
-                    from logika import dodaj_ects_za_dzialke
-                    dodaj_ects_za_dzialke(aktualny_gracz)
+                    dodaj_ects_za_dzialke(aktualny_gracz, gracze)
                     
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {pole[KEY_NAZWA]} za {pole[KEY_CENA]} PLN")
                     kupowanie_pola = False
@@ -325,22 +324,18 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                             pole[KEY_DOMKI] = pole.get(KEY_DOMKI, 0) + ilosc
                             
                             # Dodaj ECTS za kupione domki
-                            from logika import dodaj_ects_za_domki
-                            dodaj_ects_za_domki(aktualny_gracz, ilosc)
+                            dodaj_ects_za_domki(aktualny_gracz, ilosc, gracze)
                             
                             print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} kupił {ilosc} domków na {pole[KEY_NAZWA]} (razem: {pole[KEY_DOMKI]})")
                         else:
                             print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} nie ma wystarczająco pieniędzy na {ilosc} domków na {pole[KEY_NAZWA]}")
         
         # Sprawdź zwycięzcę po każdym ruchu
-        from logika import sprawdz_zwyciezce
-        zwyciezca = sprawdz_zwyciezce()
+        zwyciezca = sprawdz_zwyciezce(gracze)
         if zwyciezca:
-            from interfejs import wyswietl_ekran_wygranej
             wynik = wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty)
             if wynik == "new_game":
                 # Resetuj grę
-                from logika import resetuj_gre
                 resetuj_gre()
                 # Odśwież listę graczy z nowymi nazwami
                 gracze[:] = utworz_liste_graczy()
@@ -360,7 +355,6 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                 print(f"Tura gracza: {gracze[aktualny_gracz][KEY_NAZWA]}")
             # Wyświetl okno płatności jeśli była transakcja
         if platnosc_do_wyswietlenia:
-            from interfejs import wyswietl_okno_platnosci
             gracz_platnik = gracze[platnosc_do_wyswietlenia["platnik"]]
             gracz_wlasciciel = gracze[platnosc_do_wyswietlenia["wlasciciel"]]
             pole_info = platnosc_do_wyswietlenia["pole"]
