@@ -72,7 +72,7 @@ class KostkaTrojwymiarowa:
         centrum_y = self.y
         polowa = self.rozmiar / 2.0
 
-        # 1) Definiujemy 8 wierzchołków kostki w lokalnym układzie
+        # 1) Wierzchołki kostki w lokalnym układzie
         local_verts = [
             (-polowa, -polowa, -polowa),
             ( polowa, -polowa, -polowa),
@@ -84,110 +84,127 @@ class KostkaTrojwymiarowa:
             (-polowa,  polowa,  polowa),
         ]
 
-        # 2) Ściany - indeksy wierzchołków i odpowiadające im wartości oczek
+        # 2) Ściany i indeksy wierzchołków + wartość oczek
         faces = [
-            ( [0,1,2,3], 1 ),  # tył
-            ( [4,5,6,7], 6 ),  # przód
-            ( [0,4,7,3], 2 ),  # lewa
-            ( [1,5,6,2], 5 ),  # prawa
-            ( [0,1,5,4], 3 ),  # dół
-            ( [3,2,6,7], 4 ),  # góra
+            ([0,1,2,3], 1),  # tył
+            ([4,5,6,7], 6),  # przód
+            ([0,4,7,3], 2),  # lewa
+            ([1,5,6,2], 5),  # prawa
+            ([0,1,5,4], 3),  # dół
+            ([3,2,6,7], 4),  # góra
         ]
-        kolory_scian = [
-                (220, 220, 220),  # tył
-                (255, 255, 255),  # przód
-                (200, 200, 200),  # lewa
-                (240, 240, 240),  # prawa
-                (180, 180, 180),  # dół
-                (230, 230, 230),  # góra
-            ]
-        # 3) Obrót wszystkich wierzchołków i zapis w postaci (x3d,y3d,z3d,x2d,y2d)
+        base_colors = [
+            (220,220,220), (255,255,255), (200,200,200),
+            (240,240,240), (180,180,180), (230,230,230),
+        ]
+
+        # 3) Obrót + rzut ortogonalny
         transformed = []
         for vx, vy, vz in local_verts:
-            # obrót X
-            ry = vy * math.cos(math.radians(self.obrot_x)) \
-                 - vz * math.sin(math.radians(self.obrot_x))
-            rz = vy * math.sin(math.radians(self.obrot_x)) \
-                 + vz * math.cos(math.radians(self.obrot_x))
+            # rotacja X
+            ay = math.radians(self.obrot_x)
+            ry = vy*math.cos(ay) - vz*math.sin(ay)
+            rz = vy*math.sin(ay) + vz*math.cos(ay)
             rx = vx
-            # obrót Y
-            rz2 = rz * math.cos(math.radians(self.obrot_y)) \
-                  - rx * math.sin(math.radians(self.obrot_y))
-            rx2 = rz * math.sin(math.radians(self.obrot_y)) \
-                  + rx * math.cos(math.radians(self.obrot_y))
+            # rotacja Y
+            by = math.radians(self.obrot_y)
+            rz2 = rz*math.cos(by) - rx*math.sin(by)
+            rx2 = rz*math.sin(by) + rx*math.cos(by)
             ry2 = ry
-            # obrót Z
-            rx3 = rx2 * math.cos(math.radians(self.obrot_z)) \
-                  - ry2 * math.sin(math.radians(self.obrot_z))
-            ry3 = rx2 * math.sin(math.radians(self.obrot_z)) \
-                  + ry2 * math.cos(math.radians(self.obrot_z))
+            # rotacja Z
+            cy = math.radians(self.obrot_z)
+            rx3 = rx2*math.cos(cy) - ry2*math.sin(cy)
+            ry3 = rx2*math.sin(cy) + ry2*math.cos(cy)
             rz3 = rz2
-
-            # rzutowanie ortogonalne
+            # rzut orto
             x2 = centrum_x + rx3
             y2 = centrum_y + ry3
             transformed.append((rx3, ry3, rz3, x2, y2))
 
-        # 4) Sortujemy ściany po głębokości (średnie z >0 z wierzchołków)
+        # 4) Sortowanie ścian wg głębokości
         face_order = []
-        for idx, (inds, val) in enumerate(faces):
-            avg_z = sum(transformed[i][2] for i in inds) / 4.0
+        for idx, (inds, _) in enumerate(faces):
+            avg_z = sum(transformed[i][2] for i in inds)/4.0
             face_order.append((idx, avg_z))
         face_order.sort(key=lambda x: x[1], reverse=True)
 
-        # 5) Rysujemy ściany i pipsy
+        # 5) przygotowanie źródła światła (wektor znormalizowany)
+        # np. światło nad i przed widzem:
+        L = (1, 1, -0.5)
+        l_len = math.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2])
+        L = (L[0]/l_len, L[1]/l_len, L[2]/l_len)
+
+        # 6) Pip–patterns
+        pip_patterns = {
+            1: [(0,0)],
+            2: [(-.5,-.5),(.5,.5)],
+            3: [(-.5,-.5),(0,0),(.5,.5)],
+            4: [(-.5,-.5),(-.5,.5),(.5,-.5),(.5,.5)],
+            5: [(-.5,-.5),(-.5,.5),(0,0),(.5,-.5),(.5,.5)],
+            6: [(-.5,-.5),(-.5,0),(-.5,.5),(.5,-.5),(.5,0),(.5,.5)],
+        }
+        offset = polowa * 0.7
+        pip_r = max(3, int(offset * 0.15))
+
+        # 7) Rysowanie ścian i pipów
         for face_idx, _ in face_order:
             inds, val = faces[face_idx]
+            base_col = base_colors[face_idx]
 
-            # punkty 2D do polygonu
-            poly2d = [(transformed[i][3], transformed[i][4]) for i in inds]
-            pygame.draw.polygon(ekran, kolory_scian[face_idx], poly2d)
-            pygame.draw.polygon(ekran, (0,0,0), poly2d, 2)
-
-            # --- tutaj ustalamy ramkę ściany w 3D ---
-            # weź trzy wierzchołki, zrób bazę u,v na 3D
+            # oblicz normalną ściany przez iloczyn wektorowy:
             p0 = transformed[inds[0]][:3]
             p1 = transformed[inds[1]][:3]
             p3 = transformed[inds[3]][:3]
-            # wektor u wzdłuż pierwszej krawędzi
-            ux, uy, uz = (p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2])
-            # wektor v wzdłuż trzeciej krawędzi
-            vx, vy, vz = (p3[0]-p0[0], p3[1]-p0[1], p3[2]-p0[2])
-            # normalizacja u i v
-            ul = math.sqrt(ux*ux + uy*uy + uz*uz)
-            vl = math.sqrt(vx*vx + vy*vy + vz*vz)
-            ux, uy, uz = ux/ul, uy/ul, uz/ul
-            vx, vy, vz = vx/vl, vy/vl, vz/vl
+            # u = p1-p0, v = p3-p0
+            u = (p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2])
+            v = (p3[0]-p0[0], p3[1]-p0[1], p3[2]-p0[2])
+            # n = u × v
+            nx = u[1]*v[2] - u[2]*v[1]
+            ny = u[2]*v[0] - u[0]*v[2]
+            nz = u[0]*v[1] - u[1]*v[0]
+            n_len = math.sqrt(nx*nx + ny*ny + nz*nz)
+            n = (nx/n_len, ny/n_len, nz/n_len)
 
-            # środek ściany w 3D
-            cx3 = sum(transformed[i][0] for i in inds) / 4.0
-            cy3 = sum(transformed[i][1] for i in inds) / 4.0
-            cz3 = sum(transformed[i][2] for i in inds) / 4.0
+            # jasność = max(0, n·L)
+            brightness = max(0.0,
+            n[0]*L[0] + n[1]*L[1] + n[2]*L[2]
+            )
+            # skalowanie do [0.5…1.0] dla delikatnego cienia
+            factor = 0.8 + 0.3 * brightness
+            col = (
+                min(255, int(base_col[0] * factor)),
+                min(255, int(base_col[1] * factor)),
+                min(255, int(base_col[2] * factor))
+            )
 
-            # promień rozstawu pipsów w lokalnych współrzędnych [0..1]
-            offset = polowa * 0.7
+            # punkty 2D
+            poly2d = [(transformed[i][3], transformed[i][4]) for i in inds]
+            # wypełnienie + AA krawędzi
+            pygame.gfxdraw.filled_polygon(ekran, poly2d, col)
+            pygame.gfxdraw.aapolygon(ekran, poly2d, (0,0,0))
 
-            # pozycje pipsów w lokalnych współrzędnych u,v
-            pip_patterns = {
-                1: [(0,0)],
-                2: [(-.5,-.5),(.5,.5)],
-                3: [(-.5,-.5),(0,0),(.5,.5)],
-                4: [(-.5,-.5),(-.5,.5),(.5,-.5),(.5,.5)],
-                5: [(-.5,-.5),(-.5,.5),(0,0),(.5,-.5),(.5,.5)],
-                6: [(-.5,-.5),(-.5,0),(-.5,.5),(.5,-.5),(.5,0),(.5,.5)],
-            }
+            # środek ściany 3D
+            cx3 = sum(transformed[i][0] for i in inds)/4.0
+            cy3 = sum(transformed[i][1] for i in inds)/4.0
+            cz3 = sum(transformed[i][2] for i in inds)/4.0
 
-            # rysujemy każdy pips jako punkt 3D → projektujemy
+            # u,v znormalizowane
+            ul = math.sqrt(u[0]*u[0]+u[1]*u[1]+u[2]*u[2])
+            vl = math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])
+            u = (u[0]/ul, u[1]/ul, u[2]/ul)
+            v = (v[0]/vl, v[1]/vl, v[2]/vl)
+
+            # rysuj pipy
             for pu, pv in pip_patterns[val]:
-                # punkt 3D
-                px3 = cx3 + ux * (pu * offset) + vx * (pv * offset)
-                py3 = cy3 + uy * (pu * offset) + vy * (pv * offset)
-                # pomijamy z3 (rzut orto)
+                # pozycja 3D
+                px3 = cx3 + u[0]*(pu*offset) + v[0]*(pv*offset)
+                py3 = cy3 + u[1]*(pu*offset) + v[1]*(pv*offset)
+                # projekcja orto
                 sx = int(centrum_x + px3)
                 sy = int(centrum_y + py3)
-                # promień kropki w pikselach
-                r = max(3, int(offset * 0.15))
-                pygame.gfxdraw.filled_circle(ekran, sx, sy, r, (0,0,0))
+                # pip: wypełniony + AA obrys
+                pygame.gfxdraw.filled_circle(ekran, sx, sy, pip_r, (0,0,0))
+                pygame.gfxdraw.aacircle(ekran, sx, sy, pip_r, (0,0,0))
     
     def _rysuj_kropki(self, ekran, x, y, wartosc, promien):
         # Układy kropek dla każdej wartości kostki
@@ -494,7 +511,60 @@ def animuj_pionek(ekran, x, y, rozmiar):
     y_blask = y - offset_y + int(math.sin(kat_blasku) * rozmiar * 0.3)
     
     pygame.gfxdraw.filled_circle(ekran, x_blask, y_blask, 5, (255, 255, 255, 150))
+def make_card_surface(w, h, border_color, blur_scale=0.1,
+                      border_thickness=4, fill_alpha=255):
+    """
+    Tworzy pojedynczą kartę:
+    - biały podkład z alpha=fill_alpha,
+    - grubsze obramowanie o szer. border_thickness,
+    - rozmycie przez skalowanie w dół i do góry,
+    - znak zapytania na środku.
+    """
+    # 1) Rysujemy podkład
+    surf = pygame.Surface((w, h), flags=pygame.SRCALPHA)
+    pygame.gfxdraw.box(surf, (0, 0, w, h), (255, 255, 255, fill_alpha))
+    # 2) Grube obramowanie
+    for i in range(border_thickness):
+        rect = (i, i, w - 1 - 2*i, h - 1 - 2*i)
+        pygame.gfxdraw.rectangle(surf, rect, border_color + (255,))
 
+    # 3) Rozmycie (scale down/up)
+    sw = max(1, int(w * blur_scale))
+    sh = max(1, int(h * blur_scale))
+    tiny = pygame.transform.smoothscale(surf, (sw, sh))
+    blurred = pygame.transform.smoothscale(tiny, (w, h))
+
+    # 4) Znak zapytania
+    font = pygame.font.SysFont(None, int(min(w, h) * 0.6))
+    txt = font.render("?", True, border_color)
+    tw, th = txt.get_size()
+    blurred.blit(txt, ((w - tw)//2, (h - th)//2))
+
+    return blurred
+
+
+class Card:
+    def __init__(self, pos, size, border_color, phase):
+        self.cx, self.cy = pos
+        self.w, self.h = size
+        self.phase = phase
+        # bielszy fill_alpha=255, grubsza ramka=4px:
+        self.base = make_card_surface(self.w, self.h,
+                                      border_color,
+                                      blur_scale=0.08,
+                                      border_thickness=4,
+                                      fill_alpha=240)
+
+    def draw(self, screen, t):
+        # wolniejszy obrót: 0.2 rad/s
+        angle = t * 0.5 + self.phase
+        ws = abs(math.cos(angle))
+        new_w = max(1, int(self.w * ws))
+        scaled = pygame.transform.smoothscale(self.base, (new_w, self.h))
+        tilt = math.sin(angle) * 30
+        final = pygame.transform.rotate(scaled, tilt)
+        rect = final.get_rect(center=(self.cx, self.cy))
+        screen.blit(final, rect)
 # Główna pętla gry z efektami
 def main():
     zegar = pygame.time.Clock()
@@ -556,6 +626,21 @@ def main():
     # Start background music
     pygame.mixer.music.play(-1)  # Loop background music
     
+    
+    card_w = 100
+    card_h = int(card_w * 1.4)
+    positions = [(90, 90), (1100, 80), (80, 900), (1100, 900)]
+    colors = [
+    (200,   0,   0),
+    (  0, 200,   0),
+    (200, 150,   0),  # cieplejsze, bardziej widoczne
+    (  0,   0, 200),
+    ]
+    phases = [0, math.pi/2, math.pi, 3*math.pi/2]
+
+    cards = [Card(pos, (card_w, card_h), col, ph)
+             for pos, col, ph in zip(positions, colors, phases)]
+    
     while True:
         obecny_czas = time.time()
         delta_czas = obecny_czas - ostatni_czas
@@ -589,12 +674,11 @@ def main():
                 c.rysuj(ekran)
         
         # Rysuj animowane pionki
-        animuj_pionek(ekran, 80, 80, 100)
-        animuj_pionek(ekran, 1100, 80, 100)
-        animuj_pionek(ekran, 80, 900, 100)
-        animuj_pionek(ekran, 1100, 900, 100)
         
-        # Rysuj tytuł z animacją
+        t = pygame.time.get_ticks() / 1000.0
+        for c in cards:
+            c.draw(ekran, t)
+   
         animuj_tytul(ekran, SZEROKOSC // 2 - 220, 100)
         
         # Zarządzanie animacją przycisków
