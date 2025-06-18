@@ -18,7 +18,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
     # Dla obramowania używamy natywnej funkcji pygame
     pygame.draw.rect(ekran, CZARNY, (x, y, szerokosc, wysokosc), FIELD_BORDER_WIDTH, border_radius=FIELD_BORDER_RADIUS)
     # Dodaj kolorowy pasek dla wydziałów
-    if pole[KEY_TYP] == "wydzial":
+    if pole[KEY_TYP] == FIELD_TYPE_WYDZIAL:
         kolor_wydzialu = pole[KEY_KOLOR]
         pasek_wysokosc = wysokosc // FIELD_COLOR_STRIPE_DIVISOR  # Zmniejszony rozmiar paska kolorowego
         # Używamy zwykłego prostokąta dla paska wydziału
@@ -77,7 +77,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
         rozmiar_czcionki = 7
     czcionka_nazwa = pygame.font.SysFont('Arial', rozmiar_czcionki, bold=True)
     tekst_y_offset = 0
-    if pole[KEY_TYP] == "wydzial":
+    if pole[KEY_TYP] == FIELD_TYPE_WYDZIAL:
         tekst_y_offset = wysokosc // FIELD_TEXT_DIVISOR  # Zmniejszone przesunięcie
     max_linia_dlugosc = FIELD_TEXT_DIVISOR  # Zmniejszona maksymalna długość linii
     # Podziel długie nazwy na kilka linii bardziej inteligentnie
@@ -105,7 +105,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
         tekst_rect = tekst.get_rect(center=(x + szerokosc//2, y + wysokosc//2 + tekst_y_offset))
         ekran.blit(tekst, tekst_rect)
     # Dodaj cenę dla wydziałów, akademików i usług z lepszym formatowaniem
-    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"]:
+    if pole[KEY_TYP] in [FIELD_TYPE_WYDZIAL, FIELD_TYPE_AKADEMIK, FIELD_TYPE_USLUGI]:
         czcionka_cena = pygame.font.SysFont('Arial', 10, bold=True)  # Zmniejszony rozmiar czcionki
         tekst_cena = czcionka_cena.render(f"{pole[KEY_CENA]} PLN", True, CZARNY)
         # Tło dla ceny
@@ -124,7 +124,7 @@ def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
             (x + (szerokosc - tekst_cena.get_width())//2, y + wysokosc - tekst_wysokosc - 2)
         )
     # Rysuj domki na nieruchomości, jeśli są
-    if pole[KEY_TYP] in ["wydzial", "akademik", "uslugi"] and pole.get(KEY_DOMKI, 0) > 0:
+    if pole[KEY_TYP] in [FIELD_TYPE_WYDZIAL, FIELD_TYPE_AKADEMIK, FIELD_TYPE_USLUGI] and pole.get(KEY_DOMKI, 0) > 0:
         max_houses_inline = 4
         domki = pole[KEY_DOMKI]
         for i in range(min(domki, max_houses_inline)):

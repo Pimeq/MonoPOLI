@@ -186,7 +186,7 @@ def ekran_gry(ekran_zewnetrzny=None, skala_interfejsu=1, glosnosc_efekty=0.7):
                     gracze[aktualny_gracz][KEY_POZYCJA] = 9
                     print(f"Gracz {gracze[aktualny_gracz][KEY_NAZWA]} idzie na poprawkę (dziekanat)")
                 
-                elif pole[KEY_TYP] == "specjalne" and pole[KEY_NAZWA] == "SZANSA":
+                elif pole[KEY_TYP] == FIELD_TYPE_SPECJALNE and pole[KEY_NAZWA] == FIELD_NAME_SZANSA:
                     # Wyciągnij kartę Szansa
                     from karty import pobierz_karte_szansa, wykonaj_karte
                     karta = pobierz_karte_szansa()

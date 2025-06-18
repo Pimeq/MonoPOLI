@@ -208,7 +208,7 @@ def wyswietl_okno_karty(ekran, karta, tytul="KARTA", glosnosc_efekty=0.7):
     
     # Tytuł karty
     czcionka_tytul = pygame.font.SysFont('Arial', DEFAULT_FONT_SIZE, bold=True)
-    kolor_tytulu = CZERWONY if tytul == "SZANSA" else NIEBIESKI_POLE
+    kolor_tytulu = CZERWONY if tytul == FIELD_NAME_SZANSA else NIEBIESKI_POLE
     
     tekst_tytul = czcionka_tytul.render(tytul, True, kolor_tytulu)
     tytul_rect = tekst_tytul.get_rect(centerx=x_okna + szerokosc_okna//2, y=y_okna + 20)

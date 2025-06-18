@@ -76,13 +76,13 @@ def przesun_gracza(gracz_index, liczba_pol):
         else:
             gracze[gracz_index][KEY_JAIL_FREE] = 0;
     
-    elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
+    elif pole[KEY_TYP] == FIELD_TYPE_SPECJALNE and pole[KEY_NAZWA] == FIELD_NAME_SZANSA:
         karta = pobierz_karte_szansa()
         print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Szansa: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
         return karta
     
-    elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
+    elif pole[KEY_TYP] == FIELD_TYPE_SPECJALNE and pole[KEY_NAZWA] == FIELD_NAME_KASA_STUDENCKA:
         karta = pobierz_karte_kasa_studencka()
         print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
