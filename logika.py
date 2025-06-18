@@ -4,17 +4,17 @@ from constants import *
 from karty import pobierz_karte_szansa, pobierz_karte_kasa_studencka, wykonaj_karte
 
 def utworz_liste_graczy():
-    """Tworzy nową listę graczy z aktualnymi nazwami z ustawień"""
+    """Creates new player list with current names from settings"""
     try:
         from ustawienia import nazwy_graczy
     except ImportError:
         nazwy_graczy = ["Gracz 1", "Gracz 2", "Gracz 3", "Gracz 4"]
     
     return [
-        {KEY_NAZWA: nazwy_graczy[0], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: CZERWONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
-        {KEY_NAZWA: nazwy_graczy[1], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZIELONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
-        {KEY_NAZWA: nazwy_graczy[2], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: NIEBIESKI_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
-        {KEY_NAZWA: nazwy_graczy[3], KEY_POZYCJA: 0, KEY_PIENIADZE: 1500, KEY_KOLOR: ZOLTY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0}
+        {KEY_NAZWA: nazwy_graczy[0], KEY_POZYCJA: 0, KEY_PIENIADZE: START_MONEY, KEY_KOLOR: CZERWONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+        {KEY_NAZWA: nazwy_graczy[1], KEY_POZYCJA: 0, KEY_PIENIADZE: START_MONEY, KEY_KOLOR: ZIELONY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+        {KEY_NAZWA: nazwy_graczy[2], KEY_POZYCJA: 0, KEY_PIENIADZE: START_MONEY, KEY_KOLOR: NIEBIESKI_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0},
+        {KEY_NAZWA: nazwy_graczy[3], KEY_POZYCJA: 0, KEY_PIENIADZE: START_MONEY, KEY_KOLOR: ZOLTY_GRACZ, KEY_BUDYNKI: 0, KEY_ECTS: 0, KEY_JAIL_FREE: 0}
     ]
 
 # Domyślna lista graczy (będzie nadpisana w ekranie gry)
@@ -37,17 +37,17 @@ def rzut_kostka():
 
 # Funkcja do przesunięcia gracza
 def przesun_gracza(gracz_index, liczba_pol):
-    """Przesuwa gracza o określoną liczbę pól (dla planszy 36-polowej)"""
+    """Moves player by specified number of fields on board"""
     global gracze, historia_ruchow
     
     stara_pozycja = gracze[gracz_index][KEY_POZYCJA]
-    nowa_pozycja = (stara_pozycja + liczba_pol) % 36
+    nowa_pozycja = (stara_pozycja + liczba_pol) % BOARD_SIZE
 
-    # Jeśli przekroczył START, dodaj 200 PLN i 1 ECTS
+    # Add START bonus when passing START
     if nowa_pozycja < stara_pozycja:
-        gracze[gracz_index][KEY_PIENIADZE] += 200
+        gracze[gracz_index][KEY_PIENIADZE] += START_BONUS
         gracze[gracz_index][KEY_ECTS] += 1
-        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje 200 PLN oraz 1 ECTS")
+        print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} przeszedł przez START i otrzymuje {START_BONUS} PLN oraz 1 ECTS")
 
     gracze[gracz_index][KEY_POZYCJA] = nowa_pozycja
     
@@ -77,21 +77,18 @@ def przesun_gracza(gracz_index, liczba_pol):
             gracze[gracz_index][KEY_JAIL_FREE] = 0;
     
     elif pole["typ"] == "specjalne" and pole["nazwa"] == "SZANSA":
-        # Wyciągnij kartę Szansa
         karta = pobierz_karte_szansa()
         print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Szansa: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
-        return karta  # Zwróć kartę do wyświetlenia
+        return karta
     
     elif pole["typ"] == "specjalne" and pole["nazwa"] == "KASA STUDENCKA":
-        # Wyciągnij kartę Kasa Studencka
         karta = pobierz_karte_kasa_studencka()
         print(f"Gracz {gracze[gracz_index][KEY_NAZWA]} wyciągnął kartę Kasa Studencka: {karta['tekst']}")
         wykonaj_karte(karta, gracz_index, gracze)
-        return karta  # Zwróć kartę do wyświetlenia
+        return karta
     
-    # Zwróć nową pozycję (i kartę jeśli została wyciągnięta)
-    return None  # Domyślnie brak karty
+    return None
 
 # Funkcja do zmiany tury
 def nastepny_gracz():
@@ -149,21 +146,18 @@ def pobierz_statystyki():
 
 # Funkcja do resetowania gry
 def resetuj_gre():
-    """Resetuje stan gry do początkowego"""
+    """Resets game state to initial values"""
     global gracze, aktualny_gracz, ostatni_rzut, tura_wykonana, historia_ruchow
     
-    # Zresetuj graczy
     for gracz in gracze:
-        gracz["pozycja"] = 0
-        gracz["pieniadze"] = 1500
-        gracz["budynki"] = 0
-        gracz["ects"] = 0
+        gracz[KEY_POZYCJA] = 0
+        gracz[KEY_PIENIADZE] = START_MONEY
+        gracz[KEY_BUDYNKI] = 0
+        gracz[KEY_ECTS] = 0
     
-    # Zresetuj pola
     for pole in pola:
-        pole["wlasciciel"] = None
+        pole[KEY_WLASCICIEL] = None
     
-    # Zresetuj pozostałe zmienne stanu
     aktualny_gracz = 0
     ostatni_rzut = [1, 1]
     tura_wykonana = False
@@ -230,11 +224,11 @@ def sprawdz_platnosc(gracz_index, pozycja, gracze):
     
     return None  # Brak płatności
 
-# Funkcja do sprawdzania zwycięzcy
+# Victory checking function
 def sprawdz_zwyciezce(gracze_lista):
-    """Sprawdza czy którys gracz osiągnął 30 ECTS i wygrał"""
+    """Checks if any player reached ECTS win condition"""
     for gracz in gracze_lista:
-        if gracz[KEY_ECTS] >= 30:
+        if gracz[KEY_ECTS] >= ECTS_TO_WIN:
             return gracz
     return None
 

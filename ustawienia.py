@@ -9,18 +9,18 @@ import time
 
 # Paleta kolorów graczy
 KOLORY_GRACZY = [
-    KOLOR_GRACZ_CZERWONY,    # Czerwony
-    KOLOR_GRACZ_NIEBIESKI,   # Niebieski
-    KOLOR_GRACZ_ZIELONY,     # Zielony
-    KOLOR_GRACZ_ZOLTY,       # Żółty
-    KOLOR_GRACZ_FIOLETOWY,   # Fioletowy
-    KOLOR_GRACZ_POMARANCZOWY,# Pomarańczowy
-    KOLOR_GRACZ_CYJAN,       # Cyjan
-    KOLOR_GRACZ_ROZOWY,      # Różowy
+    CZERWONY_GRACZ,    # Czerwony
+    NIEBIESKI_GRACZ,   # Niebieski
+    ZIELONY_GRACZ,     # Zielony
+    ZOLTY_GRACZ,       # Żółty
+    FIOLETOWY_GRACZ,   # Fioletowy
+    POMARANCZOWY_GRACZ,# Pomarańczowy
+    CYJAN_GRACZ,       # Cyjan
+    ROZOWY_GRACZ,      # Różowy
 ]
 
 # Rozmiar okna
-SZEROKOSC, WYSOKOSC = 1200, 1000
+SZEROKOSC, WYSOKOSC = SCREEN_WIDTH, SCREEN_HEIGHT
 
 # Global player names for editing in settings
 nazwy_graczy = [f"Gracz {i+1}" for i in range(4)]
@@ -34,8 +34,8 @@ class AnimowaneTlo:
         self.linie = []
         self.czas = 0
         
-        # Utwórz 20 losowych punktów
-        for _ in range(20):
+        # Utwórz losowe punkty
+        for _ in range(ANIMATION_POINTS_COUNT):
             self.punkty.append([random.randint(0, szerokosc), random.randint(0, wysokosc), 
                               random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)])
         
@@ -48,8 +48,8 @@ class AnimowaneTlo:
             for j in range(i+1, len(self.punkty)):
                 odleglosc = math.sqrt((self.punkty[i][0] - self.punkty[j][0])**2 + 
                                     (self.punkty[i][1] - self.punkty[j][1])**2)
-                if odleglosc < 300:  # Łącz tylko punkty w odległości mniejszej niż 300
-                    alpha = int(255 * (1 - odleglosc / 300))
+                if odleglosc < ANIMATION_MAX_DISTANCE:
+                    alpha = int(255 * (1 - odleglosc / ANIMATION_MAX_DISTANCE))
                     self.linie.append((i, j, alpha))
     
     def aktualizuj(self):
@@ -79,20 +79,20 @@ class AnimowaneTlo:
                 punkt[3] *= -1
         
         # Przeliczaj linie co 10 klatek
-        if int(self.czas * 100) % 10 == 0:
+        if int(self.czas * ANIMATION_TIMER_MULTIPLIER) % ANIMATION_TIMER_MODULO == 0:
             self.przelicz_linie()
     
     def rysuj(self, ekran):
         # Rysuj linie
         for i, j, alpha in self.linie:
-            kolor = (100, 150, 255, alpha // 3)
+            kolor = (100, 150, 255, alpha // ANIMATION_ALPHA_DIVISOR)
             pygame.gfxdraw.line(ekran, int(self.punkty[i][0]), int(self.punkty[i][1]), 
                               int(self.punkty[j][0]), int(self.punkty[j][1]), kolor)
         
         # Rysuj punkty
         for punkt in self.punkty:
-            pygame.gfxdraw.filled_circle(ekran, int(punkt[0]), int(punkt[1]), 3, (150, 200, 255, 100))
-            pygame.gfxdraw.aacircle(ekran, int(punkt[0]), int(punkt[1]), 3, (200, 230, 255, 150))
+            pygame.gfxdraw.filled_circle(ekran, int(punkt[0]), int(punkt[1]), ANIMATION_CIRCLE_RADIUS, (150, 200, 255, 100))
+            pygame.gfxdraw.aacircle(ekran, int(punkt[0]), int(punkt[1]), ANIMATION_CIRCLE_RADIUS, (200, 230, 255, 150))
 
 class KoloKolorow:
     def __init__(self, x, y, promien, kolor_gracza):
@@ -104,15 +104,17 @@ class KoloKolorow:
     def rysuj(self, surface):
         """Rysuje koło z wybranym kolorem gracza z antyaliasingiem"""
         # Zewnętrzny pierścień (cień) - używamy gfxdraw dla antyaliasingu
-        pygame.gfxdraw.filled_circle(surface, self.x + 2, self.y + 2, self.promien + 2, (0, 0, 0, 80))
-        pygame.gfxdraw.aacircle(surface, self.x + 2, self.y + 2, self.promien + 2, (0, 0, 0, 80))
+        pygame.gfxdraw.filled_circle(surface, self.x + ANIMATION_CIRCLE_SHADOW_OFFSET, self.y + ANIMATION_CIRCLE_SHADOW_OFFSET, 
+                                   self.promien + ANIMATION_CIRCLE_SHADOW_OFFSET, (0, 0, 0, SHADOW_ALPHA))
+        pygame.gfxdraw.aacircle(surface, self.x + ANIMATION_CIRCLE_SHADOW_OFFSET, self.y + ANIMATION_CIRCLE_SHADOW_OFFSET, 
+                              self.promien + ANIMATION_CIRCLE_SHADOW_OFFSET, (0, 0, 0, SHADOW_ALPHA))
         
         # Główne koło z antyaliasingiem
         pygame.gfxdraw.filled_circle(surface, self.x, self.y, self.promien, self.kolor)
         pygame.gfxdraw.aacircle(surface, self.x, self.y, self.promien, self.kolor)
         
         # Wewnętrzny błysk
-        kolor_jasny = tuple(min(255, c + 40) for c in self.kolor)
+        kolor_jasny = tuple(min(255, c + ANIMATION_COLOR_BOOST) for c in self.kolor)
         pygame.gfxdraw.filled_circle(surface, self.x - 3, self.y - 3, self.promien - 5, kolor_jasny)
         pygame.gfxdraw.aacircle(surface, self.x - 3, self.y - 3, self.promien - 5, kolor_jasny)
 
@@ -125,7 +127,7 @@ def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
     # Użyj wbudowanej funkcji z antyaliasingiem
     pygame.draw.rect(powierzchnia, kolor, prostokat, border_radius=promien)
 
-def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=32, glosnosc_efekty=None):
+def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=INFO_FONT_SIZE, glosnosc_efekty=None):
     czcionka = pygame.font.SysFont('Arial', rozmiar_czcionki, bold=True)
     prostokat = pygame.Rect(x, y, szerokosc, wysokosc)
     myszka = pygame.mouse.get_pos()
@@ -133,7 +135,7 @@ def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_teks
     
     # Efekt hover
     if prostokat.collidepoint(myszka):
-        kolor_hover = tuple(min(255, c + 20) for c in kolor)
+        kolor_hover = tuple(min(255, c + ANIMATION_HOVER_COLOR_BOOST) for c in kolor)
         kolor = kolor_hover
     
     # Cień
@@ -160,7 +162,7 @@ def utworz_przycisk(surface, tekst, x, y, szerokosc, wysokosc, kolor, kolor_teks
     return False
 
 # Funkcja do rysowania pionka szachowego z antyaliasingiem
-def narysuj_pionek(surface, x, y, szerokosc, wysokosc, kolor_pionka=(40, 60, 100)):
+def narysuj_pionek(surface, x, y, szerokosc, wysokosc, kolor_pionka=KOLOR_KOSTKA_PIONEK):
     """Rysuje pionek szachowy z antyaliasingiem"""
     center_x = x + szerokosc // 2
     

@@ -5,9 +5,9 @@ from interfejs import narysuj_zaokraglony_prostokat, utworz_przycisk
 
 # Funkcje debugujące
 def debug_wygraj_gre(gracze, gracz_index):
-    """DEBUG: Ustawia 30 ECTS dla wybranego gracza aby wygrał grę"""
-    gracze[gracz_index][KEY_ECTS] = 30
-    print(f"DEBUG: Gracz {gracze[gracz_index][KEY_NAZWA]} otrzymał 30 ECTS i wygrywa!")
+    """DEBUG: Sets ECTS to win condition for selected player"""
+    gracze[gracz_index][KEY_ECTS] = ECTS_TO_WIN
+    print(f"DEBUG: Gracz {gracze[gracz_index][KEY_NAZWA]} otrzymał {ECTS_TO_WIN} ECTS i wygrywa!")
 
 def debug_dodaj_domek(gracze, gracz_index, pozycja=None):
     """DEBUG: Dodaje domek na polu gracza lub określonej pozycji"""

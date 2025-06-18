@@ -9,77 +9,77 @@ from interfejs import narysuj_zaokraglony_prostokat, narysuj_logo_pl
 def narysuj_pole(ekran, x, y, szerokosc, wysokosc, pole_id):
     """Rysuje pojedyncze pole planszy z uwzględnieniem jego typu - ulepszona wersja"""
     pole = pobierz_pole(pole_id)
-    if pole_id%9 == 0:
+    if pole_id % FIELD_CORNER_MODULO == 0:
         kolor_pola = SZARY_CIEMNY_POLE
     else:
         kolor_pola = BIALY
     # Rysuj tło pola z zaokrąglonymi rogami
-    narysuj_zaokraglony_prostokat(ekran, kolor_pola, (x, y, szerokosc, wysokosc), 5)
+    narysuj_zaokraglony_prostokat(ekran, kolor_pola, (x, y, szerokosc, wysokosc), FIELD_BORDER_RADIUS)
     # Dla obramowania używamy natywnej funkcji pygame
-    pygame.draw.rect(ekran, CZARNY, (x, y, szerokosc, wysokosc), 2, border_radius=5)
+    pygame.draw.rect(ekran, CZARNY, (x, y, szerokosc, wysokosc), FIELD_BORDER_WIDTH, border_radius=FIELD_BORDER_RADIUS)
     # Dodaj kolorowy pasek dla wydziałów
     if pole[KEY_TYP] == "wydzial":
         kolor_wydzialu = pole[KEY_KOLOR]
-        pasek_wysokosc = wysokosc // 5  # Zmniejszony rozmiar paska kolorowego
+        pasek_wysokosc = wysokosc // FIELD_COLOR_STRIPE_DIVISOR  # Zmniejszony rozmiar paska kolorowego
         # Używamy zwykłego prostokąta dla paska wydziału
         pygame.draw.rect(
             ekran, 
             kolor_wydzialu, 
-            (x + 1, y + 1, szerokosc - 2, pasek_wysokosc),
-            border_radius=4
+            (x + FIELD_COLOR_STRIPE_OFFSET, y + FIELD_COLOR_STRIPE_OFFSET, szerokosc - 2, pasek_wysokosc),
+            border_radius=FIELD_ICON_BORDER_RADIUS
         )
     # Dodaj ikony dla usług - ładniejsza ikona usług
     if pole[KEY_TYP] == "uslugi":
-        ikona_padding = 4  # Zmniejszony padding ikony
+        ikona_padding = FIELD_ICON_PADDING  # Zmniejszony padding ikony
         # Tło ikony
         pygame.draw.rect(
             ekran, 
             KOLOR_USLUGI_TLO, 
-            (x + ikona_padding, y + ikona_padding, szerokosc - 2*ikona_padding, wysokosc//4),
-            border_radius=2
+            (x + ikona_padding, y + ikona_padding, szerokosc - 2*ikona_padding, wysokosc//FIELD_ICON_HEIGHT_DIVISOR),
+            border_radius=FIELD_ICON_BORDER_RADIUS
         )
         # Ikona narzędzi
         pygame.draw.circle(
             ekran, 
             KOLOR_USLUGI_KOLO, 
-            (x + szerokosc//2, y + wysokosc//6), 
-            szerokosc//8
+            (x + szerokosc//2, y + wysokosc//FIELD_ICON_Y_DIVISOR), 
+            szerokosc//FIELD_ICON_SIZE_DIVISOR
         )
         pygame.draw.circle(
             ekran, 
             KOLOR_USLUGI_KOLO_TLO, 
-            (x + szerokosc//2, y + wysokosc//6), 
-            szerokosc//12
+            (x + szerokosc//2, y + wysokosc//FIELD_ICON_Y_DIVISOR), 
+            szerokosc//FIELD_INNER_ICON_SIZE_DIVISOR
         )
         # Prosty symbol narzędzia
-        grubosc = 2  # Zmniejszona grubość linii
-        dlugosc = szerokosc//5  # Zmniejszona długość linii
+        grubosc = FIELD_LINE_THICKNESS  # Zmniejszona grubość linii
+        dlugosc = szerokosc//FIELD_LINE_LENGTH_DIVISOR  # Zmniejszona długość linii
         pygame.draw.line(
             ekran, 
             KOLOR_USLUGI_KOLO, 
-            (x + szerokosc//2 - dlugosc//2, y + wysokosc//6), 
-            (x + szerokosc//2 + dlugosc//2, y + wysokosc//6), 
+            (x + szerokosc//2 - dlugosc//2, y + wysokosc//FIELD_ICON_Y_DIVISOR), 
+            (x + szerokosc//2 + dlugosc//2, y + wysokosc//FIELD_ICON_Y_DIVISOR), 
             grubosc
         )
         pygame.draw.line(
             ekran, 
             KOLOR_USLUGI_KOLO, 
-            (x + szerokosc//2, y + wysokosc//6 - dlugosc//2), 
-            (x + szerokosc//2, y + wysokosc//6 + dlugosc//2), 
+            (x + szerokosc//2, y + wysokosc//FIELD_ICON_Y_DIVISOR - dlugosc//2), 
+            (x + szerokosc//2, y + wysokosc//FIELD_ICON_Y_DIVISOR + dlugosc//2), 
             grubosc
         )
     # Dodaj tekst nazwy pola z lepszym formatowaniem
     nazwa = pole[KEY_NAZWA]
     rozmiar_czcionki = 11  # Zmniejszony domyślny rozmiar czcionki
-    if len(nazwa) > 12:
+    if len(nazwa) > FIELD_TEXT_DIVISOR:
         rozmiar_czcionki = 9
     if len(nazwa) > 16:
         rozmiar_czcionki = 7
     czcionka_nazwa = pygame.font.SysFont('Arial', rozmiar_czcionki, bold=True)
     tekst_y_offset = 0
     if pole[KEY_TYP] == "wydzial":
-        tekst_y_offset = wysokosc // 10  # Zmniejszone przesunięcie
-    max_linia_dlugosc = 10  # Zmniejszona maksymalna długość linii
+        tekst_y_offset = wysokosc // FIELD_TEXT_DIVISOR  # Zmniejszone przesunięcie
+    max_linia_dlugosc = FIELD_TEXT_DIVISOR  # Zmniejszona maksymalna długość linii
     # Podziel długie nazwy na kilka linii bardziej inteligentnie
     if len(nazwa) > max_linia_dlugosc:
         slowa = nazwa.split()
@@ -354,15 +354,15 @@ def narysuj_plansze(ekran, gracze, skala=1):
         
         # Rysuj ładniejszy pionek gracza z efektem 3D
         # Cień
-        pygame.draw.circle(plansza_surface, (50, 50, 50), (x + 2, y + 2), 12)  # Zmniejszony rozmiar pionka
+        pygame.draw.circle(plansza_surface, PLAYER_PIECE_SHADOW_COLOR, (x + PLAYER_PIECE_SHADOW_OFFSET, y + PLAYER_PIECE_SHADOW_OFFSET), PLAYER_PIECE_RADIUS)  # Zmniejszony rozmiar pionka
         # Główna część pionka
-        pygame.draw.circle(plansza_surface, gracz["kolor"], (x, y), 12)
+        pygame.draw.circle(plansza_surface, gracz["kolor"], (x, y), PLAYER_PIECE_RADIUS)
         # Odblaski
-        pygame.draw.circle(plansza_surface, CZARNY, (x, y), 12, 1)  # Obramowanie
+        pygame.draw.circle(plansza_surface, CZARNY, (x, y), PLAYER_PIECE_RADIUS, PLAYER_PIECE_BORDER_WIDTH)  # Obramowanie
         # Wewnętrzny krąg
-        pygame.draw.circle(plansza_surface, mix_color(gracz["kolor"], BIALY, 0.3), (x, y), 8)
+        pygame.draw.circle(plansza_surface, mix_color(gracz["kolor"], BIALY, PLAYER_COLOR_MIX_FACTOR), (x, y), PLAYER_PIECE_INNER_RADIUS)
         # Odblask
-        pygame.draw.circle(plansza_surface, BIALY, (x - 3, y - 3), 3)
+        pygame.draw.circle(plansza_surface, BIALY, (x - PLAYER_PIECE_HIGHLIGHT_OFFSET, y - PLAYER_PIECE_HIGHLIGHT_OFFSET), PLAYER_PIECE_HIGHLIGHT_RADIUS)
     
     # Skalowanie i blitowanie na główny ekran
     plansza_rozmiar = int(bazowy_rozmiar * skala)
@@ -370,8 +370,8 @@ def narysuj_plansze(ekran, gracze, skala=1):
         plansza_surface = pygame.transform.scale(plansza_surface, (plansza_rozmiar, plansza_rozmiar))
     
     # Pozycja planszy na ekranie (wycentrowana)
-    plansza_x = 50
-    plansza_y = 50
+    plansza_x = BOARD_POSITION_X
+    plansza_y = BOARD_POSITION_Y
     
     # Blituj przeskalowaną planszę na główny ekran
     ekran.blit(plansza_surface, (plansza_x, plansza_y))

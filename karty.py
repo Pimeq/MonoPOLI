@@ -1,5 +1,4 @@
 import random
-import pygame
 from constants import *
 
 # Definicje kart Szansa
@@ -173,10 +172,10 @@ def wykonaj_karte(karta, gracz_index, gracze):
         stara_pozycja = gracz["pozycja"]
         nowa_pozycja = karta["pozycja"]
         
-        # Sprawdź czy gracz przeszedł przez START
+        # Check if player passed START
         if nowa_pozycja < stara_pozycja or karta.get("nagroda", 0) > 0:
-            gracz["pieniadze"] += karta.get("nagroda", 200)
-            gracz["ects"] += 1  # Dodaj 1 ECTS za przejście przez START
+            gracz["pieniadze"] += karta.get("nagroda", START_BONUS)
+            gracz["ects"] += 1
             
         gracz["pozycja"] = nowa_pozycja
         
@@ -185,10 +184,10 @@ def wykonaj_karte(karta, gracz_index, gracze):
         stara_pozycja = gracz["pozycja"]
         nowa_pozycja = (stara_pozycja + karta["pozycja"]) % 40
         
-        # Sprawdź czy gracz przeszedł przez START (tylko do przodu)
+        # Check if player passed START (forward movement only)
         if karta["pozycja"] > 0 and nowa_pozycja < stara_pozycja:
-            gracz["pieniadze"] += 200
-            gracz["ects"] += 1  # Dodaj 1 ECTS za przejście przez START
+            gracz["pieniadze"] += START_BONUS
+            gracz["ects"] += 1
             
         gracz["pozycja"] = nowa_pozycja
         
@@ -233,10 +232,10 @@ def wykonaj_karte(karta, gracz_index, gracze):
             stara_pozycja = gracz["pozycja"]
             gracz["pozycja"] = najblizsza_pozycja
             
-            # Sprawdź czy przeszedł przez START
+            # Check if passed START
             if najblizsza_pozycja < stara_pozycja:
-                gracz["pieniadze"] += 200
-                gracz["ects"] += 1  # Dodaj 1 ECTS za przejście przez START
+                gracz["pieniadze"] += START_BONUS
+                gracz["ects"] += 1
 
 def znajdz_najblizszy_akademik(pozycja_gracza):
     """Znajduje pozycję najbliższego akademika"""
@@ -259,29 +258,5 @@ def znajdz_najblizszy_akademik(pozycja_gracza):
             najblizszy = pos
     
     return najblizszy
-
-def narysuj_karte(ekran, karta, x, y, szerokosc, wysokosc):
-    """Rysuje kartę na ekranie"""
-    # Tło karty
-    pygame.draw.rect(ekran, BIALY, (x, y, szerokosc, wysokosc), border_radius=10)
-    pygame.draw.rect(ekran, CZARNY, (x, y, szerokosc, wysokosc), 3, border_radius=10)
-    
-    # Tytuł karty
-    czcionka_tytul = pygame.font.SysFont('Arial', 20, bold=True)
-    tytul = "SZANSA" if karta in karty_szansa else "KASA STUDENCKA"
-    kolor_tytulu = CZERWONY if karta in karty_szansa else NIEBIESKI_TLO
-    
-    tekst_tytul = czcionka_tytul.render(tytul, True, kolor_tytulu)
-    tytul_rect = tekst_tytul.get_rect(centerx=x + szerokosc//2, y=y + 10)
-    ekran.blit(tekst_tytul, tytul_rect)
-    
-    # Tekst karty
-    czcionka_tekst = pygame.font.SysFont('Arial', 14)
-    linie = karta["tekst"].split('\n')
-    
-    for i, linia in enumerate(linie):
-        tekst_surface = czcionka_tekst.render(linia, True, CZARNY)
-        tekst_rect = tekst_surface.get_rect(centerx=x + szerokosc//2, y=y + 50 + i * 20)
-        ekran.blit(tekst_surface, tekst_rect)
 
 

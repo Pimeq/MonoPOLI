@@ -13,7 +13,7 @@ def narysuj_zaokraglony_prostokat(powierzchnia, kolor, prostokat, promien):
     pygame.draw.rect(powierzchnia, kolor, prostokat, border_radius=promien)
 
 # Funkcja do tworzenia przycisku
-def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=24, glosnosc_efekty=None):
+def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu, rozmiar_czcionki=DEFAULT_FONT_SIZE, glosnosc_efekty=None):
     """Tworzy przycisk i sprawdza czy został kliknięty"""
     czcionka = pygame.font.SysFont('Arial', rozmiar_czcionki)
     prostokat = pygame.Rect(x, y, szerokosc, wysokosc)
@@ -21,10 +21,10 @@ def utworz_przycisk(ekran, tekst, x, y, szerokosc, wysokosc, kolor, kolor_tekstu
     klikniecie = pygame.mouse.get_pressed()[0]
     
     # Rysuj przycisk
-    narysuj_zaokraglony_prostokat(ekran, kolor, prostokat, 10)
+    narysuj_zaokraglony_prostokat(ekran, kolor, prostokat, DEFAULT_BORDER_RADIUS)
     
     # Dodaj cień do przycisku
-    pygame.draw.rect(ekran, KOLOR_PRZYCISK_CIEN2, (x+3, y+3, szerokosc, wysokosc), border_radius=10)
+    pygame.draw.rect(ekran, KOLOR_PRZYCISK_CIEN2, (x+BUTTON_SHADOW_OFFSET, y+BUTTON_SHADOW_OFFSET, szerokosc, wysokosc), border_radius=DEFAULT_BORDER_RADIUS)
     
     # Renderuj tekst
     tekst_surface = czcionka.render(tekst, True, kolor_tekstu)
@@ -49,11 +49,11 @@ def narysuj_kostke(ekran, x, y, rozmiar, liczba_oczek):
     """Rysuje kostkę do gry z określoną liczbą oczek"""
     # Tło kostki
     pygame.draw.rect(ekran, BIALY, (x, y, rozmiar, rozmiar), border_radius=rozmiar//5)
-    pygame.draw.rect(ekran, CZARNY, (x, y, rozmiar, rozmiar), 1, border_radius=rozmiar//5)
+    pygame.draw.rect(ekran, CZARNY, (x, y, rozmiar, rozmiar), DICE_BORDER_WIDTH, border_radius=rozmiar//5)
     
     # Oczka
-    promien_oczka = rozmiar // 10
-    padding = rozmiar // 4
+    promien_oczka = rozmiar // DICE_DOTS_DIVISOR
+    padding = rozmiar // DICE_PADDING_DIVISOR
     
     # Pozycje oczek zależnie od liczby
     if liczba_oczek == 1 or liczba_oczek == 3 or liczba_oczek == 5:
@@ -89,7 +89,7 @@ def narysuj_logo_pl(ekran, x, y, rozmiar):
     ])
     
     # Litery P i Ł
-    czcionka = pygame.font.SysFont('Arial', int(rozmiar*0.4), bold=True)
+    czcionka = pygame.font.SysFont('Arial', int(rozmiar*LOGO_SIZE_MULTIPLIER), bold=True)
     p_text = czcionka.render("P", True, BIALY)
     l_text = czcionka.render("Ł", True, BIALY)
     ekran.blit(p_text, (x + rozmiar*0.3, y + rozmiar*0.3))
@@ -123,13 +123,13 @@ def narysuj_pionek(ekran, x, y, rozmiar):
     """Rysuje znacznik/pionek monopoly"""
     pygame.draw.rect(ekran, SZARY, (x, y, rozmiar, rozmiar), border_radius=5)
     przekatna_dlugosc = math.sqrt(2) * rozmiar / 2
-    grubosc = rozmiar // 10
+    grubosc = rozmiar // DICE_DOTS_DIVISOR
     
     # Rysuj symbol "?" lub "c" na pionku
     czcionka = pygame.font.SysFont('Arial', rozmiar // 2)
     
     # Dla pionka w prawym dolnym rogu rysujemy "?"
-    if x > 400:  # Zmieniono z SZEROKOSC // 2 na stałą wartość, ponieważ SZEROKOSC nie jest dostępna
+    if x > PIONEK_SIZE_THRESHOLD:
         tekst = czcionka.render("?", True, CZARNY)
     # Dla pionka w lewym górnym rysujemy "c"
     else:
@@ -145,25 +145,25 @@ def narysuj_karte_gracza(ekran, gracz, x, y, szerokosc, wysokosc, aktywny=False)
     
     # Tło karty
     kolor_tla = gracz[KEY_KOLOR] if aktywny else KOLOR_KARTA_NIEAKTYWNA
-    narysuj_zaokraglony_prostokat(ekran, kolor_tla, (x, y, szerokosc, wysokosc), 10)
+    narysuj_zaokraglony_prostokat(ekran, kolor_tla, (x, y, szerokosc, wysokosc), DEFAULT_BORDER_RADIUS)
     narysuj_zaokraglony_prostokat(ekran, KOLOR_KARTA_OBRAMOWANIE, (x+3, y+3, szerokosc-6, wysokosc-6), 8)
     
     # Nagłówek z nazwą gracza
-    czcionka_nazwa = pygame.font.SysFont('Arial', 24, bold=True)
+    czcionka_nazwa = pygame.font.SysFont('Arial', DEFAULT_FONT_SIZE, bold=True)
     tekst_nazwa = czcionka_nazwa.render(gracz[KEY_NAZWA], True, BIALY)
     tekst_nazwa_rect = tekst_nazwa.get_rect(center=(x + szerokosc//2, y + 25))
     ekran.blit(tekst_nazwa, tekst_nazwa_rect)
     
     # Linia oddzielająca
-    pygame.draw.line(ekran, BIALY, (x + 10, y + 45), (x + szerokosc - 10, y + 45), 1)
+    pygame.draw.line(ekran, BIALY, (x + PLAYER_CARD_TEXT_MARGIN, y + PLAYER_CARD_LINE_Y), (x + szerokosc - PLAYER_CARD_TEXT_MARGIN, y + PLAYER_CARD_LINE_Y), DICE_BORDER_WIDTH)
     
     # Informacje o graczu
     czcionka_info = pygame.font.SysFont('Arial', 18)
-    odst = 30  # Odstęp między wierszami
+    odst = CARD_LINE_HEIGHT  # Odstęp między wierszami
     
     # Pieniądze
     tekst_pieniadze = czcionka_info.render(f"Pieniądze: {gracz[KEY_PIENIADZE]} PLN", True, BIALY)
-    ekran.blit(tekst_pieniadze, (x + 10, y + 55))
+    ekran.blit(tekst_pieniadze, (x + PLAYER_CARD_TEXT_MARGIN, y + PLAYER_CARD_CONTENT_Y))
     
     # Pozycja
     nazwa_pola = pobierz_nazwe_pola(gracz[KEY_POZYCJA])
@@ -172,32 +172,32 @@ def narysuj_karte_gracza(ekran, gracz, x, y, szerokosc, wysokosc, aktywny=False)
     else:
         pole_str = nazwa_pola[:17] + "..."
     tekst_pozycja = czcionka_info.render(f"Pozycja: {pole_str}", True, BIALY)
-    ekran.blit(tekst_pozycja, (x + 10, y + 55 + odst))
+    ekran.blit(tekst_pozycja, (x + PLAYER_CARD_TEXT_MARGIN, y + PLAYER_CARD_CONTENT_Y + odst))
     
     # Budynki
-    tekst_budynki = czcionka_info.render(f"Budynki: {gracz['budynki']}", True, BIALY)
-    ekran.blit(tekst_budynki, (x + 10, y + 55 + 2*odst))
+    tekst_budynki = czcionka_info.render(f"Budynki: {gracz[KEY_BUDYNKI]}", True, BIALY)
+    ekran.blit(tekst_budynki, (x + PLAYER_CARD_TEXT_MARGIN, y + PLAYER_CARD_CONTENT_Y + 2*odst))
     
     # ECTS
-    tekst_ects = czcionka_info.render(f"ECTS: {gracz['ects']}", True, ZLOTY)
-    ekran.blit(tekst_ects, (x + 10, y + 55 + 3*odst))
+    tekst_ects = czcionka_info.render(f"ECTS: {gracz[KEY_ECTS]}", True, ZLOTY)
+    ekran.blit(tekst_ects, (x + PLAYER_CARD_TEXT_MARGIN, y + PLAYER_CARD_CONTENT_Y + 3*odst))
     
     # Znacznik aktywnego gracza
     if aktywny:
-        pygame.draw.circle(ekran, ZLOTY, (x + szerokosc - 20, y + 20), 10)
-        pygame.draw.circle(ekran, (200, 150, 0), (x + szerokosc - 20, y + 20), 8)
+        pygame.draw.circle(ekran, ZLOTY, (x + szerokosc - CROWN_POSITION_OFFSET, y + CROWN_POSITION_OFFSET), CROWN_RADIUS)
+        pygame.draw.circle(ekran, (200, 150, 0), (x + szerokosc - CROWN_POSITION_OFFSET, y + CROWN_POSITION_OFFSET), CROWN_INNER_RADIUS)
 
 # Funkcja do wyświetlania okna z kartą
 def wyswietl_okno_karty(ekran, karta, tytul="KARTA", glosnosc_efekty=0.7):
     """Wyświetla okno z kartą i czeka na reakcję gracza"""
     # Wymiary okna karty
-    szerokosc_okna = 400
+    szerokosc_okna = DIALOG_WIDTH
     wysokosc_okna = 350
-    x_okna = (1200 - szerokosc_okna) // 2
-    y_okna = (1000 - wysokosc_okna) // 2
+    x_okna = (SCREEN_WIDTH - szerokosc_okna) // 2
+    y_okna = (SCREEN_HEIGHT - wysokosc_okna) // 2
     
     # Półprzezroczyste tło
-    overlay = pygame.Surface((1200, 1000))
+    overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     overlay.set_alpha(128)
     overlay.fill(CZARNY)
     ekran.blit(overlay, (0, 0))
@@ -207,7 +207,7 @@ def wyswietl_okno_karty(ekran, karta, tytul="KARTA", glosnosc_efekty=0.7):
     pygame.draw.rect(ekran, CZARNY, (x_okna, y_okna, szerokosc_okna, wysokosc_okna), 3, border_radius=15)
     
     # Tytuł karty
-    czcionka_tytul = pygame.font.SysFont('Arial', 24, bold=True)
+    czcionka_tytul = pygame.font.SysFont('Arial', DEFAULT_FONT_SIZE, bold=True)
     kolor_tytulu = CZERWONY if tytul == "SZANSA" else NIEBIESKI_POLE
     
     tekst_tytul = czcionka_tytul.render(tytul, True, kolor_tytulu)
@@ -603,42 +603,42 @@ def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
                     return "menu"
         
         # Gradient tło
-        for y in range(1000):
-            color_ratio = y / 1000
-            r = int(30 + (100 - 30) * color_ratio)
-            g = int(50 + (150 - 50) * color_ratio)
-            b = int(80 + (200 - 80) * color_ratio)
-            pygame.draw.line(ekran, (r, g, b), (0, y), (1200, y))
+        for y in range(SCREEN_HEIGHT):
+            color_ratio = y / SCREEN_HEIGHT
+            r = int(GRADIENT_START_R + (GRADIENT_END_R - GRADIENT_START_R) * color_ratio)
+            g = int(GRADIENT_START_G + (GRADIENT_END_G - GRADIENT_START_G) * color_ratio)
+            b = int(GRADIENT_START_B + (GRADIENT_END_B - GRADIENT_START_B) * color_ratio)
+            pygame.draw.line(ekran, (r, g, b), (0, y), (SCREEN_WIDTH, y))
         
         # Fajerwerki (animowane koła)
         import time
         current_time = time.time()
-        for i in range(10):
-            x = (i * 120 + 100) + int(50 * math.sin(current_time * 2 + i))
-            y = (i * 80 + 150) + int(30 * math.cos(current_time * 3 + i))
-            radius = int(20 + 15 * math.sin(current_time * 4 + i))
+        for i in range(FIREWORK_COUNT):
+            x = (i * FIREWORK_X_SPACING + FIREWORK_X_OFFSET) + int(50 * math.sin(current_time * 2 + i))
+            y = (i * FIREWORK_Y_SPACING + FIREWORK_Y_OFFSET) + int(30 * math.cos(current_time * 3 + i))
+            radius = int(FIREWORK_SIZE_BASE + FIREWORK_SIZE_VARIATION * math.sin(current_time * 4 + i))
             color = [
                 int(255 * abs(math.sin(current_time + i))),
                 int(255 * abs(math.sin(current_time + i + 2))),
                 int(255 * abs(math.sin(current_time + i + 4)))
             ]
-            pygame.draw.circle(ekran, color, (x % 1200, y % 1000), radius)
+            pygame.draw.circle(ekran, color, (x % SCREEN_WIDTH, y % SCREEN_HEIGHT), radius)
         
         # Główny tytuł
-        czcionka_tytul = pygame.font.SysFont('Arial', 72, bold=True)
+        czcionka_tytul = pygame.font.SysFont('Arial', TITLE_FONT_SIZE, bold=True)
         tekst_gratulacje = czcionka_tytul.render("GRATULACJE!", True, ZLOTY)
-        gratulacje_rect = tekst_gratulacje.get_rect(center=(600, 200))
+        gratulacje_rect = tekst_gratulacje.get_rect(center=(SCREEN_WIDTH//2, 200))
         
         # Cień tytułu
         tekst_cien = czcionka_tytul.render("GRATULACJE!", True, CZARNY)
-        cien_rect = tekst_cien.get_rect(center=(605, 205))
+        cien_rect = tekst_cien.get_rect(center=(SCREEN_WIDTH//2 + 5, 205))
         ekran.blit(tekst_cien, cien_rect)
         ekran.blit(tekst_gratulacje, gratulacje_rect)
         
         # Nazwa zwycięzcy
-        czcionka_zwyciezca = pygame.font.SysFont('Arial', 48, bold=True)
+        czcionka_zwyciezca = pygame.font.SysFont('Arial', WINNER_FONT_SIZE, bold=True)
         tekst_zwyciezca = czcionka_zwyciezca.render(f"{zwyciezca[KEY_NAZWA]} WYGRYWA!", True, zwyciezca[KEY_KOLOR])
-        zwyciezca_rect = tekst_zwyciezca.get_rect(center=(600, 300))
+        zwyciezca_rect = tekst_zwyciezca.get_rect(center=(SCREEN_WIDTH//2, 300))
         
         # Tło za nazwą zwycięzcy
         tlo_zwyciezca = pygame.Rect(zwyciezca_rect.x - 20, zwyciezca_rect.y - 10, 
@@ -648,13 +648,13 @@ def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
         ekran.blit(tekst_zwyciezca, zwyciezca_rect)
         
         # Informacje o ECTS
-        czcionka_info = pygame.font.SysFont('Arial', 36)
-        tekst_ects = czcionka_info.render(f"Zdobyte ECTS: {zwyciezca[KEY_ECTS]}/30", True, ZLOTY)
-        ects_rect = tekst_ects.get_rect(center=(600, 380))
+        czcionka_info = pygame.font.SysFont('Arial', INFO_FONT_SIZE)
+        tekst_ects = czcionka_info.render(f"Zdobyte ECTS: {zwyciezca[KEY_ECTS]}/{ECTS_TO_WIN}", True, ZLOTY)
+        ects_rect = tekst_ects.get_rect(center=(SCREEN_WIDTH//2, 380))
         ekran.blit(tekst_ects, ects_rect)
         
         # Statystyki zwycięzcy
-        czcionka_stats = pygame.font.SysFont('Arial', 24)
+        czcionka_stats = pygame.font.SysFont('Arial', STATS_FONT_SIZE)
         stats_y = 450
         stats = [
             f"Pieniądze: {zwyciezca[KEY_PIENIADZE]} PLN",
@@ -663,11 +663,11 @@ def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
         
         for i, stat in enumerate(stats):
             tekst_stat = czcionka_stats.render(stat, True, BIALY)
-            stat_rect = tekst_stat.get_rect(center=(600, stats_y + i * 35))
+            stat_rect = tekst_stat.get_rect(center=(SCREEN_WIDTH//2, stats_y + i * 35))
             ekran.blit(tekst_stat, stat_rect)
         
         # Trofeum (uproszczone)
-        trofeum_x, trofeum_y = 600, 600
+        trofeum_x, trofeum_y = SCREEN_WIDTH//2, 600
         # Puchar
         pygame.draw.ellipse(ekran, ZLOTY, (trofeum_x - 40, trofeum_y - 30, 80, 50))
         pygame.draw.rect(ekran, ZLOTY, (trofeum_x - 5, trofeum_y + 10, 10, 30))
@@ -678,7 +678,7 @@ def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
         pygame.draw.arc(ekran, ZLOTY, (trofeum_x + 30, trofeum_y - 20, 30, 40), 0, math.pi, 5)
         
         # Instrukcje
-        czcionka_instr = pygame.font.SysFont('Arial', 28)
+        czcionka_instr = pygame.font.SysFont('Arial', INSTRUCTION_FONT_SIZE)
         instrukcje = [
             "SPACJA - Nowa gra",
             "ESC - Powrót do menu"
@@ -686,7 +686,7 @@ def wyswietl_ekran_wygranej(ekran, zwyciezca, glosnosc_efekty=0.7):
         
         for i, instr in enumerate(instrukcje):
             tekst_instr = czcionka_instr.render(instr, True, SZARY_JASNY)
-            instr_rect = tekst_instr.get_rect(center=(600, 750 + i * 40))
+            instr_rect = tekst_instr.get_rect(center=(SCREEN_WIDTH//2, 750 + i * 40))
             ekran.blit(tekst_instr, instr_rect)
         
         pygame.display.flip()
